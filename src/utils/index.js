@@ -1,3 +1,5 @@
+// src/utils/index.js
+
 const pageRoutes = {
   Home: "/",
   Welcome: "/welcome",
@@ -20,5 +22,15 @@ const pageRoutes = {
 };
 
 export function createPageUrl(pageName) {
-  return pageRoutes[pageName] || `/${String(pageName || "").toLowerCase()}`;
+  if (!pageName) return "/";
+
+  // Support inputs like:
+  // "CourseDetail?id=123"
+  // "FinalExam?courseId=abc"
+  const [name, query] = String(pageName).split("?");
+
+  const base = pageRoutes[name] || `/${name.toLowerCase()}`;
+  return query ? `${base}?${query}` : base;
 }
+
+export { pageRoutes };

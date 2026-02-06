@@ -1,5 +1,7 @@
+// src/App.jsx
 import "./App.css";
-import { BrowserRouter as Router, Route, Routes, Navigate } from "react-router-dom";
+import React, { useEffect } from "react";
+import { BrowserRouter as Router, Route, Routes, Navigate, useLocation } from "react-router-dom";
 import { QueryClientProvider } from "@tanstack/react-query";
 
 import { Toaster } from "@/components/ui/toaster";
@@ -15,13 +17,24 @@ import { pagesConfig } from "./pages.config";
 import { createPageUrl } from "@/utils";
 
 const { Pages, Layout, mainPage } = pagesConfig;
-const mainPageKey = mainPage ?? Object.keys(Pages)[0];
+const firstPageKey = Object.keys(Pages || {})[0];
+const mainPageKey = mainPage ?? firstPageKey ?? "Login";
 
 const LayoutWrapper = ({ children, currentPageName }) =>
   Layout ? <Layout currentPageName={currentPageName}>{children}</Layout> : <>{children}</>;
 
-const AuthenticatedApp = () => {
+function AuthGate() {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
+  const location = useLocation();
+
+  // ✅ Never navigate during render; do it in an effect
+  useEffect(() => {
+    if (authError?.type === "auth_required") {
+      // avoid loops: if we're already on login, don't re-trigger
+      const onLoginRoute = location.pathname === createPageUrl("Login");
+      if (!onLoginRoute) navigateToLogin();
+    }
+  }, [authError?.type, navigateToLogin, location.pathname]);
 
   // Loading spinner while checking app public settings or auth
   if (isLoadingPublicSettings || isLoadingAuth) {
@@ -32,13 +45,21 @@ const AuthenticatedApp = () => {
     );
   }
 
-  // Handle authentication errors
-  if (authError) {
-    if (authError.type === "user_not_registered") return <UserNotRegisteredError />;
-    if (authError.type === "auth_required") {
-      navigateToLogin();
-      return null;
-    }
+  // Handle authentication errors (render something, don't return null)
+  if (authError?.type === "user_not_registered") {
+    return <UserNotRegisteredError />;
+  }
+
+  // If auth is required, show a lightweight redirect screen
+  if (authError?.type === "auth_required") {
+    return (
+      <div className="fixed inset-0 flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-8 h-8 border-4 border-slate-200 border-t-slate-800 rounded-full animate-spin mx-auto mb-3" />
+          <p className="text-sm text-slate-600">Redirecting to login…</p>
+        </div>
+      </div>
+    );
   }
 
   return (
@@ -62,7 +83,7 @@ const AuthenticatedApp = () => {
       <Route path="*" element={<PageNotFound />} />
     </Routes>
   );
-};
+}
 
 export default function App() {
   return (
@@ -70,7 +91,7 @@ export default function App() {
       <QueryClientProvider client={queryClientInstance}>
         <Router>
           <NavigationTracker />
-          <AuthenticatedApp />
+          <AuthGate />
         </Router>
 
         <Toaster />

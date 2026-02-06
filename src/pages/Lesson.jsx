@@ -1,5 +1,5 @@
 // src/pages/Lesson.jsx
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
 import { createPageUrl } from "@/utils";
@@ -27,12 +27,6 @@ import LevelUpModal from "@/components/LevelUpModal";
 import ChallengeCompleteModal from "@/components/ChallengeCompleteModal";
 import { useChallengeCheck } from "@/components/useChallengeCheck";
 
-/**
- * NOTE: Base44 removed in migration pass.
- * This page uses localStorage as a placeholder data layer.
- * Later you can replace `data.*` with your real backend/API calls.
- */
-
 /** ---------- local helpers ---------- */
 const safeParse = (raw, fallback) => {
   try {
@@ -48,36 +42,38 @@ const setJSON = (key, value) => localStorage.setItem(key, JSON.stringify(value))
 const getLocalUser = () => getJSON("sprout_user", null);
 const setLocalUser = (user) => setJSON("sprout_user", user);
 
-// ✅ Safe UUID helper (won’t throw if crypto/randomUUID is missing)
+async function fetchJsonWithCache(url, cacheKey, fallback = []) {
+  try {
+    const res = await fetch(url, { cache: "no-store" });
+    if (!res.ok) throw new Error(`Fetch failed: ${res.status}`);
+    const data = await res.json();
+    setJSON(cacheKey, data);
+    return Array.isArray(data) ? data : fallback;
+  } catch {
+    return getJSON(cacheKey, fallback);
+  }
+}
+
 const safeUUID = () => {
   try {
-    // window.crypto exists in modern browsers; randomUUID may not in older ones
     return globalThis?.crypto?.randomUUID?.() || null;
   } catch {
     return null;
   }
 };
 
-/**
- * Minimal local “data layer”.
- * Keys used:
- * - sprout_courses: Course[]
- * - sprout_lessons: Lesson[]
- * - sprout_user_progress: UserProgress[]
- * - sprout_daily_activity: DailyActivity[]
- */
 const data = {
   async listLessons() {
-    return getJSON("sprout_lessons", []);
+    return fetchJsonWithCache("/data/lessons.json", "sprout_lessons", []);
   },
   async listCourses() {
-    return getJSON("sprout_courses", []);
+    return fetchJsonWithCache("/data/courses.json", "sprout_courses", []);
   },
   async listUserProgress({ user_email, course_id, lesson_id } = {}) {
     const all = getJSON("sprout_user_progress", []);
     return all.filter((p) => {
       if (user_email && p.user_email !== user_email) return false;
-      if (course_id && p.course_id !== course_id) return false;
+      if (course_id && String(p.course_id) !== String(course_id)) return false;
       if (lesson_id && String(p.lesson_id) !== String(lesson_id)) return false;
       return true;
     });
@@ -106,7 +102,6 @@ const data = {
   },
 };
 
-// Images for lesson content
 const lessonImages = {
   budget: "https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?w=800&q=80",
   paycheck: "https://images.unsplash.com/photo-1554224154-26032ffc0d07?w=800&q=80",
@@ -192,14 +187,6 @@ export default function Lesson() {
     enabled: !!user && !!lessonId,
   });
 
-  useQuery({
-    // kept for parity / future UI use
-    queryKey: ["allUserProgress", user?.email, lesson?.course_id],
-    queryFn: async () =>
-      data.listUserProgress({ user_email: user?.email, course_id: lesson?.course_id }),
-    enabled: !!user && !!lesson?.course_id,
-  });
-
   const completeMutation = useMutation({
     mutationFn: async ({ quizScore }) => {
       if (!user?.email) throw new Error("Missing user");
@@ -209,15 +196,9 @@ export default function Lesson() {
       const now = new Date().toISOString();
       const userEmail = user.email;
 
-      // Upsert progress
       const existing = progress;
       const progressRecord = existing
-        ? {
-            ...existing,
-            completed: true,
-            completed_date: now,
-            quiz_score: quizScore,
-          }
+        ? { ...existing, completed: true, completed_date: now, quiz_score: quizScore }
         : {
             id: safeUUID() || `up_${Date.now()}`,
             user_email: userEmail,
@@ -230,7 +211,6 @@ export default function Lesson() {
 
       await data.upsertUserProgress(progressRecord);
 
-      // XP + level
       const oldLevel = user.level || 1;
       const xpReward = Number(lesson.xp_reward || 0);
       const newXP = (user.xp_points || 0) + xpReward;
@@ -251,7 +231,6 @@ export default function Lesson() {
         setShowLevelUp(true);
       }
 
-      // Daily activity
       const today = new Date().toISOString().split("T")[0];
       const activities = await data.getDailyActivity({ user_email: userEmail, date: today });
 
@@ -341,7 +320,6 @@ export default function Lesson() {
     window.scrollTo(0, 0);
   };
 
-  // Missing ID
   if (!lessonId) {
     return (
       <div className="min-h-screen flex items-center justify-center p-6 text-center">
@@ -357,7 +335,6 @@ export default function Lesson() {
     );
   }
 
-  // Loading / not found
   if (!lesson || !course) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -365,7 +342,7 @@ export default function Lesson() {
           <div className="w-16 h-16 border-4 border-lime-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
           <p className="text-gray-600">Loading lesson...</p>
           <p className="text-xs text-gray-500 mt-2">
-            (If this never loads, you probably haven’t populated sprout_lessons/sprout_courses yet.)
+            (If this never loads, open /data/lessons.json and /data/courses.json in your browser.)
           </p>
         </div>
       </div>
@@ -379,13 +356,12 @@ export default function Lesson() {
     return sections.length > 1 ? sections : [String(content || "")];
   };
 
-  const contentSections = splitContentIntoPages(lesson.content);
+  const contentSections = useMemo(() => splitContentIntoPages(lesson.content), [lesson.content]);
   const totalSections = contentSections.length;
 
   const currentIndex = allLessons.findIndex((l) => String(l.id) === String(lessonId));
   const progressPercent = allLessons.length ? ((currentIndex + 1) / allLessons.length) * 100 : 0;
 
-  // Determine image for lesson
   let lessonImage = lessonImages.piggybank;
   const t = (lesson.title || "").toLowerCase();
   if (t.includes("budget")) lessonImage = lessonImages.budget;
@@ -397,16 +373,15 @@ export default function Lesson() {
   if (t.includes("credit") || t.includes("debt")) lessonImage = lessonImages.credit;
   if (t.includes("career")) lessonImage = lessonImages.career;
 
+  const hasLessonContent = Boolean((lesson.content || "").trim());
+
   return (
     <>
       {showLevelUp && newLevel && (
         <LevelUpModal level={newLevel} onClose={() => setShowLevelUp(false)} />
       )}
       {completedChallenge && (
-        <ChallengeCompleteModal
-          challenge={completedChallenge}
-          onClose={clearCompletedChallenge}
-        />
+        <ChallengeCompleteModal challenge={completedChallenge} onClose={clearCompletedChallenge} />
       )}
 
       <div className="min-h-screen p-4 md:p-8 bg-gradient-to-br from-lime-50 via-white to-green-50">
@@ -458,11 +433,7 @@ export default function Lesson() {
             <Card className="border-none shadow-xl bg-white overflow-hidden">
               {currentSection === 0 && (
                 <div className="h-64 overflow-hidden relative">
-                  <img
-                    src={lessonImage}
-                    alt={lesson.title}
-                    className="w-full h-full object-cover"
-                  />
+                  <img src={lessonImage} alt={lesson.title} className="w-full h-full object-cover" />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
                   <div className="absolute bottom-0 left-0 right-0 p-6 text-white">
                     <Badge
@@ -494,111 +465,81 @@ export default function Lesson() {
                   </div>
                 )}
 
-                {/* Section Progress */}
-                <div className="mb-6">
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="text-sm font-medium text-gray-600">
-                      Section {currentSection + 1} of {totalSections}
-                    </span>
-                    <span className="text-sm font-medium text-lime-600">
-                      {Math.round(((currentSection + 1) / totalSections) * 100)}%
-                    </span>
+                {!hasLessonContent ? (
+                  <div className="text-center py-12">
+                    <AlertCircle className="w-10 h-10 text-orange-500 mx-auto mb-3" />
+                    <h3 className="text-xl font-bold text-gray-900 mb-2">This lesson has no content</h3>
+                    <p className="text-gray-600">
+                      Your lessons.json entry for this lesson is missing <code>content</code>.
+                      If this is supposed to be an interactive lesson, it needs to link to the simulation page.
+                    </p>
                   </div>
-                  <Progress value={((currentSection + 1) / totalSections) * 100} className="h-2" />
-                </div>
+                ) : (
+                  <>
+                    {/* Section Progress */}
+                    <div className="mb-6">
+                      <div className="flex items-center justify-between mb-2">
+                        <span className="text-sm font-medium text-gray-600">
+                          Section {currentSection + 1} of {totalSections}
+                        </span>
+                        <span className="text-sm font-medium text-lime-600">
+                          {Math.round(((currentSection + 1) / totalSections) * 100)}%
+                        </span>
+                      </div>
+                      <Progress value={((currentSection + 1) / totalSections) * 100} className="h-2" />
+                    </div>
 
-                {/* Content Section */}
-                <div className="prose prose-lg max-w-none mb-8">
-                  <ReactMarkdown
-                    components={{
-                      h1: ({ node, ...props }) => (
-                        <h1 className="text-3xl font-bold text-gray-900 mb-6" {...props} />
-                      ),
-                      h2: ({ node, ...props }) => (
-                        <h2 className="text-2xl font-bold text-gray-900 mb-4 mt-8" {...props} />
-                      ),
-                      h3: ({ node, ...props }) => (
-                        <h3 className="text-xl font-semibold text-gray-900 mb-3 mt-6" {...props} />
-                      ),
-                      p: ({ node, ...props }) => (
-                        <p className="text-gray-700 leading-relaxed mb-4 text-lg" {...props} />
-                      ),
-                      ul: ({ node, ...props }) => (
-                        <ul className="space-y-3 ml-6 list-none mb-6" {...props} />
-                      ),
-                      li: ({ node, children, ...props }) => (
-                        <li className="flex items-start gap-3" {...props}>
-                          <span className="w-6 h-6 bg-lime-500 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
-                            <CheckCircle className="w-4 h-4 text-white" />
-                          </span>
-                          <span className="text-gray-700 flex-1">{children}</span>
-                        </li>
-                      ),
-                      ol: ({ node, ...props }) => (
-                        <ol
-                          className="space-y-3 ml-6 list-decimal marker:text-lime-600 marker:font-semibold mb-6"
-                          {...props}
-                        />
-                      ),
-                      blockquote: ({ node, ...props }) => (
-                        <blockquote
-                          className="my-6 border-l-4 border-lime-500 bg-lime-50 p-6 rounded-r-lg"
-                          {...props}
-                        />
-                      ),
-                      strong: ({ node, ...props }) => (
-                        <strong className="text-gray-900 font-bold" {...props} />
-                      ),
-                    }}
-                  >
-                    {contentSections[currentSection]}
-                  </ReactMarkdown>
-                </div>
+                    {/* Content Section */}
+                    <div className="prose prose-lg max-w-none mb-8">
+                      <ReactMarkdown>{contentSections[currentSection]}</ReactMarkdown>
+                    </div>
 
-                {/* Navigation Buttons */}
-                <div className="flex justify-between gap-4 pt-6 border-t">
-                  {currentSection > 0 && (
-                    <Button
-                      onClick={() => {
-                        setCurrentSection(currentSection - 1);
-                        window.scrollTo({ top: 0, behavior: "smooth" });
-                      }}
-                      variant="outline"
-                      className="h-14 px-8"
-                    >
-                      <ArrowLeft className="w-5 h-5 mr-2" />
-                      Previous
-                    </Button>
-                  )}
+                    {/* Navigation Buttons */}
+                    <div className="flex justify-between gap-4 pt-6 border-t">
+                      {currentSection > 0 && (
+                        <Button
+                          onClick={() => {
+                            setCurrentSection(currentSection - 1);
+                            window.scrollTo({ top: 0, behavior: "smooth" });
+                          }}
+                          variant="outline"
+                          className="h-14 px-8"
+                        >
+                          <ArrowLeft className="w-5 h-5 mr-2" />
+                          Previous
+                        </Button>
+                      )}
 
-                  {currentSection < totalSections - 1 ? (
-                    <Button
-                      onClick={() => {
-                        setCurrentSection(currentSection + 1);
-                        window.scrollTo({ top: 0, behavior: "smooth" });
-                      }}
-                      className="ml-auto h-14 px-8 bg-gradient-to-r from-lime-400 to-green-500 hover:from-lime-500 hover:to-green-600"
-                    >
-                      Continue
-                      <ArrowRight className="w-5 h-5 ml-2" />
-                    </Button>
-                  ) : (
-                    <Button
-                      onClick={() => {
-                        if (!lesson.quiz_questions || lesson.quiz_questions.length === 0) {
-                          toast.error("This lesson is missing a quiz.");
-                          return;
-                        }
-                        setShowQuiz(true);
-                        window.scrollTo({ top: 0, behavior: "smooth" });
-                      }}
-                      className="ml-auto h-14 px-8 bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600"
-                    >
-                      <Sparkles className="w-5 h-5 mr-2" />
-                      Take Quiz
-                    </Button>
-                  )}
-                </div>
+                      {currentSection < totalSections - 1 ? (
+                        <Button
+                          onClick={() => {
+                            setCurrentSection(currentSection + 1);
+                            window.scrollTo({ top: 0, behavior: "smooth" });
+                          }}
+                          className="ml-auto h-14 px-8 bg-gradient-to-r from-lime-400 to-green-500 hover:from-lime-500 hover:to-green-600"
+                        >
+                          Continue
+                          <ArrowRight className="w-5 h-5 ml-2" />
+                        </Button>
+                      ) : (
+                        <Button
+                          onClick={() => {
+                            if (!lesson.quiz_questions || lesson.quiz_questions.length === 0) {
+                              toast.error("This lesson is missing a quiz.");
+                              return;
+                            }
+                            setShowQuiz(true);
+                            window.scrollTo({ top: 0, behavior: "smooth" });
+                          }}
+                          className="ml-auto h-14 px-8 bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600"
+                        >
+                          <Sparkles className="w-5 h-5 mr-2" />
+                          Take Quiz
+                        </Button>
+                      )}
+                    </div>
+                  </>
+                )}
               </CardContent>
             </Card>
           ) : (
@@ -651,35 +592,19 @@ export default function Lesson() {
                             className={`w-full p-5 rounded-xl text-left transition-all font-medium text-base ${
                               showResult
                                 ? isCorrect
-                                  ? "bg-gradient-to-r from-green-400 to-emerald-500 text-white border-2 border-green-600 shadow-lg"
+                                  ? "bg-green-500 text-white"
                                   : isSelected
-                                  ? "bg-gradient-to-r from-red-400 to-pink-500 text-white border-2 border-red-600"
-                                  : "bg-gray-100 border-2 border-gray-300 text-gray-500"
+                                  ? "bg-red-500 text-white"
+                                  : "bg-gray-100 text-gray-500"
                                 : isSelected
-                                ? "bg-gradient-to-r from-lime-400 to-green-500 text-white border-2 border-lime-600 shadow-lg"
-                                : "bg-white border-2 border-gray-300 hover:border-lime-400 hover:shadow-md text-gray-700 cursor-pointer"
+                                ? "bg-lime-500 text-white"
+                                : "bg-white border-2 border-gray-300 hover:border-lime-400 text-gray-700"
                             }`}
                           >
-                            <div className="flex items-center justify-between">
-                              <span>{option}</span>
-                              {showResult && isCorrect && (
-                                <CheckCircle className="w-6 h-6 flex-shrink-0 ml-2" />
-                              )}
-                              {showResult && isSelected && !isCorrect && (
-                                <AlertCircle className="w-6 h-6 flex-shrink-0 ml-2" />
-                              )}
-                            </div>
+                            {option}
                           </button>
                         );
                       })}
-
-                      {quizSubmitted && question.explanation && (
-                        <div className="mt-4 p-5 rounded-xl bg-gradient-to-r from-blue-50 to-cyan-50 border-l-4 border-blue-500">
-                          <p className="text-sm text-blue-900">
-                            <strong>Explanation:</strong> {question.explanation}
-                          </p>
-                        </div>
-                      )}
                     </CardContent>
                   </Card>
                 ))}
@@ -688,77 +613,41 @@ export default function Lesson() {
                   <Button
                     onClick={handleQuizSubmit}
                     disabled={Object.keys(quizAnswers).length !== (lesson.quiz_questions || []).length}
-                    className="w-full h-16 text-lg bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white shadow-xl disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="w-full h-16 text-lg bg-gradient-to-r from-purple-500 to-pink-500 text-white disabled:opacity-50"
                   >
                     <Trophy className="w-6 h-6 mr-2" />
                     Submit Answers
                   </Button>
                 ) : (
-                  <Card
-                    className={`border-none shadow-2xl ${
-                      score === 100
-                        ? "bg-gradient-to-r from-green-400 to-emerald-500"
-                        : "bg-gradient-to-r from-orange-400 to-red-500"
-                    } text-white`}
-                  >
+                  <Card className="border-none shadow-2xl bg-gradient-to-r from-orange-400 to-red-500 text-white">
                     <CardContent className="p-8 text-center">
+                      <h3 className="text-4xl font-bold mb-3">{score === 100 ? "Perfect!" : "Try again"}</h3>
+                      <p className="text-6xl font-bold mb-4">{score}%</p>
+
                       {score === 100 ? (
-                        <>
-                          <Trophy className="w-24 h-24 mx-auto mb-4 animate-bounce" />
-                          <h3 className="text-4xl font-bold mb-3">Perfect Score! 🎉</h3>
-                          <p className="text-6xl font-bold mb-4">{score}%</p>
-                          <p className="text-xl opacity-90 mb-6">You've mastered this lesson!</p>
-                          <div className="flex items-center justify-center gap-2 mb-8 text-2xl font-bold">
-                            <Zap className="w-8 h-8" />
-                            +{lesson.xp_reward} XP Earned!
-                          </div>
-                          <Button
-                            onClick={handleNext}
-                            className="bg-white text-green-600 hover:bg-gray-100 h-16 px-10 text-lg shadow-xl"
-                          >
-                            {currentIndex < allLessons.length - 1 ? (
-                              <>
-                                Next Lesson
-                                <ArrowRight className="w-6 h-6 ml-2" />
-                              </>
-                            ) : (
-                              <>
-                                <Trophy className="w-6 h-6 mr-2" />
-                                Final Exam
-                              </>
-                            )}
-                          </Button>
-                        </>
+                        <Button onClick={handleNext} className="bg-white text-green-700 h-14 px-10">
+                          Next
+                          <ArrowRight className="w-5 h-5 ml-2" />
+                        </Button>
                       ) : (
-                        <>
-                          <AlertCircle className="w-24 h-24 mx-auto mb-4" />
-                          <h3 className="text-4xl font-bold mb-3">Not Quite There</h3>
-                          <p className="text-6xl font-bold mb-4">{score}%</p>
-                          <p className="text-xl opacity-90 mb-8">
-                            You need 100% to advance. Review and try again!
-                          </p>
-                          <div className="flex gap-4 justify-center flex-wrap">
-                            <Button
-                              onClick={() => {
-                                setShowQuiz(false);
-                                setCurrentSection(0);
-                                window.scrollTo(0, 0);
-                              }}
-                              variant="outline"
-                              className="h-14 px-8 text-base bg-white/20 border-white text-white hover:bg-white/30"
-                            >
-                              <BookOpen className="w-5 h-5 mr-2" />
-                              Review Lesson
-                            </Button>
-                            <Button
-                              onClick={handleRetakeQuiz}
-                              className="h-14 px-8 text-base bg-white text-orange-600 hover:bg-gray-100"
-                            >
-                              <TrendingUp className="w-5 h-5 mr-2" />
-                              Retake Quiz
-                            </Button>
-                          </div>
-                        </>
+                        <div className="flex gap-4 justify-center flex-wrap">
+                          <Button
+                            onClick={() => {
+                              setShowQuiz(false);
+                              setCurrentSection(0);
+                              window.scrollTo(0, 0);
+                            }}
+                            variant="outline"
+                            className="bg-white/20 border-white text-white"
+                          >
+                            <BookOpen className="w-5 h-5 mr-2" />
+                            Review Lesson
+                          </Button>
+                          <Button onClick={handleRetakeQuiz} className="bg-white text-orange-700">
+                            <TrendingUp className="w-5 h-5 mr-2" />
+                            Retake Quiz
+                          </Button>
+                        </div>
                       )}
                     </CardContent>
                   </Card>

@@ -1,154 +1,65 @@
-import { useState, useEffect } from "react";
-import { supabase } from "@/lib/supabaseClient";
-import { useQueryClient } from "@tanstack/react-query";
+// src/components/useChallengeCheck.jsx
+import { useCallback, useEffect, useMemo, useState } from "react";
+
+/**
+ * Local-only challenge check (Supabase disabled for migration).
+ * Prevents hook/render crashes and removes `your_project_id.supabase.co` errors.
+ */
+
+const STORAGE_KEY = "sprout_completed_challenge";
+
+function safeParse(raw, fallback) {
+  try {
+    return raw ? JSON.parse(raw) : fallback;
+  } catch {
+    return fallback;
+  }
+}
 
 export function useChallengeCheck(user) {
+  // Always derive a stable "user key" even if your local user is { email, ... }
+  const userKey = useMemo(() => {
+    return user?.id || user?.email || null;
+  }, [user]);
+
   const [completedChallenge, setCompletedChallenge] = useState(null);
-  const queryClient = useQueryClient();
 
+  // Load any stored completion when user changes
   useEffect(() => {
-    if (!user?.id) return;
+    if (!userKey) {
+      setCompletedChallenge(null);
+      return;
+    }
 
-    const todayISO = new Date().toISOString().split("T")[0];
+    const saved = safeParse(localStorage.getItem(STORAGE_KEY), null);
+    if (!saved) {
+      setCompletedChallenge(null);
+      return;
+    }
 
-    const checkChallenges = async () => {
-      try {
-        const [
-          { data: challenges, error: chErr },
-          { data: userChallenges, error: ucErr },
-          { data: userProgress, error: upErr },
-          { data: dailyActivity, error: daErr },
-        ] = await Promise.all([
-          supabase.from("challenges").select("*"),
-          supabase.from("user_challenges").select("*").eq("user_id", user.id),
-          supabase.from("user_progress").select("*").eq("user_id", user.id),
-          supabase.from("daily_activity").select("*").eq("user_id", user.id),
-        ]);
+    // Ignore if saved belongs to a different user
+    if (saved.userKey && saved.userKey !== userKey) {
+      setCompletedChallenge(null);
+      return;
+    }
 
-        if (chErr) throw chErr;
-        if (ucErr) throw ucErr;
-        if (upErr) throw upErr;
-        if (daErr) throw daErr;
+    setCompletedChallenge(saved.challenge || null);
+  }, [userKey]);
 
-        const todayActivity = (dailyActivity || []).find((a) => a.date === todayISO);
+  const clearCompletedChallenge = useCallback(() => {
+    localStorage.removeItem(STORAGE_KEY);
+    setCompletedChallenge(null);
+  }, []);
 
-        for (const challenge of challenges || []) {
-          const existingUserChallenge = (userChallenges || []).find((uc) => {
-            if (challenge.challenge_type === "daily") {
-              return uc.challenge_id === challenge.id && uc.date === todayISO;
-            }
-            return uc.challenge_id === challenge.id;
-          });
+  // Optional helper if you ever want to set it manually later
+  const markCompletedChallenge = useCallback(
+    (challenge) => {
+      if (!userKey) return;
+      localStorage.setItem(STORAGE_KEY, JSON.stringify({ userKey, challenge }));
+      setCompletedChallenge(challenge);
+    },
+    [userKey]
+  );
 
-          if (existingUserChallenge?.completed) continue;
-
-          let progress = 0;
-          let completed = false;
-
-          switch (challenge.requirement) {
-            case "complete_lesson":
-              progress =
-                challenge.challenge_type === "daily"
-                  ? todayActivity?.lessons_completed || 0
-                  : user.total_lessons_completed || 0;
-              completed = progress >= challenge.requirement_value;
-              break;
-
-            case "earn_xp":
-              progress =
-                challenge.challenge_type === "daily"
-                  ? todayActivity?.xp_earned || 0
-                  : user.xp_points || 0;
-              completed = progress >= challenge.requirement_value;
-              break;
-
-            case "complete_quiz":
-              if (challenge.challenge_type === "daily") {
-                const quizCount = (userProgress || []).filter(
-                  (p) => p.completed && p.quiz_score !== null && p.completed_date?.startsWith(todayISO)
-                ).length;
-                progress = quizCount;
-              } else {
-                progress = (userProgress || []).filter((p) => p.completed && p.quiz_score !== null).length;
-              }
-              completed = progress >= challenge.requirement_value;
-              break;
-
-            case "login_streak":
-              progress = user.current_streak || 0;
-              completed = progress >= challenge.requirement_value;
-              break;
-
-            case "complete_course":
-              progress = user.total_courses_completed || 0;
-              completed = progress >= challenge.requirement_value;
-              break;
-
-            default:
-              continue;
-          }
-
-          const existingProgress = existingUserChallenge?.progress || 0;
-          const shouldUpdate =
-            progress !== existingProgress || (completed && !existingUserChallenge?.completed);
-
-          if (!shouldUpdate) continue;
-
-          if (existingUserChallenge) {
-            const { error: updateErr } = await supabase
-              .from("user_challenges")
-              .update({
-                progress,
-                completed,
-                completed_date: completed ? new Date().toISOString() : null,
-              })
-              .eq("id", existingUserChallenge.id);
-
-            if (updateErr) throw updateErr;
-          } else {
-            const { error: insertErr } = await supabase.from("user_challenges").insert({
-              user_id: user.id,
-              challenge_id: challenge.id,
-              progress,
-              completed,
-              completed_date: completed ? new Date().toISOString() : null,
-              date: challenge.challenge_type === "daily" ? todayISO : null,
-            });
-
-            if (insertErr) throw insertErr;
-          }
-
-          if (completed && !existingUserChallenge?.completed) {
-            const newXP = (user.xp_points || 0) + (challenge.xp_reward || 0);
-            const newLevel = Math.floor(newXP / 100) + 1;
-
-            const { error: profileErr } = await supabase
-              .from("profiles")
-              .update({
-                xp_points: newXP,
-                level: newLevel,
-              })
-              .eq("id", user.id);
-
-            if (profileErr) throw profileErr;
-
-            setCompletedChallenge(challenge);
-
-            queryClient.invalidateQueries({ queryKey: ["userChallenges"] });
-            queryClient.invalidateQueries({ queryKey: ["user"] });
-            queryClient.invalidateQueries({ queryKey: ["profile"] });
-          }
-        }
-      } catch (error) {
-        console.error("Challenge check error:", error);
-      }
-    };
-
-    checkChallenges();
-  }, [user, queryClient]);
-
-  return {
-    completedChallenge,
-    clearCompletedChallenge: () => setCompletedChallenge(null),
-  };
+  return { completedChallenge, clearCompletedChallenge, markCompletedChallenge };
 }
