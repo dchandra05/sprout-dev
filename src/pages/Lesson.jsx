@@ -1,4 +1,4 @@
-// src/pages/Lesson.jsx
+// src/pages/Lesson.jsx - FIXED VERSION
 import React, { useState, useEffect, useMemo } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
@@ -114,6 +114,60 @@ const lessonImages = {
   career: "https://images.unsplash.com/photo-1521737711867-e3b97375f902?w=800&q=80",
 };
 
+// ✅ NEW: Detect if lesson should use a specific page
+function detectSpecialLessonPage(lesson) {
+  if (!lesson || !lesson.title) return null;
+  
+  const title = lesson.title.toLowerCase();
+  const content = lesson.content || '';
+  const contentLength = content.trim().length;
+  
+  // AI Day lessons (Day 1, Day 2, etc.) - these always redirect
+  const dayMatch = lesson.title.match(/^Day (\d+):/i);
+  if (dayMatch) {
+    const dayNum = dayMatch[1];
+    return `AIDay${dayNum}`;
+  }
+  
+  // For other special pages, only redirect if content is SHORT (< 300 chars)
+  // This prevents real content lessons from being redirected
+  if (contentLength > 300) {
+    return null; // Has real content, use regular Lesson page
+  }
+  
+  // Budget lessons (only if short content)
+  if (title.includes('budget') && !title.includes('quiz')) {
+    return 'BudgetLesson';
+  }
+  
+  // Paycheck lessons (only if short content)
+  if (title.includes('paycheck') && !title.includes('quiz')) {
+    return 'PaycheckLesson';
+  }
+  
+  // Credit card lessons (only if short content)
+  if ((title.includes('credit') || title.includes('statement')) && !title.includes('quiz')) {
+    return 'CreditCardLesson';
+  }
+  
+  return null;
+}
+
+// ✅ NEW: Better content validation
+function hasSubstantialContent(content) {
+  if (!content || typeof content !== 'string') return false;
+  
+  const trimmed = content.trim();
+  
+  // Check length
+  if (trimmed.length < 200) return false;
+  
+  // Check for markdown structure (## headers)
+  const hasHeaders = /^##\s/m.test(trimmed);
+  
+  return hasHeaders;
+}
+
 export default function Lesson() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
@@ -154,6 +208,18 @@ export default function Lesson() {
     },
     enabled: !!lessonId,
   });
+
+  // ✅ NEW: Auto-redirect to special lesson pages
+  useEffect(() => {
+    if (!lesson) return;
+    
+    const specialPage = detectSpecialLessonPage(lesson);
+    if (specialPage) {
+      console.log(`Redirecting to ${specialPage} for interactive lesson`);
+      // Use replace instead of push to avoid issues
+      navigate(createPageUrl(specialPage), { replace: true });
+    }
+  }, [lesson, navigate]);
 
   const { data: course } = useQuery({
     queryKey: ["course", lesson?.course_id],
@@ -341,9 +407,20 @@ export default function Lesson() {
         <div className="text-center">
           <div className="w-16 h-16 border-4 border-lime-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
           <p className="text-gray-600">Loading lesson...</p>
-          <p className="text-xs text-gray-500 mt-2">
-            (If this never loads, open /data/lessons.json and /data/courses.json in your browser.)
-          </p>
+        </div>
+      </div>
+    );
+  }
+
+  // Check if this lesson should use a special page
+  const specialPage = detectSpecialLessonPage(lesson);
+  if (specialPage) {
+    // Return loading state while redirect happens
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-16 h-16 border-4 border-purple-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading interactive lesson...</p>
         </div>
       </div>
     );
@@ -373,7 +450,8 @@ export default function Lesson() {
   if (t.includes("credit") || t.includes("debt")) lessonImage = lessonImages.credit;
   if (t.includes("career")) lessonImage = lessonImages.career;
 
-  const hasLessonContent = Boolean((lesson.content || "").trim());
+  // ✅ IMPROVED: Better content validation
+  const hasLessonContent = hasSubstantialContent(lesson.content);
 
   return (
     <>
@@ -449,14 +527,14 @@ export default function Lesson() {
 
               <CardContent className="p-8 md:p-12">
                 {currentSection === 0 && (
-                  <div className="flex items-center gap-6 mb-8 pb-6 border-b">
+                  <div className="flex items-center justify-between mb-8 pb-6 border-b">
                     <div className="flex items-center gap-2 text-gray-600">
                       <Clock className="w-5 h-5" />
-                      <span className="font-medium">{lesson.duration_minutes} min</span>
+                      <span className="font-medium">{lesson.duration_minutes} minutes</span>
                     </div>
                     <div className="flex items-center gap-2 text-lime-600">
                       <Zap className="w-5 h-5" />
-                      <span className="font-semibold">{lesson.xp_reward} XP</span>
+                      <span className="font-medium">{lesson.xp_reward} XP</span>
                     </div>
                     <div className="flex items-center gap-2 text-purple-600">
                       <Star className="w-5 h-5" />
@@ -465,14 +543,40 @@ export default function Lesson() {
                   </div>
                 )}
 
+                {/* ✅ IMPROVED: Better error messaging */}
                 {!hasLessonContent ? (
                   <div className="text-center py-12">
-                    <AlertCircle className="w-10 h-10 text-orange-500 mx-auto mb-3" />
-                    <h3 className="text-xl font-bold text-gray-900 mb-2">This lesson has no content</h3>
-                    <p className="text-gray-600">
-                      Your lessons.json entry for this lesson is missing <code>content</code>.
-                      If this is supposed to be an interactive lesson, it needs to link to the simulation page.
+                    <AlertCircle className="w-16 h-16 text-orange-500 mx-auto mb-4" />
+                    <h3 className="text-2xl font-bold text-gray-900 mb-3">
+                      Incomplete Lesson Content
+                    </h3>
+                    
+                    <p className="text-gray-600 mb-2 max-w-md mx-auto">
+                      This lesson doesn't have proper content yet. The content field only contains:
                     </p>
+                    <div className="bg-gray-100 p-4 rounded-lg max-w-md mx-auto mb-4">
+                      <p className="text-sm text-gray-700 italic">"{lesson.content}"</p>
+                    </div>
+                    <p className="text-sm text-gray-500 mb-6 max-w-md mx-auto">
+                      Lessons need structured markdown content with ## headers to display properly.
+                      Check the <code className="bg-gray-200 px-2 py-1 rounded">lessons.json</code> file
+                      or use a dedicated lesson page component instead.
+                    </p>
+                    <div className="flex gap-3 justify-center">
+                      <Button
+                        onClick={() => navigate(createPageUrl(`CourseDetail?id=${lesson.course_id}`))}
+                        variant="outline"
+                      >
+                        <ArrowLeft className="w-4 h-4 mr-2" />
+                        Back to Course
+                      </Button>
+                      <Button
+                        onClick={() => navigate(createPageUrl("Learn"))}
+                        className="bg-lime-500 hover:bg-lime-600"
+                      >
+                        Browse All Courses
+                      </Button>
+                    </div>
                   </div>
                 ) : (
                   <>
