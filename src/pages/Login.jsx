@@ -1,0 +1,107 @@
+import React, { useState } from "react";
+import { useNavigate, Link } from "react-router-dom";
+import { createPageUrl } from "@/utils";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Sprout, Mail, User } from "lucide-react";
+
+const setLocalUser = (u) => localStorage.setItem("sprout_user", JSON.stringify(u));
+
+export default function Login() {
+  const navigate = useNavigate();
+  const [fullName, setFullName] = useState("");
+  const [email, setEmail] = useState("");
+
+  const onSubmit = (e) => {
+    e.preventDefault();
+
+    const user = {
+      id: crypto?.randomUUID?.() || `u_${Date.now()}`,
+      full_name: fullName || "Student",
+      email: email || "student@example.com",
+      onboarding_completed: false, // send to SchoolSelection first
+      xp_points: 0,
+      level: 1,
+      current_streak: 0,
+      total_lessons_completed: 0,
+      total_courses_completed: 0,
+      show_on_leaderboard: true,
+    };
+
+    setLocalUser(user);
+    navigate(createPageUrl("SchoolSelection"));
+  };
+
+  return (
+    <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-lime-50 via-white to-green-50">
+      <div className="w-full max-w-md">
+        <div className="flex justify-center mb-8">
+          <div className="flex items-center gap-3">
+            <div className="w-14 h-14 bg-gradient-to-br from-lime-400 to-green-500 rounded-2xl flex items-center justify-center shadow-lg">
+              <Sprout className="w-8 h-8 text-white" />
+            </div>
+            <div>
+              <h1 className="text-3xl font-bold text-gray-900">Sprout</h1>
+              <p className="text-sm text-gray-500">Grow Your Knowledge</p>
+            </div>
+          </div>
+        </div>
+
+        <Card className="border-none shadow-2xl bg-white/80 backdrop-blur-xl">
+          <CardHeader className="space-y-1 text-center pb-6">
+            <CardTitle className="text-2xl font-bold">Welcome back</CardTitle>
+            <CardDescription className="text-base">
+              Local login for migration (no Base44)
+            </CardDescription>
+          </CardHeader>
+
+          <CardContent>
+            <form onSubmit={onSubmit} className="space-y-4">
+              <div className="space-y-2">
+                <Label className="text-gray-700">Full Name</Label>
+                <div className="relative">
+                  <User className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                  <Input
+                    value={fullName}
+                    onChange={(e) => setFullName(e.target.value)}
+                    placeholder="Jane Student"
+                    className="pl-10 h-12 border-gray-200"
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label className="text-gray-700">Email</Label>
+                <div className="relative">
+                  <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                  <Input
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder="you@school.edu"
+                    className="pl-10 h-12 border-gray-200"
+                  />
+                </div>
+              </div>
+
+              <Button
+                type="submit"
+                className="w-full h-12 bg-gradient-to-r from-lime-400 to-green-500 hover:from-lime-500 hover:to-green-600 text-white font-semibold shadow-lg shadow-lime-200"
+              >
+                Continue
+              </Button>
+
+              <div className="text-center text-sm text-gray-500">
+                <Link className="underline" to={createPageUrl("ForgotPassword")}>
+                  Forgot password?
+                </Link>
+              </div>
+            </form>
+          </CardContent>
+        </Card>
+      </div>
+    </div>
+  );
+}
