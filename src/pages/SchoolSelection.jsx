@@ -39,9 +39,14 @@ async function fetchJsonWithCache(url, cacheKey, fallback = []) {
 
 const dataClient = {
   async listSchools() {
-    return fetchJsonWithCache("/data/schools.json", "sprout_schools", []);
+    return fetchJsonWithCache(
+      `${import.meta.env.BASE_URL}data/schools.json`,
+      "sprout_schools",
+      []
+    );
   },
 };
+
 
 export default function SchoolSelection() {
   const navigate = useNavigate();
