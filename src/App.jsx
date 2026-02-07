@@ -1,7 +1,7 @@
 // src/App.jsx
 import "./App.css";
 import React, { useEffect } from "react";
-import { BrowserRouter as Router, Route, Routes, Navigate, useLocation } from "react-router-dom";
+import { HashRouter as Router, Route, Routes, Navigate, useLocation } from "react-router-dom";
 import { QueryClientProvider } from "@tanstack/react-query";
 
 import { Toaster } from "@/components/ui/toaster";
