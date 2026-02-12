@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
-import { Sprout, Mail, Lock, User, ArrowRight, AlertCircle } from "lucide-react";
+import { Sprout, Mail, Lock, User, ArrowRight } from "lucide-react";
 
 /** ---------- local helpers ---------- */
 const safeParse = (raw, fallback) => {
@@ -156,14 +156,6 @@ export default function Signup() {
           </CardHeader>
 
           <CardContent className="p-8">
-            {/* Local-only note */}
-            <div className="mb-6 p-4 rounded-xl bg-yellow-50 border-2 border-yellow-200 flex gap-3">
-              <AlertCircle className="w-5 h-5 text-yellow-700 mt-0.5" />
-              <p className="text-sm text-yellow-900">
-                This signup is <span className="font-semibold">localStorage-only</span> for the migration.
-                It won’t sync across devices until you add a real backend.
-              </p>
-            </div>
 
             <form onSubmit={handleSubmit} className="space-y-5">
               {/* Name */}

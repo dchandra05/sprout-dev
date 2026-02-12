@@ -53,7 +53,7 @@ export default function Login() {
           <CardHeader className="space-y-1 text-center pb-6">
             <CardTitle className="text-2xl font-bold">Welcome back</CardTitle>
             <CardDescription className="text-base">
-              Local login for migration (no Base44)
+              Enter your details to continue learning
             </CardDescription>
           </CardHeader>
 
