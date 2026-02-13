@@ -1,158 +1,43 @@
 // src/pages/AILiteracy.jsx
-// ✅ FIXED: Works with or without authentication
-// - Uses safe auth check (getCurrentUser instead of me)
-// - No redirect on missing auth
-// - Progress tracking works for logged-in users only
+// Public AI Literacy course hub (no auth / no guest checks)
+// Routes days to: /ai-literacy/day/1 ... /ai-literacy/day/10
 
-import React, { useState, useEffect } from "react";
-import { dataClient } from "@/api/dataClient";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import React from "react";
 import { useNavigate } from "react-router-dom";
-import { createPageUrl } from "@/utils";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Progress } from "@/components/ui/progress";
+import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { 
-  Lock, CheckCircle, Brain, ChevronRight, Trophy, 
-  Calendar, Clock, Zap, Target, BookOpen, LogIn
+import {
+  Brain,
+  ChevronRight,
+  Trophy,
+  Calendar,
+  Clock,
+  Zap,
+  Target,
+  BookOpen,
+  Lock,
+  CheckCircle,
 } from "lucide-react";
 
 export default function AILiteracy() {
   const navigate = useNavigate();
-  const [user, setUser] = useState(null);
-  const queryClient = useQueryClient();
-
-  // ✅ FIXED: Safe auth check - does not throw or redirect
-  useEffect(() => {
-    const loadUser = async () => {
-      try {
-        // Use getCurrentUser() which returns guest user if not logged in
-        const currentUser = await dataClient.auth.getCurrentUser();
-        setUser(currentUser);
-      } catch (error) {
-        console.error("Error loading user:", error);
-        // Set guest user instead of redirecting
-        setUser({
-          id: "guest",
-          email: "guest@example.com",
-          full_name: "Guest User",
-          isGuest: true,
-        });
-      }
-    };
-    loadUser();
-  }, []);
-
-  const { data: course } = useQuery({
-    queryKey: ['aiCourse'],
-    queryFn: async () => {
-      const courses = await dataClient.entities.Course.list();
-      return courses.find(c => c.name === "AI Literacy: Using AI Responsibly and Effectively");
-    }
-  });
-
-  // ✅ Only fetch progress if user is logged in (not guest)
-  const { data: dayProgress = [] } = useQuery({
-    queryKey: ['aiDayProgress', user?.email],
-    queryFn: () => dataClient.entities.AICourseDayProgress.filter({ user_email: user?.email }),
-    enabled: !!user && !user.isGuest
-  });
 
   const days = [
-    { 
-      number: 1, 
-      title: "What is AI and Why AI Literacy Matters",
-      icon: Brain,
-      color: "from-purple-400 to-pink-500"
-    },
-    { 
-      number: 2, 
-      title: "How Machines Learn: Data, Training, and Models",
-      icon: Target,
-      color: "from-blue-400 to-cyan-500"
-    },
-    { 
-      number: 3, 
-      title: "AI in the Real World",
-      icon: BookOpen,
-      color: "from-green-400 to-emerald-500"
-    },
-    { 
-      number: 4, 
-      title: "Generative AI and Hallucinations",
-      icon: Zap,
-      color: "from-yellow-400 to-orange-500"
-    },
-    { 
-      number: 5, 
-      title: "Using AI Effectively",
-      icon: Target,
-      color: "from-indigo-400 to-purple-500"
-    },
-    { 
-      number: 6, 
-      title: "Ethics: Bias, Privacy, Deepfakes",
-      icon: Brain,
-      color: "from-red-400 to-pink-500"
-    },
-    { 
-      number: 7, 
-      title: "AI and Society",
-      icon: BookOpen,
-      color: "from-teal-400 to-cyan-500"
-    },
-    { 
-      number: 8, 
-      title: "Practical AI Skills Lab",
-      icon: Zap,
-      color: "from-lime-400 to-green-500"
-    },
-    { 
-      number: 9, 
-      title: "Capstone + Review",
-      icon: Trophy,
-      color: "from-orange-400 to-red-500"
-    },
-    { 
-      number: 10, 
-      title: "Final Exam + Certification",
-      icon: Trophy,
-      color: "from-purple-500 to-pink-600"
-    }
+    { number: 1, title: "What is AI and Why AI Literacy Matters", icon: Brain, color: "from-purple-400 to-pink-500" },
+    { number: 2, title: "How Machines Learn: Data, Training, and Models", icon: Target, color: "from-blue-400 to-cyan-500" },
+    { number: 3, title: "AI in the Real World", icon: BookOpen, color: "from-green-400 to-emerald-500" },
+    { number: 4, title: "Generative AI and Hallucinations", icon: Zap, color: "from-yellow-400 to-orange-500" },
+    { number: 5, title: "Using AI Effectively", icon: Target, color: "from-indigo-400 to-purple-500" },
+    { number: 6, title: "Ethics: Bias, Privacy, Deepfakes", icon: Brain, color: "from-red-400 to-pink-500" },
+    { number: 7, title: "AI and Society", icon: BookOpen, color: "from-teal-400 to-cyan-500" },
+    { number: 8, title: "Practical AI Skills Lab", icon: Zap, color: "from-lime-400 to-green-500" },
+    { number: 9, title: "Capstone + Review", icon: Trophy, color: "from-orange-400 to-red-500" },
+    { number: 10, title: "Final Exam + Certification", icon: Trophy, color: "from-purple-500 to-pink-600" },
   ];
 
-  const getDayStatus = (dayNumber) => {
-    // For guest users, all days are available
-    if (!user || user.isGuest) {
-      return 'available';
-    }
-
-    const progress = dayProgress.find(p => p.day_number === dayNumber);
-    if (progress?.completed) return 'completed';
-    
-    if (dayNumber === 1) return 'available';
-    
-    const previousDay = dayProgress.find(p => p.day_number === dayNumber - 1);
-    if (previousDay?.completed) return 'available';
-    
-    return 'locked';
+  const goToDay = (dayNumber) => {
+    navigate(`/ai-literacy/day/${dayNumber}`);
   };
-
-  const completedDays = dayProgress.filter(p => p.completed).length;
-  const progressPercent = (completedDays / 10) * 100;
-
-  // ✅ Don't show loading spinner - render immediately with what we have
-  if (!user || !course) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-purple-50 via-white to-pink-50">
-        <div className="text-center">
-          <div className="w-16 h-16 border-4 border-purple-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading AI Literacy Course...</p>
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-pink-50 p-4 md:p-8">
@@ -170,114 +55,35 @@ export default function AILiteracy() {
           </p>
         </div>
 
-        {/* ✅ Guest User Notice */}
-        {user.isGuest && (
-          <Card className="border-2 border-purple-200 shadow-lg bg-purple-50/50 backdrop-blur-sm">
-            <CardContent className="p-6">
-              <div className="flex items-start gap-4">
-                <div className="p-3 bg-purple-100 rounded-lg">
-                  <LogIn className="w-6 h-6 text-purple-600" />
-                </div>
-                <div className="flex-1">
-                  <h3 className="font-semibold text-gray-900 mb-1">
-                    You're viewing as a guest
-                  </h3>
-                  <p className="text-sm text-gray-600 mb-3">
-                    All lessons are available to view, but progress won't be saved. 
-                    Log in to track your completion and earn XP!
-                  </p>
-                  <Button
-                    onClick={() => navigate(createPageUrl("Login"))}
-                    className="bg-purple-600 hover:bg-purple-700 text-white"
-                  >
-                    <LogIn className="w-4 h-4 mr-2" />
-                    Log In to Save Progress
-                  </Button>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        )}
-
-        {/* Progress Overview - Only show for logged-in users */}
-        {!user.isGuest && (
-          <Card className="border-none shadow-xl bg-white/80 backdrop-blur-sm">
-            <CardHeader>
-              <div className="flex justify-between items-center">
-                <CardTitle className="flex items-center gap-2">
-                  <Calendar className="w-5 h-5 text-purple-500" />
-                  Your Progress
-                </CardTitle>
-                <span className="text-3xl font-bold text-purple-600">{Math.round(progressPercent)}%</span>
-              </div>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <Progress value={progressPercent} className="h-3" />
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                <div className="text-center p-3 bg-purple-50 rounded-lg">
-                  <div className="text-2xl font-bold text-purple-600">{completedDays}</div>
-                  <div className="text-sm text-gray-600">Days Completed</div>
-                </div>
-                <div className="text-center p-3 bg-blue-50 rounded-lg">
-                  <div className="text-2xl font-bold text-blue-600">{10 - completedDays}</div>
-                  <div className="text-sm text-gray-600">Days Remaining</div>
-                </div>
-                <div className="text-center p-3 bg-green-50 rounded-lg">
-                  <div className="text-2xl font-bold text-green-600">10</div>
-                  <div className="text-sm text-gray-600">Hours Total</div>
-                </div>
-                <div className="text-center p-3 bg-orange-50 rounded-lg">
-                  <div className="text-2xl font-bold text-orange-600">1000</div>
-                  <div className="text-sm text-gray-600">XP Available</div>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        )}
-
         {/* Course Days */}
         <div className="space-y-4">
           <h2 className="text-2xl font-bold text-gray-900">Course Days</h2>
           <div className="grid gap-4">
             {days.map((day) => {
-              const status = getDayStatus(day.number);
-              const Icon = day.icon;
-              const isLocked = status === 'locked';
-              const isCompleted = status === 'completed';
-
               return (
                 <Card
                   key={day.number}
-                  className={`border-none shadow-lg transition-all ${
-                    isLocked 
-                      ? 'opacity-60 cursor-not-allowed bg-gray-50' 
-                      : 'cursor-pointer hover:shadow-2xl bg-white/80 backdrop-blur-sm'
-                  }`}
-                  onClick={() => !isLocked && navigate(createPageUrl(`AIDay${day.number}`))}
+                  className="border-none shadow-lg transition-all cursor-pointer hover:shadow-2xl bg-white/80 backdrop-blur-sm"
+                  onClick={() => goToDay(day.number)}
                 >
                   <CardContent className="p-6">
                     <div className="flex items-center gap-4">
                       {/* Day Number Circle */}
-                      <div className={`w-16 h-16 rounded-full flex items-center justify-center bg-gradient-to-br ${day.color} flex-shrink-0`}>
-                        {isCompleted ? (
-                          <CheckCircle className="w-8 h-8 text-white" />
-                        ) : isLocked ? (
-                          <Lock className="w-8 h-8 text-white" />
-                        ) : (
-                          <span className="text-2xl font-bold text-white">{day.number}</span>
-                        )}
+                      <div
+                        className={`w-16 h-16 rounded-full flex items-center justify-center bg-gradient-to-br ${day.color} flex-shrink-0`}
+                      >
+                        <span className="text-2xl font-bold text-white">{day.number}</span>
                       </div>
 
                       {/* Content */}
                       <div className="flex-1">
                         <div className="flex items-center gap-2 mb-1">
-                          <h3 className="text-xl font-bold text-gray-900">Day {day.number}</h3>
-                          {isCompleted && (
-                            <Badge className="bg-green-100 text-green-700">Completed</Badge>
-                          )}
-                          {isLocked && (
-                            <Badge variant="outline" className="text-gray-500">Locked</Badge>
-                          )}
+                          <h3 className="text-xl font-bold text-gray-900">
+                            Day {day.number}
+                          </h3>
+                          <Badge className="bg-purple-100 text-purple-700">
+                            Available
+                          </Badge>
                         </div>
                         <p className="text-gray-600">{day.title}</p>
                         <div className="flex items-center gap-4 mt-2 text-sm text-gray-500">
@@ -293,9 +99,7 @@ export default function AILiteracy() {
                       </div>
 
                       {/* Arrow */}
-                      {!isLocked && (
-                        <ChevronRight className="w-6 h-6 text-gray-400" />
-                      )}
+                      <ChevronRight className="w-6 h-6 text-gray-400" />
                     </div>
                   </CardContent>
                 </Card>
@@ -304,24 +108,22 @@ export default function AILiteracy() {
           </div>
         </div>
 
-        {/* Certificate Info */}
-        {!user.isGuest && completedDays === 10 && (
-          <Card className="border-none shadow-xl bg-gradient-to-r from-purple-500 to-pink-500 text-white">
-            <CardContent className="p-8 text-center">
-              <Trophy className="w-16 h-16 mx-auto mb-4" />
-              <h2 className="text-3xl font-bold mb-2">Congratulations!</h2>
-              <p className="text-lg opacity-90 mb-6">
-                You've completed all 10 days. Take the final exam to earn your certificate!
-              </p>
-              <Button
-                onClick={() => navigate(createPageUrl("AIDay10"))}
-                className="bg-white text-purple-600 hover:bg-gray-100"
-              >
-                Take Final Exam
-              </Button>
-            </CardContent>
-          </Card>
-        )}
+        {/* Optional: Course completion callout (static) */}
+        <Card className="border-none shadow-xl bg-gradient-to-r from-purple-500 to-pink-500 text-white">
+          <CardContent className="p-8 text-center">
+            <Trophy className="w-16 h-16 mx-auto mb-4" />
+            <h2 className="text-3xl font-bold mb-2">Finish all 10 days</h2>
+            <p className="text-lg opacity-90 mb-6">
+              Complete the course and take the final day for a certificate experience.
+            </p>
+            <button
+              onClick={() => goToDay(10)}
+              className="inline-flex items-center justify-center rounded-md bg-white px-4 py-2 text-purple-600 font-medium hover:bg-gray-100"
+            >
+              Go to Day 10
+            </button>
+          </CardContent>
+        </Card>
       </div>
     </div>
   );

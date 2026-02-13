@@ -1,7 +1,14 @@
 // src/App.jsx
 import "./App.css";
-import React, { useEffect } from "react";
-import { HashRouter as Router, Route, Routes, Navigate, useLocation } from "react-router-dom";
+import React, { useEffect, useMemo } from "react";
+import {
+  HashRouter as Router,
+  Route,
+  Routes,
+  Navigate,
+  useLocation,
+  useParams,
+} from "react-router-dom";
 import { QueryClientProvider } from "@tanstack/react-query";
 
 import { Toaster } from "@/components/ui/toaster";
@@ -23,18 +30,54 @@ const mainPageKey = mainPage ?? firstPageKey ?? "Login";
 const LayoutWrapper = ({ children, currentPageName }) =>
   Layout ? <Layout currentPageName={currentPageName}>{children}</Layout> : <>{children}</>;
 
+/**
+ * PUBLIC ROUTE WHITELIST
+ * Anything matching these paths should NOT force login.
+ */
+const isPublicPath = (pathname) => {
+  // Make AI Literacy course + all days public
+  return pathname === "/ai-literacy" || pathname.startsWith("/ai-literacy/");
+};
+
+/**
+ * Route component that maps /ai-literacy/day/:dayNumber -> Pages.AIDay1 ... Pages.AIDay10
+ */
+function AIDayRoute() {
+  const { dayNumber } = useParams();
+
+  const n = Number(dayNumber);
+  if (!Number.isFinite(n) || n < 1 || n > 10) {
+    return <Navigate to="/ai-literacy" replace />;
+  }
+
+  const key = `AIDay${n}`;
+  const DayComponent = Pages?.[key];
+
+  if (!DayComponent) {
+    // If the page isn't registered in pages.config, fall back gracefully
+    return <Navigate to="/ai-literacy" replace />;
+  }
+
+  return (
+    <LayoutWrapper currentPageName={key}>
+      <DayComponent />
+    </LayoutWrapper>
+  );
+}
+
 function AuthGate() {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
   const location = useLocation();
 
-  // ✅ Never navigate during render; do it in an effect
+  const publicRoute = useMemo(() => isPublicPath(location.pathname), [location.pathname]);
+
+  // ✅ Only redirect to login if this is NOT a public route
   useEffect(() => {
-    if (authError?.type === "auth_required") {
-      // avoid loops: if we're already on login, don't re-trigger
+    if (authError?.type === "auth_required" && !publicRoute) {
       const onLoginRoute = location.pathname === createPageUrl("Login");
       if (!onLoginRoute) navigateToLogin();
     }
-  }, [authError?.type, navigateToLogin, location.pathname]);
+  }, [authError?.type, navigateToLogin, location.pathname, publicRoute]);
 
   // Loading spinner while checking app public settings or auth
   if (isLoadingPublicSettings || isLoadingAuth) {
@@ -50,8 +93,8 @@ function AuthGate() {
     return <UserNotRegisteredError />;
   }
 
-  // If auth is required, show a lightweight redirect screen
-  if (authError?.type === "auth_required") {
+  // ✅ If auth is required BUT this is a public route, do NOT block rendering
+  if (authError?.type === "auth_required" && !publicRoute) {
     return (
       <div className="fixed inset-0 flex items-center justify-center">
         <div className="text-center">
@@ -66,6 +109,21 @@ function AuthGate() {
     <Routes>
       {/* Always send "/" to your main page route */}
       <Route path="/" element={<Navigate to={createPageUrl(mainPageKey)} replace />} />
+
+      {/* ✅ PUBLIC AI LITERACY ROUTES (explicit) */}
+      <Route
+        path="/ai-literacy"
+        element={
+          Pages?.AILiteracy ? (
+            <LayoutWrapper currentPageName="AILiteracy">
+              <Pages.AILiteracy />
+            </LayoutWrapper>
+          ) : (
+            <PageNotFound />
+          )
+        }
+      />
+      <Route path="/ai-literacy/day/:dayNumber" element={<AIDayRoute />} />
 
       {/* Register every page using createPageUrl so routes match your links */}
       {Object.entries(Pages).map(([pageKey, Page]) => (
