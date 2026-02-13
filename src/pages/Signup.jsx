@@ -163,7 +163,7 @@ export default function Signup() {
                   <Input
                     value={form.full_name}
                     onChange={(e) => setForm((p) => ({ ...p, full_name: e.target.value }))}
-                    placeholder="e.g., Brooklyn Ruffler"
+                    placeholder="e.g., John Smith"
                     className="pl-10 h-12"
                     autoComplete="name"
                     required

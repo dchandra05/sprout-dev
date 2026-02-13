@@ -66,7 +66,7 @@ export default function Login() {
                   <Input
                     value={fullName}
                     onChange={(e) => setFullName(e.target.value)}
-                    placeholder="Jane Student"
+                    placeholder="John Smith"
                     className="pl-10 h-12 border-gray-200"
                   />
                 </div>

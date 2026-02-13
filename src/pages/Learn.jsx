@@ -52,7 +52,8 @@ async function fetchJsonWithCache(url, cacheKey, fallback = []) {
 
 const dataClient = {
   async listCourses() {
-    return fetchJsonWithCache("/data/courses.json", "sprout_courses", []);
+    const basePath = import.meta.env.BASE_URL || "/";
+    return fetchJsonWithCache(`${basePath}data/courses.json`, "sprout_courses", []);
   },
   async listUserProgress(userEmail) {
     // your Lesson.jsx uses "sprout_user_progress" (array of objects)
@@ -254,7 +255,7 @@ export default function Learn() {
             </div>
             <h3 className="text-xl font-semibold text-gray-900 mb-2">No courses found</h3>
             <p className="text-gray-600">
-              If you just added JSON, hard refresh + clear localStorage (I’ll walk you through next).
+              Try adjusting your search or filter to find what you're looking for.
             </p>
           </div>
         )}
