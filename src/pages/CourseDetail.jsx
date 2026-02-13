@@ -48,10 +48,12 @@ async function fetchJsonWithCache(url, cacheKey, fallback = []) {
 
 const dataClient = {
   async listCourses() {
-    return fetchJsonWithCache("/data/courses.json", "sprout_courses", []);
+    const basePath = import.meta.env.BASE_URL || "/";
+    return fetchJsonWithCache(`${basePath}data/courses.json`, "sprout_courses", []);
   },
   async listLessons() {
-    return fetchJsonWithCache("/data/lessons.json", "sprout_lessons", []);
+    const basePath = import.meta.env.BASE_URL || "/";
+    return fetchJsonWithCache(`${basePath}data/lessons.json`, "sprout_lessons", []);
   },
   async listUserProgress(userEmail, courseId) {
     const all = getJSON("sprout_user_progress", []);
@@ -77,7 +79,13 @@ export default function CourseDetail() {
   const [user, setUser] = useState(null);
 
   const courseId = useMemo(() => {
-    const urlParams = new URLSearchParams(window.location.search);
+    // With HashRouter, query params are in the hash, not in window.location.search
+    // URL format: #/course?id=123
+    const hash = window.location.hash;
+    const queryStart = hash.indexOf('?');
+    if (queryStart === -1) return null;
+    const queryString = hash.substring(queryStart + 1);
+    const urlParams = new URLSearchParams(queryString);
     return urlParams.get("id");
   }, []);
 
