@@ -100,11 +100,9 @@ export default function Signup() {
         id: genId(),
         full_name: String(form.full_name || "").trim(),
         email: emailNormalized,
-
-        // ⚠️ Demo-only local auth (not secure). Replace with real auth later.
         password: String(form.password || ""),
 
-        // onboarding + stats defaults
+        // SIGNUP goes to SchoolSelection first
         onboarding_completed: false,
         school_id: "",
         grade: "",
@@ -122,7 +120,7 @@ export default function Signup() {
       await data.setCurrentUser(newUser);
 
       toast.success("Account created! 🌱");
-      navigate(createPageUrl("SchoolSelection"));
+      navigate(createPageUrl("SchoolSelection")); // SIGNUP -> SCHOOL SELECTION
     } catch (error) {
       console.error(error);
       toast.error("Signup failed. Please try again.");
@@ -156,7 +154,6 @@ export default function Signup() {
           </CardHeader>
 
           <CardContent className="p-8">
-
             <form onSubmit={handleSubmit} className="space-y-5">
               {/* Name */}
               <div className="space-y-2">
@@ -244,7 +241,7 @@ export default function Signup() {
 
               <p className="text-center text-sm text-gray-600">
                 Already have an account?{" "}
-                <Link to={createPageUrl("Login")} className="text-lime-700 font-semibold hover:underline">
+                <Link to={createPageUrl("Login")} className="text-lime-600 font-semibold hover:underline">
                   Log in
                 </Link>
               </p>

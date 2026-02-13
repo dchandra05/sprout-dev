@@ -21,7 +21,7 @@ export default function Login() {
       id: crypto?.randomUUID?.() || `u_${Date.now()}`,
       full_name: fullName || "Student",
       email: email || "student@example.com",
-      onboarding_completed: false, // send to SchoolSelection first
+      onboarding_completed: true, // LOGIN goes straight to dashboard
       xp_points: 0,
       level: 1,
       current_streak: 0,
@@ -31,7 +31,7 @@ export default function Login() {
     };
 
     setLocalUser(user);
-    navigate(createPageUrl("SchoolSelection"));
+    navigate(createPageUrl("Dashboard")); // LOGIN -> DASHBOARD
   };
 
   return (
@@ -93,10 +93,21 @@ export default function Login() {
                 Continue
               </Button>
 
-              <div className="text-center text-sm text-gray-500">
-                <Link className="underline" to={createPageUrl("ForgotPassword")}>
-                  Forgot password?
-                </Link>
+              <div className="text-center space-y-2">
+                <div className="text-sm text-gray-500">
+                  <Link className="underline" to={createPageUrl("ForgotPassword")}>
+                    Forgot password?
+                  </Link>
+                </div>
+                <div className="text-sm text-gray-600">
+                  Don't have an account yet?{" "}
+                  <Link 
+                    to={createPageUrl("Signup")} 
+                    className="text-lime-600 font-semibold hover:underline"
+                  >
+                    Sign up
+                  </Link>
+                </div>
               </div>
             </form>
           </CardContent>
