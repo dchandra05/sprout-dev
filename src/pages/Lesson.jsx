@@ -64,10 +64,12 @@ const safeUUID = () => {
 
 const data = {
   async listLessons() {
-    return fetchJsonWithCache("/data/lessons.json", "sprout_lessons", []);
+    const basePath = import.meta.env.BASE_URL || "/";
+    return fetchJsonWithCache(`${basePath}data/lessons.json`, "sprout_lessons", []);
   },
   async listCourses() {
-    return fetchJsonWithCache("/data/courses.json", "sprout_courses", []);
+    const basePath = import.meta.env.BASE_URL || "/";
+    return fetchJsonWithCache(`${basePath}data/courses.json`, "sprout_courses", []);
   },
   async listUserProgress({ user_email, course_id, lesson_id } = {}) {
     const all = getJSON("sprout_user_progress", []);
@@ -181,8 +183,15 @@ export default function Lesson() {
   const [showLevelUp, setShowLevelUp] = useState(false);
   const [newLevel, setNewLevel] = useState(null);
 
-  const urlParams = new URLSearchParams(window.location.search);
-  const lessonId = urlParams.get("id");
+  // Read lesson ID from hash (HashRouter)
+  const lessonId = useMemo(() => {
+    const hash = window.location.hash;
+    const queryStart = hash.indexOf('?');
+    if (queryStart === -1) return null;
+    const queryString = hash.substring(queryStart + 1);
+    const urlParams = new URLSearchParams(queryString);
+    return urlParams.get("id");
+  }, []);
 
   useEffect(() => {
     const currentUser = getLocalUser();

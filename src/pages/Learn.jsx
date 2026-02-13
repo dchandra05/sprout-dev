@@ -189,11 +189,20 @@ export default function Learn() {
             const progress = getCourseProgress(course.id);
             const gradientClass = categoryColors[course.category] || "from-gray-400 to-gray-500";
 
+            // Route AI Literacy course to its special page
+            const handleCourseClick = () => {
+              if (course.name?.includes("AI Literacy")) {
+                navigate(createPageUrl("AILiteracy"));
+              } else {
+                navigate(createPageUrl(`CourseDetail?id=${course.id}`));
+              }
+            };
+
             return (
               <Card
                 key={course.id}
                 className="border-none shadow-lg hover:shadow-2xl transition-all cursor-pointer group overflow-hidden bg-white/80 backdrop-blur-sm"
-                onClick={() => navigate(createPageUrl(`CourseDetail?id=${course.id}`))}
+                onClick={handleCourseClick}
               >
                 <div
                   className={`h-40 bg-gradient-to-br ${gradientClass} flex items-center justify-center relative overflow-hidden`}
