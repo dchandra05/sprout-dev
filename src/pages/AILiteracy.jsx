@@ -17,6 +17,7 @@ import {
   Lock, CheckCircle, Brain, ChevronRight, Trophy, 
   Calendar, Clock, Zap, Target, BookOpen, LogIn
 } from "lucide-react";
+import { upsertLessonProgress } from "@/lib/activityTracker";
 
 export default function AILiteracy() {
   const navigate = useNavigate();

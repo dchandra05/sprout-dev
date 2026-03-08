@@ -10,6 +10,7 @@ import { Badge } from "@/components/ui/badge";
 import { ArrowLeft, ChevronRight, MessageSquare, AlertTriangle, Brain } from "lucide-react";
 import InteractiveQuiz from "@/components/InteractiveQuiz";
 import HallucinationDetector from "@/components/HallucinationDetector";
+import { upsertLessonProgress } from "@/lib/activityTracker";
 
 export default function AIDay4() {
   const navigate = useNavigate();
@@ -51,6 +52,13 @@ export default function AIDay4() {
         quiz_score: quizScore,
         time_spent_minutes: 60,
       });
+      // Track lesson completion in the new multi-course schema
+      await upsertLessonProgress({
+        courseSlug: "ai-literacy",
+        dayNumber:  4,       // ← use the same day number as above (1-10)
+        quizScore,
+        xpEarned:  50,       // or whatever XP amount you want per day
+      }).catch(() => {});    // non-blocking — don't let tracking break the lesson
     },
     onSuccess: () => {
       queryClient.invalidateQueries(["aiDayProgress"]);
