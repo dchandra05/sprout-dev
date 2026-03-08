@@ -1,5 +1,6 @@
+// src/pages/Account.jsx
 import React, { useState, useEffect } from "react";
-import { dataClient } from "@/api/dataClient";
+import { getCurrentUser, updateCurrentUserProfile, logout, listSchools } from "@/lib/appClient";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useNavigate, Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
@@ -30,7 +31,8 @@ export default function Account() {
   useEffect(() => {
     const loadUser = async () => {
       try {
-        const currentUser = await dataClient.auth.me();
+        // ✅ Use Supabase-backed getCurrentUser, not the old dataClient
+        const currentUser = await getCurrentUser();
         setUser(currentUser);
         setFormData({
           phone: currentUser.phone || "",
@@ -39,7 +41,8 @@ export default function Account() {
           username: currentUser.username || "",
           show_on_leaderboard: currentUser.show_on_leaderboard !== false,
         });
-      } catch (error) {
+      } catch {
+        // Not authenticated — send to login
         navigate(createPageUrl("Login"));
       }
     };
@@ -48,18 +51,20 @@ export default function Account() {
 
   const { data: schools = [] } = useQuery({
     queryKey: ["schools"],
-    queryFn: () => dataClient.entities.School.list(),
+    queryFn: listSchools,
   });
 
   const updateMutation = useMutation({
     mutationFn: async (data) => {
-      await dataClient.auth.updateMe(data);
+      await updateCurrentUserProfile(data);
     },
-    onSuccess: () => {
+    onSuccess: async () => {
+      // Refresh user object after update
+      const refreshed = await getCurrentUser();
+      setUser(refreshed);
       queryClient.invalidateQueries(["user"]);
       setEditing(false);
       toast.success("Profile updated successfully!");
-      window.location.reload();
     },
     onError: () => {
       toast.error("Failed to update profile");
@@ -72,7 +77,11 @@ export default function Account() {
   };
 
   const handleLogout = async () => {
-    await dataClient.auth.logout();
+    try {
+      await logout();
+    } catch {
+      // ignore signOut errors
+    }
     navigate(createPageUrl("Login"));
   };
 
@@ -105,211 +114,151 @@ export default function Account() {
           <CardContent className="p-8">
             <div className="flex items-center gap-6">
               <div className="w-24 h-24 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center text-white">
-                <span className="text-4xl font-bold">{user.full_name?.[0]?.toUpperCase() || "U"}</span>
+                <span className="text-4xl font-bold">
+                  {user.full_name?.charAt(0)?.toUpperCase() ?? "?"}
+                </span>
               </div>
               <div>
-                <h2 className="text-3xl font-bold mb-2">{user.full_name}</h2>
-                <p className="text-lg opacity-90">{user.email}</p>
-                <div className="flex items-center gap-4 mt-3">
-                  <div className="bg-white/20 backdrop-blur-sm px-4 py-2 rounded-full">
-                    <span className="font-semibold">Level {user.level || 1}</span>
-                  </div>
-                  <div className="bg-white/20 backdrop-blur-sm px-4 py-2 rounded-full">
-                    <span className="font-semibold">{user.xp_points || 0} XP</span>
-                  </div>
-                </div>
+                <h2 className="text-2xl font-bold">{user.full_name || "Student"}</h2>
+                <p className="opacity-90">{user.email}</p>
+                <p className="opacity-75 text-sm mt-1">
+                  Level {user.level} · {user.xp_points} XP · {user.current_streak} day streak
+                </p>
               </div>
             </div>
           </CardContent>
         </Card>
 
-        {/* Profile Details */}
-        <Card className="border-none shadow-lg bg-white/80 backdrop-blur-sm">
-          <CardHeader className="flex flex-row items-center justify-between">
-            <CardTitle>Profile Information</CardTitle>
-            {!editing && (
-              <Button onClick={() => setEditing(true)} variant="outline" className="gap-2">
-                <Edit className="w-4 h-4" />
-                Edit Profile
-              </Button>
-            )}
-          </CardHeader>
-          <CardContent>
-            {!editing ? (
-              <div className="space-y-4">
-                <div className="flex items-center gap-4 p-4 rounded-xl bg-gray-50">
-                  <Mail className="w-5 h-5 text-gray-600" />
-                  <div>
-                    <p className="text-sm text-gray-600">Email</p>
-                    <p className="font-semibold">{user.email}</p>
-                  </div>
-                </div>
-                <div className="flex items-center gap-4 p-4 rounded-xl bg-gray-50">
-                  <Phone className="w-5 h-5 text-gray-600" />
-                  <div>
-                    <p className="text-sm text-gray-600">Phone</p>
-                    <p className="font-semibold">{user.phone || "Not provided"}</p>
-                  </div>
-                </div>
-                <div className="flex items-center gap-4 p-4 rounded-xl bg-gray-50">
-                  <School className="w-5 h-5 text-gray-600" />
-                  <div>
-                    <p className="text-sm text-gray-600">School</p>
-                    <p className="font-semibold">{selectedSchool?.name || "Not selected"}</p>
-                  </div>
-                </div>
-                <div className="flex items-center gap-4 p-4 rounded-xl bg-gray-50">
-                  <GraduationCap className="w-5 h-5 text-gray-600" />
-                  <div>
-                    <p className="text-sm text-gray-600">Grade</p>
-                    <p className="font-semibold">{user.grade || "Not provided"}</p>
-                  </div>
-                </div>
-              </div>
-            ) : (
-              <form onSubmit={handleSubmit} className="space-y-6">
-                <div className="space-y-2">
-                  <Label>Phone Number</Label>
-                  <Input
-                    type="tel"
-                    value={formData.phone}
-                    onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                    placeholder="(123) 456-7890"
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <Label>School</Label>
-                  <Select
-                    value={formData.school_id}
-                    onValueChange={(value) => setFormData({ ...formData, school_id: value })}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select your school" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {schools.map((school) => (
-                        <SelectItem key={school.id} value={school.id}>
-                          {school.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                <div className="space-y-2">
-                  <Label>Grade</Label>
-                  <Select
-                    value={formData.grade}
-                    onValueChange={(value) => setFormData({ ...formData, grade: value })}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select your grade" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="6th Grade">6th Grade</SelectItem>
-                      <SelectItem value="7th Grade">7th Grade</SelectItem>
-                      <SelectItem value="8th Grade">8th Grade</SelectItem>
-                      <SelectItem value="9th Grade (Freshman)">9th Grade (Freshman)</SelectItem>
-                      <SelectItem value="10th Grade (Sophomore)">10th Grade (Sophomore)</SelectItem>
-                      <SelectItem value="11th Grade (Junior)">11th Grade (Junior)</SelectItem>
-                      <SelectItem value="12th Grade (Senior)">12th Grade (Senior)</SelectItem>
-                      <SelectItem value="Freshman">College Freshman</SelectItem>
-                      <SelectItem value="Sophomore">College Sophomore</SelectItem>
-                      <SelectItem value="Junior">College Junior</SelectItem>
-                      <SelectItem value="Senior">College Senior</SelectItem>
-                      <SelectItem value="Graduate Student">Graduate Student</SelectItem>
-                      <SelectItem value="Other">Other</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                {/* Username */}
-                <div className="space-y-2">
-                  <Label htmlFor="username">Username (Display Name)</Label>
-                  <Input
-                    id="username"
-                    type="text"
-                    placeholder="How you appear on leaderboards"
-                    value={formData.username}
-                    onChange={(e) => setFormData({ ...formData, username: e.target.value })}
-                  />
-                  <p className="text-sm text-gray-500">
-                    This name will be visible to other users on the leaderboard
-                  </p>
-                </div>
-
-                {/* Privacy Setting */}
-                <div className="space-y-3 p-4 rounded-xl bg-gradient-to-r from-blue-50 to-cyan-50 border-2 border-blue-200">
-                  <Label className="text-base font-semibold flex items-center gap-2">
-                    <span>🔒 Privacy Settings</span>
-                  </Label>
-                  <div className="flex items-center gap-3">
-                    <input
-                      type="checkbox"
-                      id="show_on_leaderboard"
-                      checked={formData.show_on_leaderboard}
-                      onChange={(e) => setFormData({ ...formData, show_on_leaderboard: e.target.checked })}
-                      className="w-5 h-5 rounded border-gray-300 text-lime-600 focus:ring-lime-500"
-                    />
-                    <label htmlFor="show_on_leaderboard" className="text-sm text-gray-700 cursor-pointer">
-                      Show my profile on the leaderboard
-                    </label>
-                  </div>
-                  <p className="text-xs text-gray-600">
-                    {formData.show_on_leaderboard
-                      ? "Your username and stats will be visible to others"
-                      : "You will be hidden from leaderboards but can still track your own progress"}
-                  </p>
-                </div>
-
-                <div className="flex gap-3">
-                  <Button type="submit" className="bg-lime-500 hover:bg-lime-600 flex-1">
-                    <Check className="w-5 h-5 mr-2" />
-                    Save Changes
-                  </Button>
-                  <Button
-                    type="button"
-                    variant="outline"
-                    onClick={() => {
-                      setEditing(false);
-                      setFormData({
-                        phone: user.phone || "",
-                        school_id: user.school_id || "",
-                        grade: user.grade || "",
-                        username: user.username || "",
-                        show_on_leaderboard: user.show_on_leaderboard !== false,
-                      });
-                    }}
-                  >
-                    Cancel
-                  </Button>
-                </div>
-              </form>
-            )}
-          </CardContent>
-        </Card>
-
-        {/* Stats Card */}
+        {/* Profile Info / Edit Form */}
         <Card className="border-none shadow-lg bg-white/80 backdrop-blur-sm">
           <CardHeader>
-            <CardTitle>My Stats</CardTitle>
+            <div className="flex items-center justify-between">
+              <CardTitle>Profile Information</CardTitle>
+              {!editing ? (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setEditing(true)}
+                  className="flex items-center gap-2"
+                >
+                  <Edit className="w-4 h-4" /> Edit
+                </Button>
+              ) : (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setEditing(false)}
+                >
+                  Cancel
+                </Button>
+              )}
+            </div>
           </CardHeader>
           <CardContent>
-            <div className="grid md:grid-cols-3 gap-4">
-              <div className="p-4 rounded-xl bg-gradient-to-br from-blue-50 to-cyan-50 border border-blue-200">
-                <p className="text-sm text-gray-600 mb-1">Lessons Completed</p>
-                <p className="text-3xl font-bold text-blue-600">{user.total_lessons_completed || 0}</p>
+            {editing ? (
+              <form onSubmit={handleSubmit} className="space-y-4">
+                <div className="grid md:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label>Phone</Label>
+                    <div className="relative">
+                      <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                      <Input
+                        value={formData.phone}
+                        onChange={(e) => setFormData((p) => ({ ...p, phone: e.target.value }))}
+                        placeholder="Your phone number"
+                        className="pl-10"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label>Username</Label>
+                    <Input
+                      value={formData.username}
+                      onChange={(e) => setFormData((p) => ({ ...p, username: e.target.value }))}
+                      placeholder="Choose a username"
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label>School</Label>
+                    <Select
+                      value={formData.school_id}
+                      onValueChange={(v) => setFormData((p) => ({ ...p, school_id: v }))}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select your school" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {schools.map((s) => (
+                          <SelectItem key={s.id} value={s.id}>
+                            {s.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label>Grade</Label>
+                    <Select
+                      value={formData.grade}
+                      onValueChange={(v) => setFormData((p) => ({ ...p, grade: v }))}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select your grade" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {["9", "10", "11", "12", "College", "Adult"].map((g) => (
+                          <SelectItem key={g} value={g}>
+                            {isNaN(Number(g)) ? g : `Grade ${g}`}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-3 pt-2">
+                  <input
+                    type="checkbox"
+                    id="leaderboard"
+                    checked={formData.show_on_leaderboard}
+                    onChange={(e) => setFormData((p) => ({ ...p, show_on_leaderboard: e.target.checked }))}
+                    className="w-4 h-4"
+                  />
+                  <Label htmlFor="leaderboard">Show me on the leaderboard</Label>
+                </div>
+
+                <Button
+                  type="submit"
+                  disabled={updateMutation.isPending}
+                  className="bg-gradient-to-r from-lime-400 to-green-500 text-white"
+                >
+                  <Check className="w-4 h-4 mr-2" />
+                  {updateMutation.isPending ? "Saving…" : "Save Changes"}
+                </Button>
+              </form>
+            ) : (
+              <div className="grid md:grid-cols-2 gap-4 text-sm">
+                <div className="flex items-center gap-3 text-gray-700">
+                  <Mail className="w-4 h-4 text-gray-400" />
+                  <span>{user.email}</span>
+                </div>
+                <div className="flex items-center gap-3 text-gray-700">
+                  <Phone className="w-4 h-4 text-gray-400" />
+                  <span>{user.phone || "Not set"}</span>
+                </div>
+                <div className="flex items-center gap-3 text-gray-700">
+                  <School className="w-4 h-4 text-gray-400" />
+                  <span>{selectedSchool?.name || "No school selected"}</span>
+                </div>
+                <div className="flex items-center gap-3 text-gray-700">
+                  <GraduationCap className="w-4 h-4 text-gray-400" />
+                  <span>{user.grade ? `Grade ${user.grade}` : "Not set"}</span>
+                </div>
               </div>
-              <div className="p-4 rounded-xl bg-gradient-to-br from-purple-50 to-pink-50 border border-purple-200">
-                <p className="text-sm text-gray-600 mb-1">Current Streak</p>
-                <p className="text-3xl font-bold text-purple-600">{user.current_streak || 0} days</p>
-              </div>
-              <div className="p-4 rounded-xl bg-gradient-to-br from-orange-50 to-red-50 border border-orange-200">
-                <p className="text-sm text-gray-600 mb-1">Longest Streak</p>
-                <p className="text-3xl font-bold text-orange-600">{user.longest_streak || 0} days</p>
-              </div>
-            </div>
+            )}
           </CardContent>
         </Card>
 
@@ -317,12 +266,12 @@ export default function Account() {
         <Card className="border-none shadow-lg bg-white/80 backdrop-blur-sm">
           <CardContent className="p-6">
             <Button
-              onClick={handleLogout}
               variant="outline"
-              className="w-full h-12 border-red-200 text-red-600 hover:bg-red-50"
+              onClick={handleLogout}
+              className="text-red-600 border-red-200 hover:bg-red-50"
             >
-              <LogOut className="w-5 h-5 mr-2" />
-              Log Out
+              <LogOut className="w-4 h-4 mr-2" />
+              Sign Out
             </Button>
           </CardContent>
         </Card>
