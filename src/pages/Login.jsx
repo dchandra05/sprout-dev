@@ -1,64 +1,89 @@
 // src/pages/Login.jsx
+// Fixed: uses supabase.auth.signInWithPassword() instead of localStorage
 import React, { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { supabase } from "@/lib/supabaseClient";
-import { trackLogin } from "@/lib/activityTracker";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { toast } from "sonner";
-import { Sprout, Mail, Lock } from "lucide-react";
+import { Sprout, Mail, Lock, AlertCircle } from "lucide-react";
 
 export default function Login() {
   const navigate = useNavigate();
-  const [email,       setEmail]       = useState("");
-  const [password,    setPassword]    = useState("");
+  const [email,        setEmail]        = useState("");
+  const [password,     setPassword]     = useState("");
+  const [error,        setError]        = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // If already logged in, skip straight to Dashboard
+  // If already logged in, skip straight to dashboard
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => {
-      if (data.session) navigate(createPageUrl("Dashboard"), { replace: true });
+      if (data?.session) {
+        navigate(createPageUrl("Dashboard"), { replace: true });
+      }
     });
   }, [navigate]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (isSubmitting) return;
+    setError("");
 
     const normalizedEmail = email.trim().toLowerCase();
-    if (!normalizedEmail || !password) {
-      toast.error("Please enter your email and password.");
+    if (!normalizedEmail || !normalizedEmail.includes("@")) {
+      setError("Please enter a valid email.");
+      return;
+    }
+    if (!password) {
+      setError("Please enter your password.");
       return;
     }
 
     setIsSubmitting(true);
     try {
-      const { error } = await supabase.auth.signInWithPassword({
+      const { data, error: signInError } = await supabase.auth.signInWithPassword({
         email:    normalizedEmail,
         password: password,
       });
 
-      if (error) {
+      if (signInError) {
+        const msg = signInError.message ?? "";
         if (
-          error.message?.toLowerCase().includes("invalid") ||
-          error.message?.toLowerCase().includes("credentials")
+          msg.toLowerCase().includes("invalid login") ||
+          msg.toLowerCase().includes("invalid credentials") ||
+          msg.toLowerCase().includes("email not confirmed")
         ) {
-          toast.error("Incorrect email or password.");
+          setError(
+            "Incorrect email or password. If you just signed up, please confirm your email first."
+          );
         } else {
-          toast.error(error.message ?? "Sign in failed. Please try again.");
+          setError(msg || "Sign in failed. Please try again.");
         }
         return;
       }
 
-      // Fire tracking (non-blocking — don't await so login feels instant)
-      trackLogin().catch(() => {});
+      if (!data?.session) {
+        setError("Login failed — no session returned. Please try again.");
+        return;
+      }
 
-      navigate(createPageUrl("Dashboard"), { replace: true });
+      // Check onboarding status from profiles table
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("onboarding_completed")
+        .eq("id", data.session.user.id)
+        .maybeSingle();
+
+      if (profile?.onboarding_completed === false) {
+        navigate(createPageUrl("SchoolSelection"), { replace: true });
+      } else {
+        navigate(createPageUrl("Dashboard"), { replace: true });
+      }
     } catch (err) {
-      toast.error(err.message ?? "Something went wrong. Please try again.");
+      console.error("[Login] unexpected error:", err);
+      setError("An unexpected error occurred. Please try again.");
     } finally {
       setIsSubmitting(false);
     }
@@ -67,6 +92,7 @@ export default function Login() {
   return (
     <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-lime-50 via-white to-green-50">
       <div className="w-full max-w-md">
+        {/* Brand */}
         <div className="flex justify-center mb-8">
           <div className="flex items-center gap-3">
             <div className="w-14 h-14 bg-gradient-to-br from-lime-400 to-green-500 rounded-2xl flex items-center justify-center shadow-lg">
@@ -89,6 +115,13 @@ export default function Login() {
 
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-4">
+              {error && (
+                <div className="flex items-start gap-2 px-4 py-3 bg-red-50 border border-red-200 rounded-xl text-red-700 text-sm">
+                  <AlertCircle className="w-4 h-4 flex-shrink-0 mt-0.5" />
+                  <span>{error}</span>
+                </div>
+              )}
+
               <div className="space-y-2">
                 <Label className="text-gray-700">Email</Label>
                 <div className="relative">
@@ -96,7 +129,7 @@ export default function Login() {
                   <Input
                     type="email"
                     value={email}
-                    onChange={(e) => setEmail(e.target.value)}
+                    onChange={(e) => { setEmail(e.target.value); setError(""); }}
                     placeholder="you@example.com"
                     className="pl-10 h-12 border-gray-200"
                     autoComplete="email"
@@ -112,7 +145,7 @@ export default function Login() {
                   <Input
                     type="password"
                     value={password}
-                    onChange={(e) => setPassword(e.target.value)}
+                    onChange={(e) => { setPassword(e.target.value); setError(""); }}
                     placeholder="Your password"
                     className="pl-10 h-12 border-gray-200"
                     autoComplete="current-password"
@@ -124,34 +157,27 @@ export default function Login() {
               <Button
                 type="submit"
                 disabled={isSubmitting}
-                className="w-full h-12 bg-gradient-to-r from-lime-400 to-green-500 hover:from-lime-500 hover:to-green-600 text-white font-semibold shadow-lg shadow-lime-200"
+                className="w-full h-12 bg-gradient-to-r from-lime-400 to-green-500 hover:from-lime-500 hover:to-green-600 text-white font-bold text-base shadow-lg"
               >
                 {isSubmitting ? (
-                  <>
-                    <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />
+                  <div className="flex items-center gap-2">
+                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
                     Signing in…
-                  </>
+                  </div>
                 ) : (
                   "Sign In"
                 )}
               </Button>
 
-              <div className="text-center space-y-2">
-                <div className="text-sm text-gray-500">
-                  <Link className="underline" to={createPageUrl("ForgotPassword")}>
-                    Forgot password?
-                  </Link>
-                </div>
-                <div className="text-sm text-gray-600">
-                  Don't have an account?{" "}
-                  <Link
-                    to={createPageUrl("Signup")}
-                    className="text-lime-600 font-semibold hover:underline"
-                  >
-                    Sign up
-                  </Link>
-                </div>
-              </div>
+              <p className="text-center text-sm text-gray-600 pt-2">
+                Don't have an account?{" "}
+                <Link
+                  to={createPageUrl("Signup")}
+                  className="text-green-600 font-semibold hover:underline"
+                >
+                  Sign up
+                </Link>
+              </p>
             </form>
           </CardContent>
         </Card>

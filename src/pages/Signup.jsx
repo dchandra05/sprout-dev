@@ -1,6 +1,9 @@
+// src/pages/Signup.jsx
+// Fixed: uses supabase.auth.signUp() instead of localStorage
 import React, { useMemo, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
+import { supabase } from "@/lib/supabaseClient";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -8,48 +11,7 @@ import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { Sprout, Mail, Lock, User, ArrowRight } from "lucide-react";
 
-/** ---------- local helpers ---------- */
-const safeParse = (raw, fallback) => {
-  try {
-    return raw ? JSON.parse(raw) : fallback;
-  } catch {
-    return fallback;
-  }
-};
-const getJSON = (key, fallback) => safeParse(localStorage.getItem(key), fallback);
-const setJSON = (key, value) => localStorage.setItem(key, JSON.stringify(value));
-
 const normalizeEmail = (email) => String(email || "").trim().toLowerCase();
-
-const genId = () => {
-  try {
-    return crypto?.randomUUID?.() || `id_${Date.now()}_${Math.random().toString(16).slice(2)}`;
-  } catch {
-    return `id_${Date.now()}_${Math.random().toString(16).slice(2)}`;
-  }
-};
-
-const data = {
-  async listUsers() {
-    return getJSON("sprout_users", []);
-  },
-  async upsertUser(user) {
-    const users = getJSON("sprout_users", []);
-    const idx = users.findIndex((u) => u.id === user.id);
-    if (idx >= 0) users[idx] = { ...users[idx], ...user };
-    else users.push(user);
-    setJSON("sprout_users", users);
-    return user;
-  },
-  async findUserByEmail(email) {
-    const users = getJSON("sprout_users", []);
-    const e = normalizeEmail(email);
-    return users.find((u) => normalizeEmail(u.email) === e) || null;
-  },
-  async setCurrentUser(user) {
-    setJSON("sprout_user", user);
-  },
-};
 
 export default function Signup() {
   const navigate = useNavigate();
@@ -67,12 +29,11 @@ export default function Signup() {
 
   const validate = () => {
     const fullName = String(form.full_name || "").trim();
-    const email = emailNormalized;
     const password = String(form.password || "");
-    const confirm = String(form.confirm_password || "");
+    const confirm  = String(form.confirm_password || "");
 
     if (!fullName) return "Please enter your name.";
-    if (!email || !email.includes("@")) return "Please enter a valid email.";
+    if (!emailNormalized || !emailNormalized.includes("@")) return "Please enter a valid email.";
     if (password.length < 6) return "Password must be at least 6 characters.";
     if (password !== confirm) return "Passwords do not match.";
     return null;
@@ -89,40 +50,69 @@ export default function Signup() {
 
     setIsSubmitting(true);
     try {
-      const existing = await data.findUserByEmail(emailNormalized);
-      if (existing) {
-        toast.error("An account with that email already exists. Try logging in.");
-        setIsSubmitting(false);
+      // ── Step 1: Create Supabase Auth user ──────────────────────────────────
+      const { data: authData, error: signUpError } = await supabase.auth.signUp({
+        email:    emailNormalized,
+        password: form.password,
+        options: {
+          data: {
+            full_name: String(form.full_name || "").trim(),
+          },
+        },
+      });
+
+      if (signUpError) {
+        // Surface recognisable error messages clearly
+        const msg = signUpError.message ?? "";
+        if (msg.toLowerCase().includes("already registered") || msg.toLowerCase().includes("already exists")) {
+          toast.error("An account with that email already exists. Try logging in.");
+        } else {
+          toast.error(msg || "Signup failed. Please try again.");
+        }
         return;
       }
 
-      const newUser = {
-        id: genId(),
-        full_name: String(form.full_name || "").trim(),
-        email: emailNormalized,
-        password: String(form.password || ""),
+      const user = authData?.user;
+      if (!user) {
+        // Supabase project has email confirmation enabled:
+        // the user is created but the session is null until the email is confirmed.
+        toast.success("Account created! Check your email to confirm before logging in. 📧");
+        navigate(createPageUrl("Login"));
+        return;
+      }
 
-        // SIGNUP goes to SchoolSelection first
-        onboarding_completed: false,
-        school_id: "",
-        grade: "",
-        xp_points: 0,
-        level: 1,
-        current_streak: 0,
-        longest_streak: 0,
-        total_lessons_completed: 0,
-        total_courses_completed: 0,
+      // ── Step 2: Upsert profile row ──────────────────────────────────────────
+      // The DB trigger (handle_new_user) should do this automatically,
+      // but we upsert here as a safety net in case the trigger hasn't run yet.
+      const { error: profileError } = await supabase.from("profiles").upsert(
+        {
+          id:           user.id,
+          email:        emailNormalized,
+          full_name:    String(form.full_name || "").trim(),
+          role:         "user",
+          xp_points:    0,
+          level:        1,
+          created_at:   new Date().toISOString(),
+          last_seen_at: new Date().toISOString(),
+        },
+        { onConflict: "id" }
+      );
 
-        created_at: new Date().toISOString(),
-      };
-
-      await data.upsertUser(newUser);
-      await data.setCurrentUser(newUser);
+      if (profileError) {
+        // Not fatal — the trigger may have already created the row
+        console.warn("[Signup] profile upsert warning:", profileError.message);
+      }
 
       toast.success("Account created! 🌱");
-      navigate(createPageUrl("SchoolSelection")); // SIGNUP -> SCHOOL SELECTION
+      // If a session was returned, navigate to onboarding; otherwise ask to log in
+      if (authData?.session) {
+        navigate(createPageUrl("SchoolSelection"));
+      } else {
+        toast("Please check your email to confirm your account before logging in.");
+        navigate(createPageUrl("Login"));
+      }
     } catch (error) {
-      console.error(error);
+      console.error("[Signup] unexpected error:", error);
       toast.error("Signup failed. Please try again.");
     } finally {
       setIsSubmitting(false);
@@ -177,6 +167,7 @@ export default function Signup() {
                 <div className="relative">
                   <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
                   <Input
+                    type="email"
                     value={form.email}
                     onChange={(e) => setForm((p) => ({ ...p, email: e.target.value }))}
                     placeholder="you@example.com"
@@ -204,7 +195,7 @@ export default function Signup() {
                 </div>
               </div>
 
-              {/* Confirm */}
+              {/* Confirm password */}
               <div className="space-y-2">
                 <Label className="text-gray-700 font-semibold">Confirm password</Label>
                 <div className="relative">
@@ -213,7 +204,7 @@ export default function Signup() {
                     type="password"
                     value={form.confirm_password}
                     onChange={(e) => setForm((p) => ({ ...p, confirm_password: e.target.value }))}
-                    placeholder="Re-enter your password"
+                    placeholder="Repeat your password"
                     className="pl-10 h-12"
                     autoComplete="new-password"
                     required
@@ -224,25 +215,25 @@ export default function Signup() {
               <Button
                 type="submit"
                 disabled={isSubmitting}
-                className="w-full h-14 text-base bg-gradient-to-r from-lime-400 to-green-500 hover:from-lime-500 hover:to-green-600 text-white shadow-lg shadow-lime-200"
+                className="w-full h-12 bg-gradient-to-r from-lime-400 to-green-500 hover:from-lime-500 hover:to-green-600 text-white font-bold text-base shadow-lg"
               >
                 {isSubmitting ? (
-                  <>
-                    <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
-                    Creating account...
-                  </>
+                  <div className="flex items-center gap-2">
+                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                    Creating account…
+                  </div>
                 ) : (
-                  <>
+                  <div className="flex items-center gap-2">
                     Create Account
-                    <ArrowRight className="w-5 h-5 ml-2" />
-                  </>
+                    <ArrowRight className="w-5 h-5" />
+                  </div>
                 )}
               </Button>
 
               <p className="text-center text-sm text-gray-600">
                 Already have an account?{" "}
-                <Link to={createPageUrl("Login")} className="text-lime-600 font-semibold hover:underline">
-                  Log in
+                <Link to={createPageUrl("Login")} className="text-green-600 font-semibold hover:underline">
+                  Sign in
                 </Link>
               </p>
             </form>
