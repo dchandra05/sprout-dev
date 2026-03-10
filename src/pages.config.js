@@ -1,3 +1,6 @@
+// src/pages.config.js
+// Updated: Landing page is now the entry point for unauthenticated users
+
 import __Layout from "./Layout.jsx";
 
 import AIDay1 from "./pages/AIDay1";
@@ -37,14 +40,41 @@ import Progress from "./pages/Progress";
 import SchoolSelection from "./pages/SchoolSelection";
 import Simulations from "./pages/Simulations";
 import Welcome from "./pages/Welcome";
-
-// ✅ ADD THESE:
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 
+// ✅ NEW: Landing page
+import Landing from "./pages/Landing";
+
 export const PAGES = {
+  // ─── Public (no auth needed) ────────────────────────────────
+  Landing,   // "/" → landing page
+  Login,
+  Signup,
+  ForgotPassword,
+
+  // ─── Onboarding ─────────────────────────────────────────────
+  SchoolSelection,
+  Welcome,
+
+  // ─── Authenticated app ──────────────────────────────────────
+  Dashboard,
+  Learn,
+  Lesson,
+  CourseDetail,
+  Progress,
+  Goals,
+  Leaderboard,
+  Challenges,
+  Simulations,
+  InvestmentCalculator,
+  PaperTrading,
+  Account,
+  Admin,
+
+  // ─── AI Literacy course ─────────────────────────────────────
+  AILiteracy,
   AIDay1,
-  AIDay10,
   AIDay2,
   AIDay3,
   AIDay4,
@@ -53,40 +83,27 @@ export const PAGES = {
   AIDay7,
   AIDay8,
   AIDay9,
-  AILiteracy,
-  Account,
-  Admin,
+  AIDay10,
+  FinalExam,
+
+  // ─── Finance simulations ─────────────────────────────────────
   BudgetLesson,
   BudgetQuiz,
   BudgetSimulation,
-  Challenges,
-  CourseDetail,
   CreditCardLesson,
   CreditCardQuiz,
-  Dashboard,
-  FinalExam,
-  ForgotPassword,
-  Goals,
-  Home,
-  InvestmentCalculator,
-  Leaderboard,
-  Learn,
-  Lesson,
-  PaperTrading,
   PaycheckLesson,
   PaycheckQuiz,
   PaycheckSimulation,
-  Progress,
-  SchoolSelection,
-  Simulations,
-  Welcome,
-  Login,
-  Signup,
-  
+
+  // ─── Legacy ──────────────────────────────────────────────────
+  Home,
 };
 
 export const pagesConfig = {
-  mainPage: "Dashboard",
+  // Landing is now the root; authenticated users get redirected to Dashboard
+  // by the Landing component itself (checks supabase.auth.getSession)
+  mainPage: "Landing",
   Pages: PAGES,
   Layout: __Layout,
 };
