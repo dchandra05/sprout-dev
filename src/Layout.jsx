@@ -1,233 +1,304 @@
 // src/Layout.jsx
-// Redesigned with dark forest green + white theme
+// Redesigned dark forest green sidebar layout.
+// Uses useAuth() from AuthContext (no external imports that might be missing).
 import React, { useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import {
-  Home, BookOpen, Trophy, User, Target, Sprout,
-  Zap, LogOut, ChevronRight, Menu, X, TrendingUp,
+  Home, BookOpen, Trophy, User, Target,
+  Sprout, Zap, LogOut, ChevronRight, Menu, X, TrendingUp,
 } from "lucide-react";
 import { createPageUrl } from "@/utils";
-import { supabase } from "@/lib/supabaseClient";
-import { getCurrentUser } from "@/lib/appClient";
-
-// ─── Theme tokens ─────────────────────────────────────────────
-// bg-[#0f2d1a]  = dark forest sidebar
-// bg-[#0a1f10]  = slightly deeper main bg
-// text-green-400 = accent
+import { useAuth } from "@/lib/AuthContext";
 
 const NAV_ITEMS = [
-  { name: "Dashboard", icon: Home,     path: "Dashboard" },
-  { name: "Learn",     icon: BookOpen, path: "Learn" },
-  { name: "Simulations", icon: Target, path: "Simulations" },
-  { name: "Challenges", icon: Zap,     path: "Challenges" },
-  { name: "Progress",  icon: TrendingUp, path: "Progress" },
-  { name: "Rankings",  icon: Trophy,   path: "Leaderboard" },
-  { name: "Account",   icon: User,     path: "Account" },
+  { name: "Dashboard",   icon: Home,        path: "Dashboard" },
+  { name: "Learn",       icon: BookOpen,    path: "Learn" },
+  { name: "Simulations", icon: Target,      path: "Simulations" },
+  { name: "Challenges",  icon: Zap,         path: "Challenges" },
+  { name: "Progress",    icon: TrendingUp,  path: "Progress" },
+  { name: "Rankings",    icon: Trophy,      path: "Leaderboard" },
+  { name: "Account",     icon: User,        path: "Account" },
 ];
 
-// Pages that render without the sidebar (full-screen layout)
-const NO_LAYOUT_PAGES = new Set([
-  "landing",
-  "login",
-  "signup",
-  "forgotpassword",
-  "schoolselection",
-  "welcome",
-  "home",
+// Pages that render full-screen with no sidebar
+const NO_LAYOUT = new Set([
+  "landing", "login", "signup", "forgotpassword",
+  "schoolselection", "welcome", "home",
 ]);
+
+const syne = { fontFamily: "'Syne', sans-serif" };
+
+// Inline styles for the sidebar theme
+const S = {
+  sidebar: {
+    width: 232,
+    background: "#0f2d1a",
+    borderRight: "1px solid rgba(20,83,45,0.5)",
+    display: "flex",
+    flexDirection: "column",
+    height: "100%",
+    position: "fixed",
+    top: 0,
+    left: 0,
+    bottom: 0,
+    zIndex: 30,
+    overflowY: "auto",
+  },
+  logoArea: {
+    display: "flex",
+    alignItems: "center",
+    gap: 10,
+    padding: "22px 18px",
+    borderBottom: "1px solid rgba(20,83,45,0.5)",
+  },
+  logoIcon: {
+    width: 34,
+    height: 34,
+    background: "linear-gradient(135deg,#4ade80,#16a34a)",
+    borderRadius: 10,
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    flexShrink: 0,
+    boxShadow: "0 4px 12px rgba(22,163,74,0.3)",
+  },
+  userPill: {
+    margin: "14px 12px 4px",
+    padding: "10px 12px",
+    background: "rgba(20,83,45,0.4)",
+    border: "1px solid rgba(20,83,45,0.7)",
+    borderRadius: 14,
+    display: "flex",
+    alignItems: "center",
+    gap: 10,
+  },
+  avatar: {
+    width: 34,
+    height: 34,
+    background: "linear-gradient(135deg,#4ade80,#16a34a)",
+    borderRadius: "50%",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    color: "white",
+    fontWeight: 700,
+    fontSize: 14,
+    flexShrink: 0,
+  },
+  navArea: { flex: 1, padding: "8px 10px" },
+  navLink: (active) => ({
+    display: "flex",
+    alignItems: "center",
+    gap: 10,
+    padding: "9px 12px",
+    borderRadius: 12,
+    textDecoration: "none",
+    fontSize: 14,
+    fontWeight: 500,
+    marginBottom: 2,
+    transition: "all 0.15s",
+    background:    active ? "rgba(74,222,128,0.1)"  : "transparent",
+    color:         active ? "#86efac"                : "rgba(134,239,172,0.45)",
+    border:        active ? "1px solid rgba(74,222,128,0.2)" : "1px solid transparent",
+  }),
+  logoutBtn: {
+    display: "flex",
+    alignItems: "center",
+    gap: 10,
+    width: "100%",
+    padding: "9px 12px",
+    borderRadius: 12,
+    fontSize: 14,
+    fontWeight: 500,
+    background: "none",
+    border: "none",
+    cursor: "pointer",
+    color: "rgba(134,239,172,0.3)",
+    transition: "all 0.15s",
+  },
+  mainBg: { background: "#071510", minHeight: "100vh", color: "white" },
+  mobileHeader: {
+    position: "fixed",
+    top: 0, left: 0, right: 0,
+    height: 56,
+    background: "rgba(15,45,26,0.97)",
+    borderBottom: "1px solid rgba(20,83,45,0.5)",
+    backdropFilter: "blur(16px)",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "space-between",
+    padding: "0 16px",
+    zIndex: 40,
+  },
+  bottomNav: {
+    position: "fixed",
+    bottom: 0, left: 0, right: 0,
+    background: "rgba(15,45,26,0.97)",
+    borderTop: "1px solid rgba(20,83,45,0.5)",
+    backdropFilter: "blur(16px)",
+    display: "flex",
+    justifyContent: "space-around",
+    padding: "8px 0 10px",
+    zIndex: 40,
+  },
+};
 
 export default function Layout({ children, currentPageName }) {
   const location = useLocation();
   const navigate = useNavigate();
+  const { user, logout } = useAuth();
   const [mobileOpen, setMobileOpen] = useState(false);
-  const [user, setUser] = React.useState(null);
-
-  React.useEffect(() => {
-    getCurrentUser().then(setUser).catch(() => setUser(null));
-  }, [location.pathname]);
-
-  const handleLogout = async () => {
-    await supabase.auth.signOut();
-    navigate(createPageUrl("Login"));
-  };
 
   const pageName = String(currentPageName || "").toLowerCase();
 
-  // Full-screen pages (no sidebar)
-  if (NO_LAYOUT_PAGES.has(pageName)) {
+  const handleLogout = () => {
+    if (typeof logout === "function") logout(false);
+    navigate(createPageUrl("Login"));
+  };
+
+  // Full-screen pages — no sidebar
+  if (NO_LAYOUT.has(pageName)) {
     return <>{children}</>;
   }
 
-  const isActive = (pageKey) => location.pathname === createPageUrl(pageKey);
+  const isActive = (key) => location.pathname === createPageUrl(key);
 
-  return (
-    <div className="min-h-screen bg-[#071510] flex">
+  const displayName = user?.full_name || user?.email || "Student";
+  const initials = displayName[0]?.toUpperCase() ?? "S";
+  const level = user?.level ?? 1;
+  const xp    = (user?.xp_points ?? 0).toLocaleString();
 
-      {/* ── Desktop Sidebar ─────────────────────────────────── */}
-      <aside className="hidden lg:flex lg:flex-col lg:fixed lg:inset-y-0 lg:w-60 bg-[#0f2d1a] border-r border-green-900/40">
-
+  // ── Sidebar inner content (shared between desktop + mobile drawer) ──────────
+  function SidebarContent() {
+    return (
+      <>
         {/* Logo */}
-        <div className="flex items-center gap-3 px-5 py-6 border-b border-green-900/40">
-          <div className="w-9 h-9 bg-gradient-to-br from-green-400 to-emerald-600 rounded-xl flex items-center justify-center shadow-lg shadow-green-900/50 flex-shrink-0">
-            <Sprout className="w-5 h-5 text-white" />
-          </div>
+        <div style={S.logoArea}>
+          <div style={S.logoIcon}><Sprout size={18} color="white" /></div>
           <div>
-            <h1 className="text-lg font-black text-white tracking-tight leading-none" style={{ fontFamily: "'Syne', sans-serif" }}>
-              Sprout
-            </h1>
-            <p className="text-xs text-green-500/70 mt-0.5">Grow Your Knowledge</p>
+            <p style={{ ...syne, fontSize: 18, fontWeight: 900, color: "white", margin: 0, lineHeight: 1 }}>Sprout</p>
+            <p style={{ fontSize: 11, color: "rgba(74,222,128,0.5)", margin: 0, marginTop: 2 }}>Grow Your Knowledge</p>
           </div>
         </div>
 
         {/* User pill */}
-        {user && (
-          <div className="mx-4 mt-4 px-3 py-3 bg-green-900/30 border border-green-800/40 rounded-xl flex items-center gap-3">
-            <div className="w-8 h-8 bg-gradient-to-br from-green-400 to-emerald-600 rounded-full flex items-center justify-center text-white font-bold text-sm flex-shrink-0">
-              {(user.full_name || user.email || "?")[0].toUpperCase()}
-            </div>
-            <div className="min-w-0 flex-1">
-              <p className="text-sm font-semibold text-white truncate leading-none">
-                {user.full_name || "Student"}
-              </p>
-              <p className="text-xs text-green-400/60 mt-0.5">
-                Lv {user.level ?? 1} · {(user.xp_points ?? 0).toLocaleString()} XP
-              </p>
-            </div>
+        <div style={S.userPill}>
+          <div style={S.avatar}>{initials}</div>
+          <div style={{ minWidth: 0, flex: 1 }}>
+            <p style={{ fontSize: 13, fontWeight: 600, color: "white", margin: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+              {displayName}
+            </p>
+            <p style={{ fontSize: 11, color: "rgba(74,222,128,0.5)", margin: 0, marginTop: 1 }}>
+              Lv {level} · {xp} XP
+            </p>
           </div>
-        )}
+        </div>
 
         {/* Nav */}
-        <nav className="flex-1 px-3 py-4 space-y-0.5">
+        <nav style={S.navArea}>
           {NAV_ITEMS.map(({ name, icon: Icon, path }) => {
             const active = isActive(path);
             return (
               <Link
                 key={name}
                 to={createPageUrl(path)}
-                className={`flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-150 group ${
-                  active
-                    ? "bg-green-500/15 text-green-300 border border-green-500/20"
-                    : "text-green-200/50 hover:text-green-200 hover:bg-green-900/30"
-                }`}
+                onClick={() => setMobileOpen(false)}
+                style={S.navLink(active)}
+                onMouseOver={e => { if (!active) { e.currentTarget.style.background = "rgba(20,83,45,0.4)"; e.currentTarget.style.color = "rgba(187,247,208,0.8)"; } }}
+                onMouseOut={e => { if (!active) { e.currentTarget.style.background = "transparent"; e.currentTarget.style.color = "rgba(134,239,172,0.45)"; } }}
               >
-                <Icon className={`w-4.5 h-4.5 ${active ? "text-green-400" : "text-current"}`} style={{ width: "18px", height: "18px" }} />
-                <span className="text-sm font-medium">{name}</span>
-                {active && <ChevronRight className="w-3.5 h-3.5 ml-auto text-green-500/50" />}
+                <Icon size={17} />
+                <span>{name}</span>
+                {active && <ChevronRight size={13} style={{ marginLeft: "auto", color: "rgba(74,222,128,0.4)" }} />}
               </Link>
             );
           })}
         </nav>
 
         {/* Logout */}
-        <div className="px-3 py-4 border-t border-green-900/40">
+        <div style={{ padding: "10px 10px 16px", borderTop: "1px solid rgba(20,83,45,0.5)" }}>
           <button
             onClick={handleLogout}
-            className="flex items-center gap-3 w-full px-3 py-2.5 rounded-xl text-green-200/40 hover:text-red-400 hover:bg-red-900/10 transition-all duration-150 text-sm font-medium"
+            style={S.logoutBtn}
+            onMouseOver={e => { e.currentTarget.style.color = "#f87171"; e.currentTarget.style.background = "rgba(239,68,68,0.08)"; }}
+            onMouseOut={e => { e.currentTarget.style.color = "rgba(134,239,172,0.3)"; e.currentTarget.style.background = "none"; }}
           >
-            <LogOut style={{ width: "18px", height: "18px" }} />
+            <LogOut size={17} />
             Sign out
           </button>
         </div>
+      </>
+    );
+  }
+
+  return (
+    <>
+      <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=Syne:wght@700;800;900&display=swap');
+        * { box-sizing: border-box; }
+        @media (min-width: 1024px) {
+          .sprout-mobile-header { display: none !important; }
+          .sprout-bottom-nav { display: none !important; }
+          .sprout-desktop-sidebar { display: flex !important; }
+        }
+        @media (max-width: 1023px) {
+          .sprout-desktop-sidebar { display: none !important; }
+          .sprout-main-content { margin-left: 0 !important; padding-top: 56px !important; }
+        }
+      `}</style>
+
+      {/* Desktop sidebar */}
+      <aside className="sprout-desktop-sidebar" style={{ ...S.sidebar, display: "none" /* overridden by CSS */ }}>
+        <SidebarContent />
       </aside>
 
-      {/* ── Mobile header ───────────────────────────────────── */}
-      <div className="lg:hidden fixed top-0 left-0 right-0 z-40 bg-[#0f2d1a]/95 backdrop-blur-xl border-b border-green-900/40 h-14 flex items-center px-4 justify-between">
-        <div className="flex items-center gap-2">
-          <div className="w-7 h-7 bg-gradient-to-br from-green-400 to-emerald-600 rounded-lg flex items-center justify-center">
-            <Sprout className="w-4 h-4 text-white" />
-          </div>
-          <span className="text-white font-black text-lg" style={{ fontFamily: "'Syne', sans-serif" }}>Sprout</span>
+      {/* Mobile header */}
+      <div className="sprout-mobile-header" style={S.mobileHeader}>
+        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+          <div style={{ ...S.logoIcon, width: 28, height: 28 }}><Sprout size={14} color="white" /></div>
+          <span style={{ ...syne, fontSize: 18, fontWeight: 900, color: "white" }}>Sprout</span>
         </div>
-        <button
-          onClick={() => setMobileOpen(!mobileOpen)}
-          className="text-green-300 hover:text-white p-1.5"
-        >
-          {mobileOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+        <button onClick={() => setMobileOpen(!mobileOpen)} style={{ background: "none", border: "none", cursor: "pointer", color: "#86efac", padding: 4 }}>
+          {mobileOpen ? <X size={22} /> : <Menu size={22} />}
         </button>
       </div>
 
       {/* Mobile drawer */}
       {mobileOpen && (
-        <div className="lg:hidden fixed inset-0 z-30 pt-14">
-          <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setMobileOpen(false)} />
-          <div className="relative bg-[#0f2d1a] w-72 h-full border-r border-green-900/40 flex flex-col overflow-y-auto">
-            {user && (
-              <div className="mx-4 mt-4 mb-2 px-3 py-3 bg-green-900/30 border border-green-800/40 rounded-xl flex items-center gap-3">
-                <div className="w-9 h-9 bg-gradient-to-br from-green-400 to-emerald-600 rounded-full flex items-center justify-center text-white font-bold">
-                  {(user.full_name || "?")[0].toUpperCase()}
-                </div>
-                <div>
-                  <p className="text-sm font-semibold text-white">{user.full_name || "Student"}</p>
-                  <p className="text-xs text-green-400/60">Lv {user.level ?? 1} · {(user.xp_points ?? 0).toLocaleString()} XP</p>
-                </div>
-              </div>
-            )}
-            <nav className="flex-1 px-3 py-2 space-y-0.5">
-              {NAV_ITEMS.map(({ name, icon: Icon, path }) => {
-                const active = isActive(path);
-                return (
-                  <Link
-                    key={name}
-                    to={createPageUrl(path)}
-                    onClick={() => setMobileOpen(false)}
-                    className={`flex items-center gap-3 px-3 py-3 rounded-xl transition-all ${
-                      active
-                        ? "bg-green-500/15 text-green-300 border border-green-500/20"
-                        : "text-green-200/50 hover:text-green-200 hover:bg-green-900/30"
-                    }`}
-                  >
-                    <Icon style={{ width: "18px", height: "18px" }} />
-                    <span className="font-medium">{name}</span>
-                  </Link>
-                );
-              })}
-            </nav>
-            <div className="px-3 py-4 border-t border-green-900/40">
-              <button
-                onClick={handleLogout}
-                className="flex items-center gap-3 w-full px-3 py-2.5 rounded-xl text-green-200/40 hover:text-red-400 text-sm font-medium"
-              >
-                <LogOut style={{ width: "18px", height: "18px" }} />
-                Sign out
-              </button>
-            </div>
-          </div>
-        </div>
+        <>
+          <div onClick={() => setMobileOpen(false)} style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.6)", backdropFilter: "blur(4px)", zIndex: 35 }} />
+          <aside style={{ ...S.sidebar, width: 260, zIndex: 45, display: "flex" }}>
+            <SidebarContent />
+          </aside>
+        </>
       )}
 
-      {/* ── Main content area ───────────────────────────────── */}
-      <div className="flex-1 lg:ml-60">
-        {/* Mobile top spacing */}
-        <div className="lg:hidden h-14" />
-
-        <main className="min-h-screen pb-24 lg:pb-8 px-4 md:px-6 lg:px-8 py-6 lg:py-8 text-white">
+      {/* Main content */}
+      <div
+        className="sprout-main-content"
+        style={{ ...S.mainBg, marginLeft: 232, paddingBottom: 40 }}
+      >
+        <main style={{ padding: "28px 24px 80px", maxWidth: 1200, margin: "0 auto" }}>
           {children}
         </main>
       </div>
 
-      {/* ── Mobile bottom nav ───────────────────────────────── */}
-      <div className="lg:hidden fixed bottom-0 left-0 right-0 bg-[#0f2d1a]/95 backdrop-blur-xl border-t border-green-900/40 z-40">
-        <nav className="flex justify-around items-center px-2 py-2 max-w-lg mx-auto">
-          {NAV_ITEMS.slice(0, 5).map(({ name, icon: Icon, path }) => {
-            const active = isActive(path);
-            return (
-              <Link
-                key={name}
-                to={createPageUrl(path)}
-                className={`flex flex-col items-center gap-1 px-3 py-1.5 rounded-lg transition-colors ${
-                  active ? "text-green-400" : "text-green-700"
-                }`}
-              >
-                <Icon style={{ width: "20px", height: "20px" }} />
-                <span className="text-[10px] font-medium">{name}</span>
-              </Link>
-            );
-          })}
-        </nav>
+      {/* Mobile bottom nav */}
+      <div className="sprout-bottom-nav" style={S.bottomNav}>
+        {NAV_ITEMS.slice(0, 5).map(({ name, icon: Icon, path }) => {
+          const active = isActive(path);
+          return (
+            <Link
+              key={name}
+              to={createPageUrl(path)}
+              style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 3, color: active ? "#4ade80" : "rgba(20,83,45,0.9)", textDecoration: "none", padding: "4px 12px" }}
+            >
+              <Icon size={20} />
+              <span style={{ fontSize: 10, fontWeight: 600 }}>{name}</span>
+            </Link>
+          );
+        })}
       </div>
-
-      {/* Google Fonts for Syne */}
-      <style>{`@import url('https://fonts.googleapis.com/css2?family=Syne:wght@700;800;900&display=swap');`}</style>
-    </div>
+    </>
   );
 }

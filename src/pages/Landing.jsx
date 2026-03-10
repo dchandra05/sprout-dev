@@ -1,16 +1,15 @@
 // src/pages/Landing.jsx
-// Sprout landing page — dark forest green + crisp white
-// First thing users see when they open the app (unauthenticated)
+// Landing page — dark forest green + white
+// Auth redirect: checks localStorage for sprout_user (works with existing AuthContext stub)
 import React, { useState, useEffect } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { createPageUrl } from "@/utils";
-import { supabase } from "@/lib/supabaseClient";
 import {
-  Sprout, ArrowRight, BookOpen, TrendingUp, Shield, Users,
-  Zap, CheckCircle, ChevronDown, Star, Award, Target
+  Sprout, ArrowRight, BookOpen, TrendingUp, Shield,
+  Zap, ChevronDown, Star, Award,
 } from "lucide-react";
 
-// ─── Data ────────────────────────────────────────────────────
+// ─── Static data ──────────────────────────────────────────────
 
 const FEATURES = [
   {
@@ -21,7 +20,7 @@ const FEATURES = [
   {
     icon: TrendingUp,
     title: "Real Simulations",
-    desc: "Practice reading a paycheck, building a budget, or managing a credit card — with real numbers and real stakes.",
+    desc: "Practice reading a paycheck, building a budget, or managing a credit card — with real numbers, real consequences.",
   },
   {
     icon: Zap,
@@ -36,116 +35,77 @@ const FEATURES = [
 ];
 
 const COURSES = [
-  {
-    emoji: "💵",
-    title: "Budgeting Basics",
-    lessons: 6,
-    level: "Beginner",
-    color: "#22c55e",
-  },
-  {
-    emoji: "📈",
-    title: "Investing 101",
-    lessons: 8,
-    level: "Intermediate",
-    color: "#16a34a",
-  },
-  {
-    emoji: "💳",
-    title: "Credit & Debt",
-    lessons: 7,
-    level: "Beginner",
-    color: "#15803d",
-  },
-  {
-    emoji: "🧾",
-    title: "Understanding Paychecks",
-    lessons: 5,
-    level: "Beginner",
-    color: "#166534",
-  },
-  {
-    emoji: "🏠",
-    title: "Saving for Goals",
-    lessons: 6,
-    level: "Intermediate",
-    color: "#14532d",
-  },
-  {
-    emoji: "🤖",
-    title: "AI Literacy",
-    lessons: 10,
-    level: "All levels",
-    color: "#1a7a3c",
-  },
+  { emoji: "💵", title: "Budgeting Basics",         lessons: 6,  level: "Beginner",     color: "#22c55e" },
+  { emoji: "📈", title: "Investing 101",             lessons: 8,  level: "Intermediate", color: "#16a34a" },
+  { emoji: "💳", title: "Credit & Debt",             lessons: 7,  level: "Beginner",     color: "#15803d" },
+  { emoji: "🧾", title: "Understanding Paychecks",   lessons: 5,  level: "Beginner",     color: "#166534" },
+  { emoji: "🏠", title: "Saving for Goals",          lessons: 6,  level: "Intermediate", color: "#14532d" },
+  { emoji: "🤖", title: "AI Literacy",               lessons: 10, level: "All levels",   color: "#1a7a3c" },
 ];
 
 const STATS = [
-  { value: "10+", label: "Courses" },
-  { value: "100+", label: "Lessons" },
-  { value: "Free", label: "Always" },
+  { value: "10+",   label: "Courses" },
+  { value: "100+",  label: "Lessons" },
+  { value: "Free",  label: "Always" },
   { value: "5 min", label: "Per lesson" },
 ];
 
 const HOW_IT_WORKS = [
-  {
-    step: "01",
-    title: "Create your account",
-    desc: "Sign up in 30 seconds. No credit card. No spam.",
-  },
-  {
-    step: "02",
-    title: "Pick a course",
-    desc: "Start with budgeting basics or jump to investing — your call.",
-  },
-  {
-    step: "03",
-    title: "Learn by doing",
-    desc: "Answer questions, run simulations, and earn XP as you go.",
-  },
-  {
-    step: "04",
-    title: "Level up for real",
-    desc: "Apply what you learn. Track your progress. Build real skills.",
-  },
+  { step: "01", title: "Create your account",  desc: "Sign up in 30 seconds. No credit card. No spam." },
+  { step: "02", title: "Pick a course",         desc: "Start with budgeting basics or jump to investing — your call." },
+  { step: "03", title: "Learn by doing",        desc: "Answer questions, run simulations, and earn XP as you go." },
+  { step: "04", title: "Level up for real",     desc: "Apply what you learn. Track your progress. Build real skills." },
 ];
 
-// ─── Subcomponents ────────────────────────────────────────────
+const QUOTES = [
+  { text: "I finally understand how my paycheck works. I learned more in one afternoon than a full semester of econ.", name: "Marcus T.", role: "High school senior" },
+  { text: "The budget simulator actually felt like a game. I didn't realize I was learning until I was three lessons in.", name: "Priya K.", role: "College freshman" },
+  { text: "Finally an app that teaches money stuff without making it boring. I recommend it to everyone.", name: "Jordan L.", role: "Community college student" },
+];
 
-function Nav({ scrolled }) {
-  const navigate = useNavigate();
+// ─── Shared styles ────────────────────────────────────────────
+const syne = { fontFamily: "'Syne', sans-serif" };
+
+// ─── Sub-sections ─────────────────────────────────────────────
+
+function Nav({ scrolled, navigate }) {
   return (
     <header
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-        scrolled
-          ? "bg-[#0f2d1a]/95 backdrop-blur-xl border-b border-green-900/40 shadow-xl shadow-black/20"
-          : "bg-transparent"
-      }`}
+      style={{
+        position: "fixed", top: 0, left: 0, right: 0, zIndex: 50,
+        transition: "all 0.3s",
+        background: scrolled ? "rgba(15,45,26,0.97)" : "transparent",
+        borderBottom: scrolled ? "1px solid rgba(34,197,94,0.15)" : "1px solid transparent",
+        backdropFilter: scrolled ? "blur(16px)" : "none",
+      }}
     >
-      <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
-        <div className="flex items-center gap-2.5">
-          <div className="w-8 h-8 bg-gradient-to-br from-green-400 to-emerald-600 rounded-lg flex items-center justify-center">
-            <Sprout className="w-5 h-5 text-white" />
+      <div style={{ maxWidth: 1100, margin: "0 auto", padding: "0 24px", height: 64, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+        {/* Logo */}
+        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+          <div style={{ width: 34, height: 34, background: "linear-gradient(135deg,#4ade80,#16a34a)", borderRadius: 10, display: "flex", alignItems: "center", justifyContent: "center" }}>
+            <Sprout size={18} color="white" />
           </div>
-          <span className="text-xl font-bold text-white tracking-tight">Sprout</span>
+          <span style={{ ...syne, fontSize: 20, fontWeight: 900, color: "white" }}>Sprout</span>
         </div>
 
-        <nav className="hidden md:flex items-center gap-8 text-sm font-medium text-green-200">
-          <a href="#features" className="hover:text-white transition-colors">Features</a>
-          <a href="#courses" className="hover:text-white transition-colors">Courses</a>
-          <a href="#how-it-works" className="hover:text-white transition-colors">How it works</a>
+        {/* Nav links - desktop */}
+        <nav style={{ display: "flex", gap: 32, fontSize: 14, fontWeight: 500, color: "rgba(134,239,172,0.8)" }} className="sprout-nav-links">
+          <a href="#features" style={{ color: "inherit", textDecoration: "none" }} onMouseOver={e => e.target.style.color="#fff"} onMouseOut={e => e.target.style.color="rgba(134,239,172,0.8)"}>Features</a>
+          <a href="#courses"  style={{ color: "inherit", textDecoration: "none" }} onMouseOver={e => e.target.style.color="#fff"} onMouseOut={e => e.target.style.color="rgba(134,239,172,0.8)"}>Courses</a>
+          <a href="#how"      style={{ color: "inherit", textDecoration: "none" }} onMouseOver={e => e.target.style.color="#fff"} onMouseOut={e => e.target.style.color="rgba(134,239,172,0.8)"}>How it works</a>
         </nav>
 
-        <div className="flex items-center gap-3">
+        {/* Buttons */}
+        <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
           <button
             onClick={() => navigate(createPageUrl("Login"))}
-            className="text-sm font-medium text-green-200 hover:text-white transition-colors px-3 py-1.5"
+            style={{ fontSize: 14, fontWeight: 600, color: "rgba(134,239,172,0.8)", background: "none", border: "none", cursor: "pointer", padding: "6px 12px" }}
           >
             Sign in
           </button>
           <button
             onClick={() => navigate(createPageUrl("Signup"))}
-            className="text-sm font-bold bg-green-400 hover:bg-green-300 text-green-950 px-4 py-2 rounded-full transition-all duration-200 shadow-lg shadow-green-400/20"
+            style={{ fontSize: 14, fontWeight: 700, background: "#4ade80", color: "#052e16", padding: "9px 20px", borderRadius: 999, border: "none", cursor: "pointer", boxShadow: "0 4px 20px rgba(74,222,128,0.3)" }}
           >
             Get started free
           </button>
@@ -157,81 +117,61 @@ function Nav({ scrolled }) {
 
 function Hero({ navigate }) {
   return (
-    <section className="relative min-h-screen flex flex-col items-center justify-center px-6 text-center overflow-hidden">
-      {/* Background layers */}
-      <div className="absolute inset-0 bg-[#0a1f10]" />
-      <div
-        className="absolute inset-0 opacity-40"
-        style={{
-          backgroundImage: `radial-gradient(ellipse 80% 50% at 50% -10%, #16a34a, transparent)`,
-        }}
-      />
-      {/* Subtle grid */}
-      <div
-        className="absolute inset-0 opacity-[0.04]"
-        style={{
-          backgroundImage: `linear-gradient(#22c55e 1px, transparent 1px), linear-gradient(90deg, #22c55e 1px, transparent 1px)`,
-          backgroundSize: "60px 60px",
-        }}
-      />
-      {/* Floating orbs */}
-      <div className="absolute top-1/4 left-1/6 w-64 h-64 rounded-full bg-green-500/10 blur-3xl animate-pulse" style={{ animationDuration: "4s" }} />
-      <div className="absolute bottom-1/4 right-1/6 w-48 h-48 rounded-full bg-emerald-400/10 blur-3xl animate-pulse" style={{ animationDuration: "6s" }} />
+    <section style={{ position: "relative", minHeight: "100vh", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", textAlign: "center", padding: "80px 24px 60px", overflow: "hidden", background: "#0a1f10" }}>
+      {/* Radial glow */}
+      <div style={{ position: "absolute", inset: 0, background: "radial-gradient(ellipse 80% 50% at 50% -10%, #16a34a55, transparent)", pointerEvents: "none" }} />
+      {/* Grid */}
+      <div style={{ position: "absolute", inset: 0, opacity: 0.04, backgroundImage: "linear-gradient(#22c55e 1px,transparent 1px),linear-gradient(90deg,#22c55e 1px,transparent 1px)", backgroundSize: "60px 60px", pointerEvents: "none" }} />
 
-      <div className="relative z-10 max-w-4xl mx-auto">
+      <div style={{ position: "relative", zIndex: 1, maxWidth: 820, margin: "0 auto" }}>
         {/* Badge */}
-        <div className="inline-flex items-center gap-2 bg-green-900/60 border border-green-700/50 rounded-full px-4 py-1.5 mb-8 backdrop-blur-sm">
-          <span className="w-2 h-2 rounded-full bg-green-400 animate-pulse" />
-          <span className="text-sm text-green-300 font-medium">Free for all students</span>
+        <div style={{ display: "inline-flex", alignItems: "center", gap: 8, background: "rgba(20,83,45,0.7)", border: "1px solid rgba(74,222,128,0.25)", borderRadius: 999, padding: "6px 16px", marginBottom: 32, backdropFilter: "blur(8px)" }}>
+          <span style={{ width: 8, height: 8, borderRadius: "50%", background: "#4ade80", display: "inline-block" }} />
+          <span style={{ fontSize: 13, color: "#86efac", fontWeight: 500 }}>Free for all students</span>
         </div>
 
         {/* Headline */}
-        <h1
-          className="text-5xl sm:text-6xl md:text-7xl font-black text-white leading-[1.05] tracking-tight mb-6"
-          style={{ fontFamily: "'Syne', sans-serif" }}
-        >
+        <h1 style={{ ...syne, fontSize: "clamp(40px,7vw,72px)", fontWeight: 900, color: "white", lineHeight: 1.05, marginBottom: 24, letterSpacing: "-1px" }}>
           Master your money.{" "}
-          <span className="text-transparent bg-clip-text bg-gradient-to-r from-green-300 to-emerald-400">
+          <span style={{ background: "linear-gradient(135deg,#86efac,#4ade80)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>
             One lesson at a time.
           </span>
         </h1>
 
-        <p className="text-lg sm:text-xl text-green-200/80 max-w-2xl mx-auto mb-10 leading-relaxed">
-          Sprout teaches real-world personal finance through interactive lessons,
-          hands-on simulations, and a system that makes learning addictive.
+        <p style={{ fontSize: "clamp(16px,2vw,20px)", color: "rgba(187,247,208,0.75)", maxWidth: 600, margin: "0 auto 40px", lineHeight: 1.65 }}>
+          Sprout teaches real-world personal finance through interactive lessons, hands-on simulations, and a system that makes learning feel like a game.
         </p>
 
         {/* CTAs */}
-        <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-16">
+        <div style={{ display: "flex", gap: 14, justifyContent: "center", flexWrap: "wrap", marginBottom: 60 }}>
           <button
             onClick={() => navigate(createPageUrl("Signup"))}
-            className="group flex items-center gap-2 bg-green-400 hover:bg-green-300 text-green-950 font-bold text-base px-8 py-4 rounded-full transition-all duration-200 shadow-2xl shadow-green-400/30 w-full sm:w-auto justify-center"
+            style={{ display: "flex", alignItems: "center", gap: 8, background: "#4ade80", color: "#052e16", fontWeight: 700, fontSize: 16, padding: "14px 32px", borderRadius: 999, border: "none", cursor: "pointer", boxShadow: "0 8px 32px rgba(74,222,128,0.35)" }}
           >
-            Start learning free
-            <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+            Start learning free <ArrowRight size={18} />
           </button>
           <button
             onClick={() => navigate(createPageUrl("Login"))}
-            className="flex items-center gap-2 border border-green-700/60 hover:border-green-500/60 text-green-200 hover:text-white font-semibold text-base px-8 py-4 rounded-full transition-all duration-200 backdrop-blur-sm w-full sm:w-auto justify-center"
+            style={{ display: "flex", alignItems: "center", gap: 8, background: "transparent", color: "rgba(187,247,208,0.85)", fontWeight: 600, fontSize: 16, padding: "14px 32px", borderRadius: 999, border: "1px solid rgba(74,222,128,0.3)", cursor: "pointer" }}
           >
             I have an account
           </button>
         </div>
 
-        {/* Stats row */}
-        <div className="grid grid-cols-4 gap-6 max-w-xl mx-auto">
-          {STATS.map((s) => (
-            <div key={s.label} className="text-center">
-              <p className="text-2xl font-black text-white">{s.value}</p>
-              <p className="text-xs text-green-400/70 font-medium mt-0.5">{s.label}</p>
+        {/* Stats */}
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 24, maxWidth: 460, margin: "0 auto" }}>
+          {STATS.map(s => (
+            <div key={s.label} style={{ textAlign: "center" }}>
+              <p style={{ ...syne, fontSize: 26, fontWeight: 900, color: "white", margin: 0 }}>{s.value}</p>
+              <p style={{ fontSize: 11, color: "rgba(74,222,128,0.6)", fontWeight: 500, marginTop: 2 }}>{s.label}</p>
             </div>
           ))}
         </div>
       </div>
 
       {/* Scroll cue */}
-      <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-1 text-green-600 animate-bounce">
-        <ChevronDown className="w-5 h-5" />
+      <div style={{ position: "absolute", bottom: 28, left: "50%", transform: "translateX(-50%)", color: "#15803d", animation: "bounce 2s infinite" }}>
+        <ChevronDown size={22} />
       </div>
     </section>
   );
@@ -239,32 +179,25 @@ function Hero({ navigate }) {
 
 function Features() {
   return (
-    <section id="features" className="py-24 px-6 bg-[#0d2515]">
-      <div className="max-w-6xl mx-auto">
-        <div className="text-center mb-16">
-          <p className="text-green-400 font-semibold text-sm uppercase tracking-widest mb-3">Why Sprout</p>
-          <h2
-            className="text-4xl md:text-5xl font-black text-white leading-tight"
-            style={{ fontFamily: "'Syne', sans-serif" }}
-          >
+    <section id="features" style={{ padding: "96px 24px", background: "#0d2515" }}>
+      <div style={{ maxWidth: 1100, margin: "0 auto" }}>
+        <div style={{ textAlign: "center", marginBottom: 56 }}>
+          <p style={{ fontSize: 12, fontWeight: 700, letterSpacing: "0.15em", textTransform: "uppercase", color: "#4ade80", marginBottom: 12 }}>Why Sprout</p>
+          <h2 style={{ ...syne, fontSize: "clamp(30px,4vw,48px)", fontWeight: 900, color: "white", margin: 0 }}>
             Financial education{" "}
-            <span className="text-green-400">that actually works</span>
+            <span style={{ color: "#4ade80" }}>that actually works</span>
           </h2>
         </div>
-
-        <div className="grid md:grid-cols-2 gap-6">
-          {FEATURES.map((f) => {
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(280px,1fr))", gap: 20 }}>
+          {FEATURES.map(f => {
             const Icon = f.icon;
             return (
-              <div
-                key={f.title}
-                className="group bg-[#0f2d1a] hover:bg-[#122f1d] border border-green-900/50 hover:border-green-700/50 rounded-2xl p-8 transition-all duration-300"
-              >
-                <div className="w-12 h-12 bg-green-500/10 border border-green-500/20 rounded-xl flex items-center justify-center mb-5 group-hover:bg-green-500/15 transition-colors">
-                  <Icon className="w-6 h-6 text-green-400" />
+              <div key={f.title} style={{ background: "#0f2d1a", border: "1px solid rgba(20,83,45,0.7)", borderRadius: 20, padding: 32 }}>
+                <div style={{ width: 48, height: 48, background: "rgba(74,222,128,0.08)", border: "1px solid rgba(74,222,128,0.15)", borderRadius: 14, display: "flex", alignItems: "center", justifyContent: "center", marginBottom: 20 }}>
+                  <Icon size={22} color="#4ade80" />
                 </div>
-                <h3 className="text-xl font-bold text-white mb-2">{f.title}</h3>
-                <p className="text-green-200/60 leading-relaxed">{f.desc}</p>
+                <h3 style={{ fontSize: 18, fontWeight: 700, color: "white", marginBottom: 8, marginTop: 0 }}>{f.title}</h3>
+                <p style={{ color: "rgba(187,247,208,0.55)", lineHeight: 1.65, margin: 0, fontSize: 15 }}>{f.desc}</p>
               </div>
             );
           })}
@@ -276,45 +209,28 @@ function Features() {
 
 function Courses({ navigate }) {
   return (
-    <section id="courses" className="py-24 px-6 bg-[#0a1f10]">
-      <div className="max-w-6xl mx-auto">
-        <div className="text-center mb-16">
-          <p className="text-green-400 font-semibold text-sm uppercase tracking-widest mb-3">What you'll learn</p>
-          <h2
-            className="text-4xl md:text-5xl font-black text-white"
-            style={{ fontFamily: "'Syne', sans-serif" }}
-          >
-            Real courses. Real skills.
-          </h2>
+    <section id="courses" style={{ padding: "96px 24px", background: "#0a1f10" }}>
+      <div style={{ maxWidth: 1100, margin: "0 auto" }}>
+        <div style={{ textAlign: "center", marginBottom: 56 }}>
+          <p style={{ fontSize: 12, fontWeight: 700, letterSpacing: "0.15em", textTransform: "uppercase", color: "#4ade80", marginBottom: 12 }}>What you'll learn</p>
+          <h2 style={{ ...syne, fontSize: "clamp(30px,4vw,48px)", fontWeight: 900, color: "white", margin: 0 }}>Real courses. Real skills.</h2>
         </div>
-
-        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
-          {COURSES.map((c) => (
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(260px,1fr))", gap: 18 }}>
+          {COURSES.map(c => (
             <div
               key={c.title}
-              className="group bg-[#0f2d1a] border border-green-900/40 hover:border-green-600/40 rounded-2xl p-6 cursor-pointer transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl hover:shadow-green-900/30"
               onClick={() => navigate(createPageUrl("Signup"))}
+              style={{ background: "#0f2d1a", border: "1px solid rgba(20,83,45,0.7)", borderRadius: 20, padding: 24, cursor: "pointer", transition: "all 0.2s" }}
+              onMouseOver={e => { e.currentTarget.style.borderColor = "rgba(74,222,128,0.4)"; e.currentTarget.style.transform = "translateY(-3px)"; }}
+              onMouseOut={e => { e.currentTarget.style.borderColor = "rgba(20,83,45,0.7)"; e.currentTarget.style.transform = "translateY(0)"; }}
             >
-              <div
-                className="w-14 h-14 rounded-2xl flex items-center justify-center text-2xl mb-5 border border-white/5"
-                style={{ backgroundColor: `${c.color}25` }}
-              >
+              <div style={{ width: 52, height: 52, borderRadius: 16, background: `${c.color}22`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 24, marginBottom: 16 }}>
                 {c.emoji}
               </div>
-              <h3 className="text-lg font-bold text-white mb-1">{c.title}</h3>
-              <div className="flex items-center gap-3 text-sm text-green-200/50">
-                <span>{c.lessons} lessons</span>
-                <span>·</span>
-                <span
-                  className="px-2 py-0.5 rounded-full text-xs font-medium border"
-                  style={{ borderColor: `${c.color}50`, color: c.color, backgroundColor: `${c.color}15` }}
-                >
-                  {c.level}
-                </span>
-              </div>
-              <div className="mt-4 pt-4 border-t border-green-900/40 flex items-center gap-1.5 text-green-400 text-sm font-medium group-hover:gap-2.5 transition-all">
-                <span>Start course</span>
-                <ArrowRight className="w-3.5 h-3.5" />
+              <h3 style={{ fontSize: 17, fontWeight: 700, color: "white", margin: "0 0 6px" }}>{c.title}</h3>
+              <p style={{ fontSize: 13, color: "rgba(134,239,172,0.45)", margin: "0 0 16px" }}>{c.lessons} lessons · <span style={{ color: c.color }}>{c.level}</span></p>
+              <div style={{ display: "flex", alignItems: "center", gap: 6, color: "#4ade80", fontSize: 13, fontWeight: 600 }}>
+                Start course <ArrowRight size={13} />
               </div>
             </div>
           ))}
@@ -326,36 +242,21 @@ function Courses({ navigate }) {
 
 function HowItWorks() {
   return (
-    <section id="how-it-works" className="py-24 px-6 bg-[#0d2515]">
-      <div className="max-w-4xl mx-auto">
-        <div className="text-center mb-16">
-          <p className="text-green-400 font-semibold text-sm uppercase tracking-widest mb-3">Getting started</p>
-          <h2
-            className="text-4xl md:text-5xl font-black text-white"
-            style={{ fontFamily: "'Syne', sans-serif" }}
-          >
-            How it works
-          </h2>
+    <section id="how" style={{ padding: "96px 24px", background: "#0d2515" }}>
+      <div style={{ maxWidth: 720, margin: "0 auto" }}>
+        <div style={{ textAlign: "center", marginBottom: 56 }}>
+          <p style={{ fontSize: 12, fontWeight: 700, letterSpacing: "0.15em", textTransform: "uppercase", color: "#4ade80", marginBottom: 12 }}>Getting started</p>
+          <h2 style={{ ...syne, fontSize: "clamp(30px,4vw,48px)", fontWeight: 900, color: "white", margin: 0 }}>How it works</h2>
         </div>
-
-        <div className="space-y-6">
-          {HOW_IT_WORKS.map((step, i) => (
-            <div
-              key={step.step}
-              className="flex gap-6 items-start bg-[#0f2d1a] border border-green-900/40 rounded-2xl p-6"
-              style={{ animationDelay: `${i * 100}ms` }}
-            >
-              <div className="flex-shrink-0 w-12 h-12 bg-green-400/10 border border-green-400/20 rounded-xl flex items-center justify-center">
-                <span
-                  className="text-sm font-black text-green-400"
-                  style={{ fontFamily: "'Syne', sans-serif" }}
-                >
-                  {step.step}
-                </span>
+        <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+          {HOW_IT_WORKS.map(s => (
+            <div key={s.step} style={{ display: "flex", gap: 20, alignItems: "flex-start", background: "#0f2d1a", border: "1px solid rgba(20,83,45,0.7)", borderRadius: 18, padding: 24 }}>
+              <div style={{ flexShrink: 0, width: 48, height: 48, background: "rgba(74,222,128,0.08)", border: "1px solid rgba(74,222,128,0.18)", borderRadius: 14, display: "flex", alignItems: "center", justifyContent: "center" }}>
+                <span style={{ ...syne, fontSize: 13, fontWeight: 900, color: "#4ade80" }}>{s.step}</span>
               </div>
               <div>
-                <h3 className="text-lg font-bold text-white mb-1">{step.title}</h3>
-                <p className="text-green-200/60">{step.desc}</p>
+                <h3 style={{ fontSize: 17, fontWeight: 700, color: "white", margin: "0 0 6px" }}>{s.title}</h3>
+                <p style={{ color: "rgba(187,247,208,0.55)", margin: 0, lineHeight: 1.6 }}>{s.desc}</p>
               </div>
             </div>
           ))}
@@ -366,55 +267,26 @@ function HowItWorks() {
 }
 
 function SocialProof() {
-  const quotes = [
-    {
-      text: "I finally understand how my paycheck works. I learned more in one afternoon on Sprout than a full semester of econ.",
-      name: "Marcus T.",
-      role: "High school senior",
-    },
-    {
-      text: "The budget simulator actually felt like a game. I didn't realize I was learning until I was already three lessons in.",
-      name: "Priya K.",
-      role: "College freshman",
-    },
-    {
-      text: "Finally an app that teaches money stuff without making it boring. I've been recommending it to everyone.",
-      name: "Jordan L.",
-      role: "Community college student",
-    },
-  ];
-
   return (
-    <section className="py-24 px-6 bg-[#0a1f10]">
-      <div className="max-w-6xl mx-auto">
-        <div className="text-center mb-14">
-          <div className="flex justify-center gap-1 mb-4">
-            {[...Array(5)].map((_, i) => (
-              <Star key={i} className="w-5 h-5 text-yellow-400 fill-yellow-400" />
-            ))}
+    <section style={{ padding: "96px 24px", background: "#0a1f10" }}>
+      <div style={{ maxWidth: 1100, margin: "0 auto" }}>
+        <div style={{ textAlign: "center", marginBottom: 48 }}>
+          <div style={{ display: "flex", justifyContent: "center", gap: 4, marginBottom: 16 }}>
+            {[...Array(5)].map((_,i) => <Star key={i} size={18} color="#facc15" fill="#facc15" />)}
           </div>
-          <h2
-            className="text-3xl md:text-4xl font-black text-white"
-            style={{ fontFamily: "'Syne', sans-serif" }}
-          >
-            Students love Sprout
-          </h2>
+          <h2 style={{ ...syne, fontSize: "clamp(26px,3.5vw,40px)", fontWeight: 900, color: "white", margin: 0 }}>Students love Sprout</h2>
         </div>
-
-        <div className="grid md:grid-cols-3 gap-5">
-          {quotes.map((q) => (
-            <div
-              key={q.name}
-              className="bg-[#0f2d1a] border border-green-900/40 rounded-2xl p-6"
-            >
-              <p className="text-green-100/80 leading-relaxed mb-5">"{q.text}"</p>
-              <div className="flex items-center gap-3">
-                <div className="w-9 h-9 bg-green-800 rounded-full flex items-center justify-center text-green-300 font-bold text-sm">
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(260px,1fr))", gap: 18 }}>
+          {QUOTES.map(q => (
+            <div key={q.name} style={{ background: "#0f2d1a", border: "1px solid rgba(20,83,45,0.7)", borderRadius: 20, padding: 28 }}>
+              <p style={{ color: "rgba(187,247,208,0.75)", lineHeight: 1.7, marginBottom: 20, marginTop: 0, fontSize: 15 }}>"{q.text}"</p>
+              <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                <div style={{ width: 36, height: 36, background: "#14532d", borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", color: "#86efac", fontWeight: 700, fontSize: 14 }}>
                   {q.name[0]}
                 </div>
                 <div>
-                  <p className="text-white font-semibold text-sm">{q.name}</p>
-                  <p className="text-green-400/60 text-xs">{q.role}</p>
+                  <p style={{ color: "white", fontWeight: 600, fontSize: 14, margin: 0 }}>{q.name}</p>
+                  <p style={{ color: "rgba(74,222,128,0.5)", fontSize: 12, margin: 0 }}>{q.role}</p>
                 </div>
               </div>
             </div>
@@ -427,34 +299,23 @@ function SocialProof() {
 
 function CTA({ navigate }) {
   return (
-    <section className="py-24 px-6 bg-[#0d2515] relative overflow-hidden">
-      <div
-        className="absolute inset-0 opacity-50"
-        style={{
-          backgroundImage: `radial-gradient(ellipse 70% 60% at 50% 100%, #16a34a, transparent)`,
-        }}
-      />
-      <div className="relative z-10 max-w-2xl mx-auto text-center">
-        <div className="w-16 h-16 bg-green-500/10 border border-green-500/20 rounded-2xl flex items-center justify-center mx-auto mb-6">
-          <Award className="w-8 h-8 text-green-400" />
+    <section style={{ padding: "96px 24px", background: "#0d2515", position: "relative", overflow: "hidden" }}>
+      <div style={{ position: "absolute", inset: 0, background: "radial-gradient(ellipse 70% 60% at 50% 100%,#16a34a44,transparent)", pointerEvents: "none" }} />
+      <div style={{ position: "relative", zIndex: 1, maxWidth: 600, margin: "0 auto", textAlign: "center" }}>
+        <div style={{ width: 64, height: 64, background: "rgba(74,222,128,0.08)", border: "1px solid rgba(74,222,128,0.18)", borderRadius: 18, display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 24px" }}>
+          <Award size={30} color="#4ade80" />
         </div>
-        <h2
-          className="text-4xl md:text-5xl font-black text-white mb-5"
-          style={{ fontFamily: "'Syne', sans-serif" }}
-        >
-          Your financial future starts today.
-        </h2>
-        <p className="text-green-200/70 text-lg mb-8">
-          Join thousands of students already building smarter money habits. It's free, it's fast, and it actually works.
+        <h2 style={{ ...syne, fontSize: "clamp(30px,4vw,50px)", fontWeight: 900, color: "white", margin: "0 0 20px" }}>Your financial future starts today.</h2>
+        <p style={{ color: "rgba(187,247,208,0.65)", fontSize: 18, marginBottom: 32, lineHeight: 1.6 }}>
+          Join thousands of students already building smarter money habits. Free, fast, and it actually works.
         </p>
         <button
           onClick={() => navigate(createPageUrl("Signup"))}
-          className="group inline-flex items-center gap-2 bg-green-400 hover:bg-green-300 text-green-950 font-bold text-base px-8 py-4 rounded-full transition-all duration-200 shadow-2xl shadow-green-400/30"
+          style={{ display: "inline-flex", alignItems: "center", gap: 10, background: "#4ade80", color: "#052e16", fontWeight: 700, fontSize: 16, padding: "14px 36px", borderRadius: 999, border: "none", cursor: "pointer", boxShadow: "0 8px 32px rgba(74,222,128,0.35)" }}
         >
-          Create free account
-          <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+          Create free account <ArrowRight size={18} />
         </button>
-        <p className="text-green-600 text-sm mt-4">No credit card. No spam. Cancel anytime.</p>
+        <p style={{ color: "#15803d", fontSize: 13, marginTop: 16 }}>No credit card. No spam. Cancel anytime.</p>
       </div>
     </section>
   );
@@ -462,54 +323,66 @@ function CTA({ navigate }) {
 
 function Footer() {
   return (
-    <footer className="bg-[#08180d] border-t border-green-900/30 py-10 px-6">
-      <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
-        <div className="flex items-center gap-2">
-          <div className="w-7 h-7 bg-gradient-to-br from-green-400 to-emerald-600 rounded-lg flex items-center justify-center">
-            <Sprout className="w-4 h-4 text-white" />
+    <footer style={{ background: "#071510", borderTop: "1px solid rgba(20,83,45,0.4)", padding: "36px 24px" }}>
+      <div style={{ maxWidth: 1100, margin: "0 auto", display: "flex", flexWrap: "wrap", alignItems: "center", justifyContent: "space-between", gap: 16 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+          <div style={{ width: 28, height: 28, background: "linear-gradient(135deg,#4ade80,#16a34a)", borderRadius: 8, display: "flex", alignItems: "center", justifyContent: "center" }}>
+            <Sprout size={15} color="white" />
           </div>
-          <span className="text-white font-bold">Sprout</span>
+          <span style={{ color: "white", fontWeight: 700 }}>Sprout</span>
         </div>
-        <p className="text-green-700 text-sm">
-          © {new Date().getFullYear()} Sprout. Built to grow your financial knowledge.
-        </p>
-        <div className="flex items-center gap-5 text-sm text-green-700">
-          <span className="hover:text-green-400 cursor-pointer transition-colors">Privacy</span>
-          <span className="hover:text-green-400 cursor-pointer transition-colors">Terms</span>
+        <p style={{ color: "#166534", fontSize: 13, margin: 0 }}>© {new Date().getFullYear()} Sprout. Built to grow your financial knowledge.</p>
+        <div style={{ display: "flex", gap: 20, fontSize: 13, color: "#166534" }}>
+          <span style={{ cursor: "pointer" }}>Privacy</span>
+          <span style={{ cursor: "pointer" }}>Terms</span>
         </div>
       </div>
     </footer>
   );
 }
 
-// ─── Main component ───────────────────────────────────────────
+// ─── Main export ──────────────────────────────────────────────
 
 export default function Landing() {
   const navigate = useNavigate();
   const [scrolled, setScrolled] = useState(false);
 
-  // Redirect authenticated users straight to their dashboard
   useEffect(() => {
-    supabase.auth.getSession().then(({ data }) => {
-      if (data?.session) navigate(createPageUrl("Dashboard"), { replace: true });
-    });
+    // Check if user is already logged in via localStorage (no Supabase call needed)
+    // This is compatible with the existing AuthContext stub
+    try {
+      const raw = localStorage.getItem("sprout_user");
+      if (raw) {
+        const u = JSON.parse(raw);
+        if (u && u.email) {
+          navigate(createPageUrl("Dashboard"), { replace: true });
+          return;
+        }
+      }
+    } catch {
+      // ignore parse errors
+    }
 
-    const handleScroll = () => setScrolled(window.scrollY > 20);
-    window.addEventListener("scroll", handleScroll, { passive: true });
-    return () => window.removeEventListener("scroll", handleScroll);
+    const onScroll = () => setScrolled(window.scrollY > 20);
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
   }, [navigate]);
 
   return (
     <>
-      {/* Google Fonts for Syne */}
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Syne:wght@700;800;900&display=swap');
         html { scroll-behavior: smooth; }
-        * { box-sizing: border-box; }
+        @keyframes bounce {
+          0%,100% { transform: translateX(-50%) translateY(0); }
+          50%      { transform: translateX(-50%) translateY(-8px); }
+        }
+        @media (max-width: 640px) {
+          .sprout-nav-links { display: none !important; }
+        }
       `}</style>
-
-      <div className="font-sans antialiased">
-        <Nav scrolled={scrolled} />
+      <div style={{ fontFamily: "system-ui, sans-serif", WebkitFontSmoothing: "antialiased" }}>
+        <Nav scrolled={scrolled} navigate={navigate} />
         <Hero navigate={navigate} />
         <Features />
         <Courses navigate={navigate} />

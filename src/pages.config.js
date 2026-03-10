@@ -1,6 +1,4 @@
 // src/pages.config.js
-// Updated: Landing page is now the entry point for unauthenticated users
-
 import __Layout from "./Layout.jsx";
 
 import AIDay1 from "./pages/AIDay1";
@@ -42,22 +40,15 @@ import Simulations from "./pages/Simulations";
 import Welcome from "./pages/Welcome";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
-
-// ✅ NEW: Landing page
 import Landing from "./pages/Landing";
 
 export const PAGES = {
-  // ─── Public (no auth needed) ────────────────────────────────
-  Landing,   // "/" → landing page
+  Landing,
   Login,
   Signup,
   ForgotPassword,
-
-  // ─── Onboarding ─────────────────────────────────────────────
   SchoolSelection,
   Welcome,
-
-  // ─── Authenticated app ──────────────────────────────────────
   Dashboard,
   Learn,
   Lesson,
@@ -71,8 +62,6 @@ export const PAGES = {
   PaperTrading,
   Account,
   Admin,
-
-  // ─── AI Literacy course ─────────────────────────────────────
   AILiteracy,
   AIDay1,
   AIDay2,
@@ -85,8 +74,6 @@ export const PAGES = {
   AIDay9,
   AIDay10,
   FinalExam,
-
-  // ─── Finance simulations ─────────────────────────────────────
   BudgetLesson,
   BudgetQuiz,
   BudgetSimulation,
@@ -95,14 +82,12 @@ export const PAGES = {
   PaycheckLesson,
   PaycheckQuiz,
   PaycheckSimulation,
-
-  // ─── Legacy ──────────────────────────────────────────────────
   Home,
 };
 
 export const pagesConfig = {
-  // Landing is now the root; authenticated users get redirected to Dashboard
-  // by the Landing component itself (checks supabase.auth.getSession)
+  // "/" in App.jsx redirects to createPageUrl("Landing") = "/landing"
+  // Landing page is a real route at /landing — no infinite loop
   mainPage: "Landing",
   Pages: PAGES,
   Layout: __Layout,
