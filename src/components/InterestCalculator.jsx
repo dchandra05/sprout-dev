@@ -113,7 +113,7 @@ export default function InterestCalculator() {
   const BAR_COLORS = { starting: "#15803d", contributions: "#4ade80", interest: "#bbf7d0" };
 
   const selectClass =
-    "w-full h-11 px-3 border border-gray-200 rounded-lg bg-white text-sm focus:border-green-700 focus:ring-1 focus:ring-green-700 focus:outline-none";
+    "w-full h-11 px-3 border border-gray-200 rounded-lg bg-white text-gray-900 text-sm focus:border-green-700 focus:ring-1 focus:ring-green-700 focus:outline-none";
 
   return (
     <div className="space-y-6">
