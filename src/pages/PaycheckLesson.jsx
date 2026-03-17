@@ -1,61 +1,92 @@
-import React from "react";
+import React, { useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, DollarSign } from "lucide-react";
+import { ArrowLeft, DollarSign, BookOpen } from "lucide-react";
 import PaycheckStatement from "../components/PaycheckStatement";
 
 export default function PaycheckLesson() {
   const navigate = useNavigate();
 
+  // If redirected from Lesson.jsx it will pass ?courseId=xxx so we can return to the right course
+  const courseId = useMemo(() => {
+    const hash = window.location.hash;
+    const qi   = hash.indexOf("?");
+    if (qi === -1) return null;
+    return new URLSearchParams(hash.slice(qi + 1)).get("courseId");
+  }, []);
+
+  const handleBack = () => {
+    if (courseId) navigate(createPageUrl(`CourseDetail?id=${courseId}`));
+    else navigate(createPageUrl("Learn"));
+  };
+
   return (
-    <div className="min-h-screen p-4 md:p-8 bg-gradient-to-br from-blue-50 via-white to-cyan-50">
-      <div className="max-w-5xl mx-auto space-y-6">
-        <Button
-          variant="outline"
-          onClick={() => navigate(createPageUrl("Learn"))}
-          className="shadow-md"
-        >
+    <div className="min-h-screen bg-gray-50">
+      <div className="max-w-4xl mx-auto px-4 py-6 md:px-8 md:py-10 space-y-6">
+
+        {/* Back */}
+        <Button variant="outline" onClick={handleBack} className="border-gray-200 text-gray-700 hover:bg-gray-50">
           <ArrowLeft className="w-4 h-4 mr-2" />
-          Back to Courses
+          {courseId ? "Back to Course" : "All Courses"}
         </Button>
 
-        <div className="text-center mb-8">
-          <div className="flex justify-center mb-4">
-            <div className="w-16 h-16 bg-gradient-to-br from-blue-400 to-cyan-500 rounded-full flex items-center justify-center shadow-lg">
-              <DollarSign className="w-9 h-9 text-white" />
-            </div>
+        {/* Header */}
+        <div className="bg-white border border-gray-200 rounded-2xl p-8 flex items-start gap-5 shadow-sm">
+          <div className="w-14 h-14 rounded-xl bg-green-700 flex items-center justify-center flex-shrink-0">
+            <DollarSign className="w-7 h-7 text-white" />
           </div>
-          <h1 className="text-4xl font-bold text-gray-900 mb-4">
-            Understanding Your First Paycheck
-          </h1>
-          <p className="text-lg text-gray-600 max-w-3xl mx-auto">
-            Ever wonder why your paycheck is smaller than expected? We'll break down every deduction 
-            so you understand exactly where your money goes—and why it matters.
-          </p>
+          <div>
+            <p className="text-xs font-semibold text-green-700 uppercase tracking-wide mb-1 flex items-center gap-1">
+              <BookOpen className="w-3.5 h-3.5" /> Interactive Lesson
+            </p>
+            <h1 className="text-2xl md:text-3xl font-bold text-gray-900 mb-1">Understanding Your First Paycheck</h1>
+            <p className="text-gray-500 text-sm leading-relaxed">
+              Break down every deduction so you understand exactly where your money goes — and why it matters.
+            </p>
+          </div>
         </div>
 
+        {/* Interactive paycheck */}
         <PaycheckStatement />
 
-        <div className="mt-12 bg-gradient-to-r from-blue-50 to-cyan-50 border-l-4 border-blue-500 p-6 rounded-lg">
-          <h3 className="font-bold text-lg text-gray-900 mb-2">🎓 What You Just Learned</h3>
-          <ul className="space-y-2 text-gray-700">
-            <li>• <strong>The difference between gross pay and net pay</strong></li>
-            <li>• <strong>What federal and state taxes fund</strong></li>
-            <li>• <strong>How Social Security and Medicare work</strong></li>
-            <li>• <strong>Why pre-tax deductions save you money</strong></li>
-            <li>• <strong>How to budget based on take-home pay</strong></li>
+        {/* Summary */}
+        <div className="bg-white border border-gray-200 rounded-xl p-6 shadow-sm">
+          <h3 className="font-bold text-gray-900 mb-3">What You Learned</h3>
+          <ul className="space-y-2 text-sm text-gray-700">
+            <li className="flex items-start gap-2">
+              <span className="w-5 h-5 rounded-full bg-green-100 text-green-700 flex items-center justify-center flex-shrink-0 text-xs font-bold mt-0.5">✓</span>
+              <span>The difference between <strong>gross pay and net pay</strong></span>
+            </li>
+            <li className="flex items-start gap-2">
+              <span className="w-5 h-5 rounded-full bg-green-100 text-green-700 flex items-center justify-center flex-shrink-0 text-xs font-bold mt-0.5">✓</span>
+              <span>What <strong>federal and state taxes</strong> fund</span>
+            </li>
+            <li className="flex items-start gap-2">
+              <span className="w-5 h-5 rounded-full bg-green-100 text-green-700 flex items-center justify-center flex-shrink-0 text-xs font-bold mt-0.5">✓</span>
+              <span>How <strong>Social Security and Medicare</strong> work</span>
+            </li>
+            <li className="flex items-start gap-2">
+              <span className="w-5 h-5 rounded-full bg-green-100 text-green-700 flex items-center justify-center flex-shrink-0 text-xs font-bold mt-0.5">✓</span>
+              <span>Why <strong>pre-tax deductions</strong> save you money</span>
+            </li>
+            <li className="flex items-start gap-2">
+              <span className="w-5 h-5 rounded-full bg-green-100 text-green-700 flex items-center justify-center flex-shrink-0 text-xs font-bold mt-0.5">✓</span>
+              <span>How to <strong>budget using take-home pay</strong></span>
+            </li>
           </ul>
         </div>
 
+        {/* CTA */}
         <div className="text-center">
           <Button
             onClick={() => navigate(createPageUrl("PaycheckQuiz"))}
-            className="bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600 text-white h-14 px-8 text-lg shadow-xl"
+            className="bg-green-700 hover:bg-green-800 text-white h-12 px-8 font-semibold rounded-xl"
           >
-            Test Your Knowledge →
+            Test Your Knowledge
           </Button>
         </div>
+
       </div>
     </div>
   );

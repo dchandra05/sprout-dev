@@ -1,38 +1,22 @@
+// src/pages/CourseDetail.jsx
 import React, { useEffect, useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Progress } from "@/components/ui/progress";
+import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import {
-  ArrowLeft,
-  Play,
-  CheckCircle,
-  Lock,
-  Clock,
-  Zap,
-  BookOpen,
-  Award,
-  TrendingUp,
-  Calculator,
+  ArrowLeft, Play, CheckCircle, Lock, Clock, Zap,
+  BookOpen, Award, TrendingUp, Calculator,
 } from "lucide-react";
 
-/** ----------------------------
- * Hybrid data client (public/data -> localStorage fallback)
- * ---------------------------- */
-const safeParse = (raw, fallback) => {
-  try {
-    return raw ? JSON.parse(raw) : fallback;
-  } catch {
-    return fallback;
-  }
-};
+// ─── Data layer ────────────────────────────────────────────────
 
-const getJSON = (key, fallback) => safeParse(localStorage.getItem(key), fallback);
-const setJSON = (key, value) => localStorage.setItem(key, JSON.stringify(value));
-const getLocalUser = () => safeParse(localStorage.getItem("sprout_user"), null);
+const safeParse = (r, fb) => { try { return r ? JSON.parse(r) : fb; } catch { return fb; } };
+const getJSON   = (k, fb) => safeParse(localStorage.getItem(k), fb);
+const setJSON   = (k, v)  => localStorage.setItem(k, JSON.stringify(v));
+const getLocalUser = ()   => safeParse(localStorage.getItem("sprout_user"), null);
 
 async function fetchJsonWithCache(url, cacheKey, fallback = []) {
   try {
@@ -47,15 +31,15 @@ async function fetchJsonWithCache(url, cacheKey, fallback = []) {
 }
 
 const dataClient = {
-  async listCourses() {
-    const basePath = import.meta.env.BASE_URL || "/";
-    return fetchJsonWithCache(`${basePath}data/courses.json`, "sprout_courses", []);
+  listCourses() {
+    const base = import.meta.env.BASE_URL || "/";
+    return fetchJsonWithCache(`${base}data/courses.json`, "sprout_courses", []);
   },
-  async listLessons() {
-    const basePath = import.meta.env.BASE_URL || "/";
-    return fetchJsonWithCache(`${basePath}data/lessons.json`, "sprout_lessons", []);
+  listLessons() {
+    const base = import.meta.env.BASE_URL || "/";
+    return fetchJsonWithCache(`${base}data/lessons.json`, "sprout_lessons", []);
   },
-  async listUserProgress(userEmail, courseId) {
+  listUserProgress(userEmail, courseId) {
     const all = getJSON("sprout_user_progress", []);
     return all.filter(
       (p) => String(p.user_email) === String(userEmail) && String(p.course_id) === String(courseId)
@@ -63,55 +47,38 @@ const dataClient = {
   },
 };
 
-function Loading({ label }) {
+function Spinner({ label = "Loading…" }) {
   return (
-    <div className="min-h-screen flex items-center justify-center">
+    <div className="min-h-screen flex items-center justify-center bg-white">
       <div className="text-center">
-        <div className="w-16 h-16 border-4 border-lime-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-        <p className="text-gray-600">{label}</p>
+        <div className="w-10 h-10 border-2 border-gray-200 border-t-green-700 rounded-full animate-spin mx-auto mb-3" />
+        <p className="text-gray-500 text-sm">{label}</p>
       </div>
     </div>
   );
 }
 
+// ─── Component ─────────────────────────────────────────────────
+
 export default function CourseDetail() {
   const navigate = useNavigate();
   const [user, setUser] = useState(null);
 
+  // HashRouter: params live in the hash fragment  e.g. "#/course?id=abc"
   const courseId = useMemo(() => {
-    // With HashRouter, query params are in the hash, not in window.location.search
-    // URL format: #/course?id=123
     const hash = window.location.hash;
-    const queryStart = hash.indexOf('?');
-    if (queryStart === -1) return null;
-    const queryString = hash.substring(queryStart + 1);
-    const urlParams = new URLSearchParams(queryString);
-    return urlParams.get("id");
+    const q    = hash.indexOf("?");
+    if (q === -1) return null;
+    return new URLSearchParams(hash.slice(q + 1)).get("id");
   }, []);
 
   useEffect(() => {
-    const currentUser = getLocalUser();
-    if (!currentUser) {
-      navigate(createPageUrl("Login"));
-      return;
-    }
-    setUser(currentUser);
+    const u = getLocalUser();
+    if (!u) { navigate(createPageUrl("Login")); return; }
+    setUser(u);
   }, [navigate]);
 
-  if (!courseId) {
-    return (
-      <div className="min-h-screen flex items-center justify-center p-6">
-        <Card className="max-w-md w-full border-none shadow-xl">
-          <CardContent className="p-8 text-center">
-            <p className="font-semibold text-gray-900 text-lg mb-2">Missing Course ID</p>
-            <p className="text-gray-600 mb-6">This page needs an id in the URL.</p>
-            <Button onClick={() => navigate(createPageUrl("Learn"))}>Back to Courses</Button>
-          </CardContent>
-        </Card>
-      </div>
-    );
-  }
-
+  // ── Queries ────────────────────────────────────────────────
   const {
     data: course,
     isLoading: courseLoading,
@@ -121,46 +88,60 @@ export default function CourseDetail() {
   } = useQuery({
     queryKey: ["course", courseId],
     queryFn: async () => {
-      const courses = await dataClient.listCourses();
-      return courses.find((c) => String(c.id) === String(courseId)) || null;
+      const all = await dataClient.listCourses();
+      return all.find((c) => String(c.id) === String(courseId)) || null;
     },
     enabled: !!courseId,
   });
 
+  // FIX: was `enabled: !!courseId && !!course` — the !!course dependency
+  // caused lessons to never load on first render because course was still
+  // undefined when the component mounted.
   const { data: lessons = [], isLoading: lessonsLoading } = useQuery({
     queryKey: ["lessons", courseId],
     queryFn: async () => {
-      const allLessons = await dataClient.listLessons();
-      return allLessons
+      const all = await dataClient.listLessons();
+      return all
         .filter((l) => String(l.course_id) === String(courseId) && !l.is_deleted)
         .sort((a, b) => (a.order || 0) - (b.order || 0));
     },
-    enabled: !!courseId && !!course,
+    enabled: !!courseId,  // ← FIXED (was: !!courseId && !!course)
   });
 
   const { data: userProgress = [] } = useQuery({
     queryKey: ["userProgress", user?.email, courseId],
-    queryFn: async () => {
-      if (!user?.email) return [];
-      return dataClient.listUserProgress(user.email, courseId);
-    },
+    queryFn: () => dataClient.listUserProgress(user.email, courseId),
     enabled: !!user?.email && !!courseId,
   });
 
-  if (courseLoading) return <Loading label="Loading course..." />;
+  // ── Guard states ─────────────────────────────────────────
+
+  if (!courseId) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-white p-6">
+        <Card className="max-w-md border border-gray-200 shadow-lg">
+          <CardContent className="p-8 text-center">
+            <p className="font-semibold text-gray-900 text-lg mb-2">Missing Course ID</p>
+            <p className="text-gray-500 mb-6">This page needs an <code className="bg-gray-100 px-1 rounded">id</code> in the URL.</p>
+            <Button onClick={() => navigate(createPageUrl("Learn"))} className="bg-green-700 hover:bg-green-800 text-white">
+              Back to Courses
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
+  if (courseLoading || lessonsLoading) return <Spinner label="Loading course…" />;
 
   if (courseIsError) {
     return (
-      <div className="min-h-screen flex items-center justify-center p-6">
-        <Card className="max-w-lg w-full border-none shadow-xl">
+      <div className="min-h-screen flex items-center justify-center bg-white p-6">
+        <Card className="max-w-lg border border-gray-200 shadow-lg">
           <CardContent className="p-8">
-            <p className="font-semibold text-gray-900 text-lg mb-2">Course load failed</p>
-            <p className="text-gray-600 mb-4">
-              {String(courseError?.message || "Unknown error")}
-            </p>
-            <Button onClick={() => navigate(createPageUrl("Learn"))} variant="outline">
-              Back to Courses
-            </Button>
+            <p className="font-semibold text-gray-900 text-lg mb-2">Course failed to load</p>
+            <p className="text-gray-500 mb-4">{String(courseError?.message || "Unknown error")}</p>
+            <Button onClick={() => navigate(createPageUrl("Learn"))} variant="outline">Back to Courses</Button>
           </CardContent>
         </Card>
       </div>
@@ -169,15 +150,18 @@ export default function CourseDetail() {
 
   if (courseFetched && !course) {
     return (
-      <div className="min-h-screen flex items-center justify-center p-6">
-        <Card className="max-w-lg w-full border-none shadow-xl">
-          <CardContent className="p-8">
+      <div className="min-h-screen flex items-center justify-center bg-white p-6">
+        <Card className="max-w-lg border border-gray-200 shadow-lg">
+          <CardContent className="p-8 text-center">
             <p className="font-semibold text-gray-900 text-lg mb-2">Course not found</p>
-            <p className="text-gray-600 mb-4">
-              This course id doesn’t match anything in <code>/public/data/courses.json</code>.
+            <p className="text-gray-500 text-sm mb-2">
+              No course matched id: <code className="bg-gray-100 px-1 rounded">{courseId}</code>
             </p>
-            <Button onClick={() => navigate(createPageUrl("Learn"))} variant="outline">
-              Back to Courses
+            <p className="text-gray-400 text-xs mb-6">
+              Check <code className="bg-gray-100 px-1 rounded">public/data/courses.json</code>.
+            </p>
+            <Button onClick={() => navigate(createPageUrl("Learn"))} className="bg-green-700 hover:bg-green-800 text-white">
+              Browse Courses
             </Button>
           </CardContent>
         </Card>
@@ -185,218 +169,182 @@ export default function CourseDetail() {
     );
   }
 
-  if (lessonsLoading) return <Loading label="Loading lessons..." />;
+  // ── Derived values ──────────────────────────────────────────
 
   const completedLessons = userProgress.filter((p) => p.completed).length;
-  const progressPercent = (completedLessons / (lessons.length || 1)) * 100;
+  const progressPercent  = (completedLessons / Math.max(lessons.length, 1)) * 100;
 
   const nextLesson = lessons.find(
     (l) => !userProgress.find((p) => String(p.lesson_id) === String(l.id) && p.completed)
   );
 
-  const gradientColors = {
-    Investing: "from-green-400 to-emerald-500",
-    Saving: "from-blue-400 to-cyan-500",
-    "Credit & Debt": "from-purple-400 to-pink-500",
-    Insurance: "from-orange-400 to-red-500",
-    "AI & ML": "from-indigo-400 to-purple-500",
-    "Personal Finance": "from-yellow-400 to-orange-500",
-    "Career Readiness": "from-lime-400 to-green-500",
-  };
-  const gradientClass = gradientColors[course.category] || "from-gray-400 to-gray-500";
+
+  // ── Render ──────────────────────────────────────────────────
 
   return (
-    <div className="min-h-screen p-4 md:p-8">
-      <div className="max-w-6xl mx-auto space-y-6">
-        <Button variant="outline" onClick={() => navigate(createPageUrl("Learn"))} className="mb-4">
+    <div className="min-h-screen bg-gray-50">
+      <div className="max-w-4xl mx-auto px-4 py-6 md:px-8 md:py-10 space-y-6">
+
+        {/* Back */}
+        <Button variant="outline" onClick={() => navigate(createPageUrl("Learn"))}
+          className="border-gray-200 text-gray-700 hover:bg-gray-50">
           <ArrowLeft className="w-4 h-4 mr-2" />
-          Back to Courses
+          All Courses
         </Button>
 
-        <div className={`rounded-3xl bg-gradient-to-br ${gradientClass} p-8 md:p-12 text-white shadow-2xl`}>
-          <div className="max-w-3xl">
-            <Badge className="bg-white/20 backdrop-blur-sm text-white mb-4">{course.category}</Badge>
-            <h1 className="text-3xl md:text-5xl font-bold mb-4">{course.name}</h1>
-            <p className="text-lg opacity-90 mb-6">{course.description}</p>
-
-            <div className="flex flex-wrap gap-6 text-sm">
-              <div className="flex items-center gap-2">
-                <BookOpen className="w-5 h-5" />
-                <span>{lessons.length} Lessons</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <Clock className="w-5 h-5" />
-                <span>{lessons.reduce((sum, l) => sum + (Number(l.duration_minutes) || 0), 0)} Minutes</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <Zap className="w-5 h-5" />
-                <span>{course.xp_reward} XP Total</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <Award className="w-5 h-5" />
-                <span>{course.difficulty || "Beginner"}</span>
-              </div>
-            </div>
+        {/* Course header */}
+        <div className="rounded-2xl bg-white border border-gray-200 p-8 md:p-10 shadow-sm">
+          <Badge className="bg-green-50 text-green-800 border border-green-200 mb-4">
+            {course.category || "Course"}
+          </Badge>
+          <h1 className="text-2xl md:text-4xl font-bold text-gray-900 mb-3 leading-tight">{course.name}</h1>
+          <p className="text-gray-500 text-sm md:text-base mb-6 max-w-2xl leading-relaxed">{course.description}</p>
+          <div className="flex flex-wrap gap-5 text-sm text-gray-500">
+            <span className="flex items-center gap-1.5"><BookOpen className="w-4 h-4 text-green-700" />{lessons.length} lesson{lessons.length !== 1 ? "s" : ""}</span>
+            <span className="flex items-center gap-1.5"><Clock className="w-4 h-4 text-green-700" />{lessons.reduce((s, l) => s + (l.duration_minutes || 0), 0)} min total</span>
+            <span className="flex items-center gap-1.5 text-green-700 font-medium"><Zap className="w-4 h-4" />{course.xp_reward} XP</span>
+            {course.difficulty && <span className="flex items-center gap-1.5"><Award className="w-4 h-4 text-green-700" />{course.difficulty}</span>}
           </div>
         </div>
 
-        <Card className="border-none shadow-lg bg-white/80 backdrop-blur-sm">
-          <CardHeader>
-            <div className="flex justify-between items-center">
-              <CardTitle className="flex items-center gap-2">
-                <TrendingUp className="w-5 h-5 text-lime-500" />
-                Your Progress
-              </CardTitle>
-              <span className="text-2xl font-bold text-lime-600">{Math.round(progressPercent)}%</span>
+        {/* Progress bar */}
+        {lessons.length > 0 && (
+          <div className="bg-white rounded-xl border border-gray-200 p-5">
+            <div className="flex items-center justify-between mb-3">
+              <div>
+                <p className="text-sm font-semibold text-gray-700">Your Progress</p>
+                <p className="text-xs text-gray-500">{completedLessons} of {lessons.length} complete</p>
+              </div>
+              <span className="text-green-700 font-bold text-lg">{Math.round(progressPercent)}%</span>
             </div>
-          </CardHeader>
-          <CardContent>
-            <Progress value={progressPercent} className="h-3 mb-4" />
-            <div className="flex justify-between text-sm text-gray-600">
-              <span>{completedLessons} of {lessons.length} lessons completed</span>
-              <span>
-                {Math.max(
-                  0,
-                  Number(course.xp_reward || 0) -
-                    completedLessons * (Number(course.xp_reward || 0) / (lessons.length || 1))
-                ).toFixed(0)}{" "}
-                XP remaining
-              </span>
+            <div className="h-2.5 bg-gray-100 rounded-full overflow-hidden">
+              <div className="h-full bg-green-700 rounded-full transition-all duration-500" style={{ width: `${progressPercent}%` }} />
             </div>
-          </CardContent>
-        </Card>
+          </div>
+        )}
 
+        {/* Start / Continue CTA */}
         {nextLesson && (
-          <Card className="border-none shadow-lg bg-gradient-to-r from-lime-400 to-green-500 text-white">
-            <CardContent className="p-6">
-              <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-                <div>
-                  <p className="text-sm opacity-90 mb-1">Continue Learning</p>
-                  <h3 className="text-2xl font-bold mb-2">{nextLesson.title}</h3>
-                  <p className="text-sm opacity-75">
-                    {nextLesson.duration_minutes} minutes • {nextLesson.xp_reward} XP
-                  </p>
-                </div>
-                <Button
-                  onClick={() => navigate(createPageUrl(`Lesson?id=${nextLesson.id}`))}
-                  className="bg-white text-lime-600 hover:bg-gray-100 shadow-lg"
-                >
-                  <Play className="w-5 h-5 mr-2" />
-                  Start Lesson
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
+          <div className="bg-green-700 rounded-2xl p-6 text-white flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+            <div>
+              <p className="text-green-200 text-sm font-medium mb-1">
+                {completedLessons > 0 ? "Continue Learning" : "Start Course"}
+              </p>
+              <h3 className="text-xl font-bold mb-1">{nextLesson.title}</h3>
+              <p className="text-green-200 text-sm">{nextLesson.duration_minutes} min · {nextLesson.xp_reward} XP</p>
+            </div>
+            <Button
+              onClick={() => navigate(createPageUrl(`Lesson?id=${nextLesson.id}`))}
+              className="bg-white text-green-800 hover:bg-green-50 font-semibold shadow-md flex-shrink-0 px-6"
+            >
+              <Play className="w-4 h-4 mr-2" />
+              {completedLessons > 0 ? "Continue" : "Start Lesson"}
+            </Button>
+          </div>
         )}
 
+        {/* Final exam CTA */}
+        {progressPercent === 100 && lessons.length > 0 && (
+          <div className="bg-amber-50 border-2 border-amber-200 rounded-2xl p-6 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+            <div>
+              <p className="text-amber-700 text-sm font-semibold mb-1 flex items-center gap-1.5">
+                <Award className="w-4 h-4" />Ready for the Final Exam
+              </p>
+              <h3 className="text-xl font-bold text-gray-900 mb-1">{course.name} — Final Exam</h3>
+              <p className="text-gray-500 text-sm">Pass with 70%+ to earn your certificate.</p>
+            </div>
+            <Button
+              onClick={() => navigate(createPageUrl(`FinalExam?courseId=${courseId}`))}
+              className="bg-amber-500 hover:bg-amber-600 text-white font-semibold flex-shrink-0 px-6"
+            >
+              <TrendingUp className="w-4 h-4 mr-2" />Take Final Exam
+            </Button>
+          </div>
+        )}
+
+        {/* Investing tool */}
         {course.category === "Investing" && (
-          <Card className="border-none shadow-lg bg-gradient-to-r from-green-400 to-emerald-500 text-white">
-            <CardContent className="p-6">
-              <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-                <div>
-                  <p className="text-sm opacity-90 mb-1 flex items-center gap-2">
-                    <Calculator className="w-4 h-4" />
-                    Interactive Tool
-                  </p>
-                  <h3 className="text-2xl font-bold mb-2">Investment Growth Calculator</h3>
-                  <p className="text-sm opacity-75">
-                    See how your investments can grow over time with compound interest
-                  </p>
-                </div>
-                <Button
-                  onClick={() => navigate(createPageUrl("InvestmentCalculator"))}
-                  className="bg-white text-green-600 hover:bg-gray-100 shadow-lg"
-                >
-                  <Calculator className="w-5 h-5 mr-2" />
-                  Open Calculator
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
+          <div className="bg-white border border-gray-200 rounded-xl p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+            <div>
+              <p className="text-xs font-semibold text-green-700 uppercase tracking-wide mb-1 flex items-center gap-1.5">
+                <Calculator className="w-3.5 h-3.5" />Interactive Tool
+              </p>
+              <p className="font-semibold text-gray-900">Investment Growth Calculator</p>
+              <p className="text-sm text-gray-500 mt-0.5">See compound interest grow your wealth over time.</p>
+            </div>
+            <Button onClick={() => navigate(createPageUrl("InvestmentCalculator"))}
+              variant="outline" className="border-gray-200 text-gray-700 hover:bg-gray-50 flex-shrink-0">
+              <Calculator className="w-4 h-4 mr-2" />Open Calculator
+            </Button>
+          </div>
         )}
 
-        {/* Lessons list */}
-        <Card className="border-none shadow-lg bg-white/80 backdrop-blur-sm">
-          <CardHeader>
-            <CardTitle>Course Content</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            {lessons.map((lesson, index) => {
-              const isCompleted = userProgress.find(
-                (p) => String(p.lesson_id) === String(lesson.id) && p.completed
-              );
+        {/* Lesson list */}
+        <div className="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
+          <div className="px-6 py-4 border-b border-gray-100">
+            <h2 className="font-semibold text-gray-900 text-lg">Course Content</h2>
+            <p className="text-gray-400 text-sm">{lessons.length} lesson{lessons.length !== 1 ? "s" : ""}</p>
+          </div>
 
-              const isProgressiveCourse =
-                course?.name === "Money Management Essentials" ||
-                course?.name === "Smart Savings Strategies";
-
-              const isLocked =
-                isProgressiveCourse &&
-                index > 0 &&
-                !userProgress.find(
+          {lessons.length === 0 ? (
+            <div className="px-6 py-10 text-center">
+              <BookOpen className="w-10 h-10 text-gray-300 mx-auto mb-3" />
+              <p className="text-gray-500 text-sm">No lessons found for this course.</p>
+              <p className="text-gray-400 text-xs mt-1">
+                Make sure lessons use <code className="bg-gray-100 px-1 rounded">course_id: {courseId}</code> in <code className="bg-gray-100 px-1 rounded">lessons.json</code>.
+              </p>
+            </div>
+          ) : (
+            <div className="divide-y divide-gray-100">
+              {lessons.map((lesson, index) => {
+                const isCompleted = !!userProgress.find(
+                  (p) => String(p.lesson_id) === String(lesson.id) && p.completed
+                );
+                const prevCompleted = index === 0 || !!userProgress.find(
                   (p) => String(p.lesson_id) === String(lessons[index - 1]?.id) && p.completed
-                ) &&
-                !isCompleted;
+                );
+                const isLocked = !isCompleted && !prevCompleted;
 
-              return (
-                <div
-                  key={lesson.id}
-                  onClick={() => !isLocked && navigate(createPageUrl(`Lesson?id=${lesson.id}`))}
-                  className={`flex items-center justify-between p-4 rounded-xl transition-all ${
-                    isLocked
-                      ? "bg-gray-50 opacity-60 cursor-not-allowed"
-                      : "bg-gradient-to-r from-gray-50 to-white hover:from-lime-50 hover:to-green-50 cursor-pointer border-2 border-transparent hover:border-lime-200"
-                  }`}
-                >
-                  <div className="flex items-center gap-4">
-                    <div
-                      className={`w-12 h-12 rounded-full flex items-center justify-center ${
-                        isCompleted
-                          ? "bg-gradient-to-br from-green-400 to-emerald-500"
-                          : isLocked
-                          ? "bg-gray-200"
-                          : "bg-gradient-to-br from-lime-400 to-green-500"
-                      }`}
-                    >
-                      {isCompleted ? (
-                        <CheckCircle className="w-6 h-6 text-white" />
-                      ) : isLocked ? (
-                        <Lock className="w-6 h-6 text-gray-500" />
-                      ) : (
-                        <span className="text-white font-bold">{index + 1}</span>
-                      )}
+                return (
+                  <div
+                    key={lesson.id}
+                    onClick={() => !isLocked && navigate(createPageUrl(`Lesson?id=${lesson.id}`))}
+                    className={`flex items-center gap-4 px-6 py-4 transition-all ${
+                      isLocked ? "opacity-50 cursor-not-allowed" : "cursor-pointer hover:bg-green-50/60 group"
+                    }`}
+                  >
+                    <div className={`w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 ${
+                      isCompleted ? "bg-green-700" : isLocked ? "bg-gray-200" : "bg-green-100 group-hover:bg-green-200"
+                    }`}>
+                      {isCompleted ? <CheckCircle className="w-5 h-5 text-white" /> :
+                       isLocked    ? <Lock className="w-4 h-4 text-gray-400" /> :
+                                     <span className="text-green-800 font-bold text-sm">{index + 1}</span>}
                     </div>
 
-                    <div>
-                      <h4 className="font-semibold text-gray-900">{lesson.title}</h4>
-                      <div className="flex items-center gap-3 text-sm text-gray-600 mt-1">
-                        <span className="flex items-center gap-1">
-                          <Clock className="w-3 h-3" />
-                          {lesson.duration_minutes} min
-                        </span>
-                        <span className="flex items-center gap-1">
-                          <Zap className="w-3 h-3 text-lime-500" />
-                          {lesson.xp_reward} XP
-                        </span>
+                    <div className="flex-1 min-w-0">
+                      <p className={`font-semibold truncate ${isLocked ? "text-gray-400" : "text-gray-900"}`}>
+                        {lesson.title}
+                      </p>
+                      <div className="flex items-center gap-3 text-xs text-gray-500 mt-0.5">
+                        {lesson.duration_minutes && (
+                          <span className="flex items-center gap-1"><Clock className="w-3 h-3" />{lesson.duration_minutes} min</span>
+                        )}
+                        {lesson.xp_reward && (
+                          <span className="flex items-center gap-1 text-green-700 font-medium"><Zap className="w-3 h-3" />{lesson.xp_reward} XP</span>
+                        )}
                       </div>
                     </div>
+
+                    {isCompleted && <Badge className="bg-green-50 text-green-800 border border-green-200 text-xs flex-shrink-0">Done</Badge>}
+                    {isLocked    && <Badge variant="outline" className="text-gray-400 border-gray-200 text-xs flex-shrink-0">Locked</Badge>}
+                    {!isCompleted && !isLocked && <Play className="w-4 h-4 text-gray-300 group-hover:text-green-700 transition-colors flex-shrink-0" />}
                   </div>
+                );
+              })}
+            </div>
+          )}
+        </div>
 
-                  {isCompleted && <Badge className="bg-green-100 text-green-700">Completed</Badge>}
-                  {isLocked && <Badge variant="outline" className="text-gray-500">Locked</Badge>}
-                </div>
-              );
-            })}
-
-            {lessons.length === 0 && (
-              <div className="text-sm text-gray-600">
-                No lessons found for this course. Check that lessons in{" "}
-                <code className="px-1 py-0.5 bg-gray-100 rounded">public/data/lessons.json</code>{" "}
-                use the right <code className="px-1 py-0.5 bg-gray-100 rounded">course_id</code>.
-              </div>
-            )}
-          </CardContent>
-        </Card>
       </div>
     </div>
   );

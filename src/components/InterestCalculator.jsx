@@ -3,9 +3,11 @@ import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 import { Input } from "./ui/input";
 import { Label } from "./ui/label";
 import { Button } from "./ui/button";
-import { Badge } from "./ui/badge";
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell } from "recharts";
-import { Calculator, TrendingUp } from "lucide-react";
+import {
+  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend,
+  ResponsiveContainer, PieChart, Pie, Cell,
+} from "recharts";
+import { Calculator, TrendingUp, Info, Lightbulb } from "lucide-react";
 
 export default function InterestCalculator() {
   const [inputs, setInputs] = useState({
@@ -13,9 +15,9 @@ export default function InterestCalculator() {
     returnRate: 8,
     years: 30,
     additionalContribution: 1000,
-    contributionFrequency: "annually", // "monthly" | "annually"
-    contributionTiming: "end", // "beginning" | "end"
-    compoundFrequency: "annually", // "monthly" | "quarterly" | "annually"
+    contributionFrequency: "annually",
+    contributionTiming: "end",
+    compoundFrequency: "annually",
   });
 
   const [displayValues, setDisplayValues] = useState({
@@ -31,30 +33,19 @@ export default function InterestCalculator() {
     if (!calculated) return null;
 
     const {
-      startingAmount,
-      returnRate,
-      years,
-      additionalContribution,
-      contributionFrequency,
-      contributionTiming,
-      compoundFrequency,
+      startingAmount, returnRate, years, additionalContribution,
+      contributionFrequency, contributionTiming, compoundFrequency,
     } = inputs;
 
     const r = returnRate / 100;
-
     const compoundPerYear = compoundFrequency === "monthly" ? 12 : compoundFrequency === "quarterly" ? 4 : 1;
     const contributionPerYear = contributionFrequency === "monthly" ? 12 : 1;
-
-    // per-contribution deposit amount (monthly means input is per-month; annually means per-year)
     const depositPerContribution = additionalContribution;
-
-    // effective timeline: we’ll simulate at the smaller of (compound, contribution) resolutions
     const periodsPerYear = Math.max(compoundPerYear, contributionPerYear);
     const totalPeriods = years * periodsPerYear;
-
-    const ratePerPeriod = r / compoundPerYear; // compounding happens at compoundPerYear
-    const compoundEvery = periodsPerYear / compoundPerYear; // integer
-    const contributeEvery = periodsPerYear / contributionPerYear; // integer
+    const ratePerPeriod = r / compoundPerYear;
+    const compoundEvery = periodsPerYear / compoundPerYear;
+    const contributeEvery = periodsPerYear / contributionPerYear;
 
     const schedule = [];
     let balance = startingAmount;
@@ -73,11 +64,9 @@ export default function InterestCalculator() {
           yearDeposits += depositPerContribution;
           totalDeposits += depositPerContribution;
         }
-
         if (isCompoundPeriod) {
           balance = balance * (1 + ratePerPeriod);
         }
-
         if (contributionTiming === "end" && isContributionPeriod) {
           balance += depositPerContribution;
           yearDeposits += depositPerContribution;
@@ -86,7 +75,6 @@ export default function InterestCalculator() {
       }
 
       const interest = balance - yearStartBalance - yearDeposits;
-
       schedule.push({
         year,
         deposit: yearDeposits,
@@ -109,41 +97,56 @@ export default function InterestCalculator() {
 
   const handleCalculate = () => setCalculated(true);
 
-  const formatCurrency = (value) =>
-    new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", minimumFractionDigits: 2 }).format(value);
+  const fmt = (v) =>
+    new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(v);
 
   const pieData =
     calculated && calculateInvestment
       ? [
           { name: "Starting Amount", value: calculateInvestment.startingAmount },
-          { name: "Total Contributions", value: calculateInvestment.totalContributions },
-          { name: "Interest", value: calculateInvestment.totalInterest },
+          { name: "Contributions", value: calculateInvestment.totalContributions },
+          { name: "Interest Earned", value: calculateInvestment.totalInterest },
         ]
       : [];
 
-  const COLORS = ["#3b82f6", "#84cc16", "#dc2626"];
+  const PIE_COLORS = ["#15803d", "#4ade80", "#86efac"];
+  const BAR_COLORS = { starting: "#15803d", contributions: "#4ade80", interest: "#bbf7d0" };
+
+  const selectClass =
+    "w-full h-11 px-3 border border-gray-200 rounded-lg bg-white text-sm focus:border-green-700 focus:ring-1 focus:ring-green-700 focus:outline-none";
 
   return (
     <div className="space-y-6">
-      <Card className="border-2 border-blue-200 shadow-xl">
-        <CardHeader className="bg-gradient-to-r from-blue-500 to-cyan-500 text-white">
-          <CardTitle className="flex items-center gap-2 text-2xl">
-            <Calculator className="w-6 h-6" />
-            Investment Growth Calculator
-          </CardTitle>
-          <p className="text-sm text-blue-50 mt-2">Modify the values and click Calculate to see your investment grow</p>
-        </CardHeader>
+      {/* Intro */}
+      <div className="bg-white border border-gray-200 rounded-xl p-5 flex items-start gap-3 shadow-sm">
+        <div className="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5">
+          <Info className="w-4 h-4 text-green-700" />
+        </div>
+        <div>
+          <p className="font-semibold text-gray-900 text-sm mb-1">How to use this calculator</p>
+          <p className="text-gray-600 text-sm leading-relaxed">
+            Enter your starting amount, how long you plan to invest, your expected annual return rate, and any regular contributions.
+            Click <strong>Calculate</strong> to see how your investment grows over time through the power of compound interest.
+          </p>
+        </div>
+      </div>
 
-        <CardContent className="p-8">
+      <div className="bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden">
+        <div className="px-6 py-4 border-b border-gray-100 flex items-center gap-2">
+          <Calculator className="w-4 h-4 text-green-700" />
+          <h2 className="font-semibold text-gray-900">Investment Growth Calculator</h2>
+        </div>
+
+        <div className="p-6">
           <div className="grid md:grid-cols-2 gap-8">
             {/* Inputs */}
-            <div className="space-y-6">
+            <div className="space-y-5">
               <div>
-                <Label htmlFor="startingAmount" className="text-base font-semibold text-gray-700">
+                <Label htmlFor="startingAmount" className="text-sm font-semibold text-gray-700 mb-1.5 block">
                   Starting Amount
                 </Label>
-                <div className="relative mt-2">
-                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">$</span>
+                <div className="relative">
+                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm">$</span>
                   <Input
                     id="startingAmount"
                     type="text"
@@ -152,17 +155,18 @@ export default function InterestCalculator() {
                       const val = e.target.value;
                       setDisplayValues((d) => ({ ...d, startingAmount: val }));
                       setInputs((s) => ({ ...s, startingAmount: val === "" ? 0 : parseFloat(val) || 0 }));
+                      setCalculated(false);
                     }}
-                    className="pl-8 h-12 text-base border-2"
+                    className="pl-7 h-11 text-sm border-gray-200 focus:border-green-700"
                   />
                 </div>
               </div>
 
               <div>
-                <Label htmlFor="years" className="text-base font-semibold text-gray-700">
+                <Label htmlFor="years" className="text-sm font-semibold text-gray-700 mb-1.5 block">
                   Investment Length
                 </Label>
-                <div className="relative mt-2 flex gap-2">
+                <div className="flex gap-2 items-center">
                   <Input
                     id="years"
                     type="text"
@@ -171,18 +175,19 @@ export default function InterestCalculator() {
                       const val = e.target.value;
                       setDisplayValues((d) => ({ ...d, years: val }));
                       setInputs((s) => ({ ...s, years: val === "" ? 0 : parseInt(val) || 0 }));
+                      setCalculated(false);
                     }}
-                    className="h-12 text-base border-2"
+                    className="h-11 text-sm border-gray-200 focus:border-green-700"
                   />
-                  <span className="flex items-center text-gray-600">years</span>
+                  <span className="text-sm text-gray-500 whitespace-nowrap">years</span>
                 </div>
               </div>
 
               <div>
-                <Label htmlFor="returnRate" className="text-base font-semibold text-gray-700">
-                  Return Rate
+                <Label htmlFor="returnRate" className="text-sm font-semibold text-gray-700 mb-1.5 block">
+                  Annual Return Rate
                 </Label>
-                <div className="relative mt-2 flex gap-2">
+                <div className="flex gap-2 items-center">
                   <Input
                     id="returnRate"
                     type="text"
@@ -191,22 +196,23 @@ export default function InterestCalculator() {
                       const val = e.target.value;
                       setDisplayValues((d) => ({ ...d, returnRate: val }));
                       setInputs((s) => ({ ...s, returnRate: val === "" ? 0 : parseFloat(val) || 0 }));
+                      setCalculated(false);
                     }}
-                    className="h-12 text-base border-2"
+                    className="h-11 text-sm border-gray-200 focus:border-green-700"
                   />
-                  <span className="flex items-center text-gray-600">%</span>
+                  <span className="text-sm text-gray-500">%</span>
                 </div>
               </div>
 
               <div>
-                <Label htmlFor="compoundFrequency" className="text-base font-semibold text-gray-700">
-                  Compound
+                <Label htmlFor="compoundFrequency" className="text-sm font-semibold text-gray-700 mb-1.5 block">
+                  Compound Frequency
                 </Label>
                 <select
                   id="compoundFrequency"
                   value={inputs.compoundFrequency}
-                  onChange={(e) => setInputs((s) => ({ ...s, compoundFrequency: e.target.value }))}
-                  className="w-full h-12 mt-2 px-4 border-2 border-gray-300 rounded-lg bg-white text-base focus:border-blue-500 focus:outline-none"
+                  onChange={(e) => { setInputs((s) => ({ ...s, compoundFrequency: e.target.value })); setCalculated(false); }}
+                  className={selectClass}
                 >
                   <option value="monthly">Monthly</option>
                   <option value="quarterly">Quarterly</option>
@@ -215,11 +221,11 @@ export default function InterestCalculator() {
               </div>
 
               <div>
-                <Label htmlFor="additionalContribution" className="text-base font-semibold text-gray-700">
+                <Label htmlFor="additionalContribution" className="text-sm font-semibold text-gray-700 mb-1.5 block">
                   Additional Contribution
                 </Label>
-                <div className="relative mt-2">
-                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">$</span>
+                <div className="relative">
+                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm">$</span>
                   <Input
                     id="additionalContribution"
                     type="text"
@@ -228,184 +234,196 @@ export default function InterestCalculator() {
                       const val = e.target.value;
                       setDisplayValues((d) => ({ ...d, additionalContribution: val }));
                       setInputs((s) => ({ ...s, additionalContribution: val === "" ? 0 : parseFloat(val) || 0 }));
+                      setCalculated(false);
                     }}
-                    className="pl-8 h-12 text-base border-2"
+                    className="pl-7 h-11 text-sm border-gray-200 focus:border-green-700"
                   />
                 </div>
               </div>
 
               <div>
-                <Label className="text-base font-semibold text-gray-700">Contribute at the</Label>
-                <div className="flex gap-4 mt-2">
-                  <label className="flex items-center gap-2 cursor-pointer">
-                    <input
-                      type="radio"
-                      name="timing"
-                      value="beginning"
-                      checked={inputs.contributionTiming === "beginning"}
-                      onChange={(e) => setInputs((s) => ({ ...s, contributionTiming: e.target.value }))}
-                      className="w-4 h-4"
-                    />
-                    <span>beginning</span>
-                  </label>
-                  <label className="flex items-center gap-2 cursor-pointer">
-                    <input
-                      type="radio"
-                      name="timing"
-                      value="end"
-                      checked={inputs.contributionTiming === "end"}
-                      onChange={(e) => setInputs((s) => ({ ...s, contributionTiming: e.target.value }))}
-                      className="w-4 h-4"
-                    />
-                    <span>end</span>
-                  </label>
-                </div>
-
-                <div className="flex gap-4 mt-2">
-                  <span className="text-sm text-gray-600">of each</span>
-                  <label className="flex items-center gap-2 cursor-pointer">
-                    <input
-                      type="radio"
-                      name="frequency"
-                      value="monthly"
-                      checked={inputs.contributionFrequency === "monthly"}
-                      onChange={(e) => setInputs((s) => ({ ...s, contributionFrequency: e.target.value }))}
-                      className="w-4 h-4"
-                    />
-                    <span>month</span>
-                  </label>
-                  <label className="flex items-center gap-2 cursor-pointer">
-                    <input
-                      type="radio"
-                      name="frequency"
-                      value="annually"
-                      checked={inputs.contributionFrequency === "annually"}
-                      onChange={(e) => setInputs((s) => ({ ...s, contributionFrequency: e.target.value }))}
-                      className="w-4 h-4"
-                    />
-                    <span>year</span>
-                  </label>
+                <Label className="text-sm font-semibold text-gray-700 mb-2 block">Contribution Timing</Label>
+                <div className="flex flex-wrap gap-x-6 gap-y-2">
+                  <div className="flex gap-4">
+                    {["beginning", "end"].map((val) => (
+                      <label key={val} className="flex items-center gap-2 text-sm text-gray-600 cursor-pointer">
+                        <input
+                          type="radio"
+                          name="timing"
+                          value={val}
+                          checked={inputs.contributionTiming === val}
+                          onChange={(e) => { setInputs((s) => ({ ...s, contributionTiming: e.target.value })); setCalculated(false); }}
+                          className="accent-green-700"
+                        />
+                        {val.charAt(0).toUpperCase() + val.slice(1)} of period
+                      </label>
+                    ))}
+                  </div>
+                  <div className="flex gap-4">
+                    {[["monthly", "Monthly"], ["annually", "Annually"]].map(([val, label]) => (
+                      <label key={val} className="flex items-center gap-2 text-sm text-gray-600 cursor-pointer">
+                        <input
+                          type="radio"
+                          name="frequency"
+                          value={val}
+                          checked={inputs.contributionFrequency === val}
+                          onChange={(e) => { setInputs((s) => ({ ...s, contributionFrequency: e.target.value })); setCalculated(false); }}
+                          className="accent-green-700"
+                        />
+                        {label}
+                      </label>
+                    ))}
+                  </div>
                 </div>
               </div>
 
-              <Button onClick={handleCalculate} className="w-full h-14 text-lg bg-green-600 hover:bg-green-700 text-white shadow-lg">
+              <Button
+                onClick={handleCalculate}
+                className="w-full h-11 bg-green-700 hover:bg-green-800 text-white font-semibold"
+              >
+                <Calculator className="w-4 h-4 mr-2" />
                 Calculate
               </Button>
             </div>
 
             {/* Results */}
             <div>
-              <div className="bg-gradient-to-r from-green-600 to-emerald-600 text-white p-6 rounded-t-xl">
-                <h3 className="text-xl font-bold mb-4">Results</h3>
+              <div className="bg-green-700 rounded-t-xl p-5 text-white">
+                <h3 className="font-semibold text-sm text-green-200 mb-3">Results</h3>
                 {calculated && calculateInvestment ? (
                   <div className="space-y-3">
-                    <div className="flex justify-between items-center">
-                      <span className="text-green-100">End Balance</span>
-                      <span className="text-2xl font-bold">{formatCurrency(calculateInvestment.endBalance)}</span>
+                    <div>
+                      <p className="text-green-200 text-xs mb-0.5">Ending Balance</p>
+                      <p className="text-3xl font-bold">{fmt(calculateInvestment.endBalance)}</p>
                     </div>
-                    <div className="flex justify-between items-center text-sm">
-                      <span className="text-green-100">Starting Amount</span>
-                      <span className="font-semibold">{formatCurrency(calculateInvestment.startingAmount)}</span>
-                    </div>
-                    <div className="flex justify-between items-center text-sm">
-                      <span className="text-green-100">Total Contributions</span>
-                      <span className="font-semibold">{formatCurrency(calculateInvestment.totalContributions)}</span>
-                    </div>
-                    <div className="flex justify-between items-center text-sm">
-                      <span className="text-green-100">Total Interest</span>
-                      <span className="font-semibold">{formatCurrency(calculateInvestment.totalInterest)}</span>
+                    <div className="h-px bg-white/20" />
+                    <div className="space-y-2">
+                      {[
+                        ["Starting Amount", calculateInvestment.startingAmount],
+                        ["Total Contributions", calculateInvestment.totalContributions],
+                        ["Interest Earned", calculateInvestment.totalInterest],
+                      ].map(([label, val]) => (
+                        <div key={label} className="flex justify-between items-center text-sm">
+                          <span className="text-green-200">{label}</span>
+                          <span className="font-semibold">{fmt(val)}</span>
+                        </div>
+                      ))}
                     </div>
                   </div>
                 ) : (
-                  <p className="text-green-100 text-center py-8">Click Calculate to see results</p>
+                  <p className="text-green-200 text-sm text-center py-8">
+                    Enter your details and click Calculate to see results.
+                  </p>
                 )}
               </div>
 
               {calculated && calculateInvestment && (
-                <div className="bg-white p-6 rounded-b-xl border-2 border-t-0 border-gray-200">
-                  <ResponsiveContainer width="100%" height={200}>
+                <div className="bg-white border border-t-0 border-gray-200 rounded-b-xl p-4">
+                  <ResponsiveContainer width="100%" height={180}>
                     <PieChart>
                       <Pie
                         data={pieData}
                         cx="50%"
                         cy="50%"
                         labelLine={false}
-                        label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
-                        outerRadius={80}
+                        label={({ name, percent }) => `${(percent * 100).toFixed(0)}%`}
+                        outerRadius={70}
                         dataKey="value"
                       >
-                        {pieData.map((_, index) => (
-                          <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                        {pieData.map((_, i) => (
+                          <Cell key={i} fill={PIE_COLORS[i % PIE_COLORS.length]} />
                         ))}
                       </Pie>
-                      <Tooltip formatter={(value) => formatCurrency(value)} />
+                      <Tooltip formatter={(v) => fmt(v)} />
+                      <Legend wrapperStyle={{ fontSize: 12 }} />
                     </PieChart>
                   </ResponsiveContainer>
                 </div>
               )}
             </div>
           </div>
-        </CardContent>
-      </Card>
+        </div>
+      </div>
 
-      {/* Chart + Schedule */}
+      {/* Results interpretation */}
+      {calculated && calculateInvestment && (() => {
+        const { endBalance, startingAmount, totalContributions, totalInterest } = calculateInvestment;
+        const interestPct = Math.round((totalInterest / endBalance) * 100);
+        const growthMultiple = (endBalance / (startingAmount + totalContributions)).toFixed(1);
+        const insights = [];
+        if (interestPct > 50) insights.push(`Interest earned makes up ${interestPct}% of your ending balance — this is compound interest doing the heavy lifting.`);
+        if (inputs.years >= 20) insights.push(`Over ${inputs.years} years, your money grew ${growthMultiple}x — time is the most powerful variable in investing.`);
+        if (totalContributions > startingAmount) insights.push(`Your ongoing contributions (${fmt(totalContributions)}) exceeded your starting amount — consistent investing matters more than a large starting balance.`);
+        return insights.length > 0 ? (
+          <div className="bg-white border border-gray-200 rounded-xl p-5 shadow-sm">
+            <div className="flex items-center gap-2 mb-3">
+              <Lightbulb className="w-4 h-4 text-green-700" />
+              <p className="font-semibold text-gray-900 text-sm">What These Numbers Mean</p>
+            </div>
+            <div className="space-y-2">
+              {insights.map((insight, i) => (
+                <div key={i} className="flex items-start gap-2.5 text-sm text-gray-700">
+                  <div className="w-1.5 h-1.5 rounded-full bg-green-600 flex-shrink-0 mt-1.5" />
+                  {insight}
+                </div>
+              ))}
+            </div>
+          </div>
+        ) : null;
+      })()}
+
+      {/* Growth chart + schedule */}
       {calculated && calculateInvestment && (
         <>
-          <Card className="border-2 border-gray-200 shadow-xl">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <TrendingUp className="w-5 h-5 text-lime-500" />
-                Investment Growth Over Time
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <ResponsiveContainer width="100%" height={400}>
+          <div className="bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden">
+            <div className="px-6 py-4 border-b border-gray-100 flex items-center gap-2">
+              <TrendingUp className="w-4 h-4 text-green-700" />
+              <h3 className="font-semibold text-gray-900">Investment Growth Over Time</h3>
+            </div>
+            <div className="p-5">
+              <ResponsiveContainer width="100%" height={380}>
                 <BarChart data={calculateInvestment.schedule}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="year" />
-                  <YAxis />
-                  <Tooltip formatter={(value) => formatCurrency(value)} />
-                  <Legend />
-                  <Bar dataKey="startingAmount" stackId="a" fill="#3b82f6" name="Starting Amount" />
-                  <Bar dataKey="contributions" stackId="a" fill="#84cc16" name="Contributions" />
-                  <Bar dataKey="totalInterest" stackId="a" fill="#dc2626" name="Interest" />
+                  <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
+                  <XAxis dataKey="year" tick={{ fontSize: 11 }} />
+                  <YAxis tick={{ fontSize: 11 }} />
+                  <Tooltip formatter={(v) => fmt(v)} />
+                  <Legend wrapperStyle={{ fontSize: 12 }} />
+                  <Bar dataKey="startingAmount" stackId="a" fill={BAR_COLORS.starting} name="Starting Amount" />
+                  <Bar dataKey="contributions" stackId="a" fill={BAR_COLORS.contributions} name="Contributions" />
+                  <Bar dataKey="totalInterest" stackId="a" fill={BAR_COLORS.interest} name="Interest Earned" />
                 </BarChart>
               </ResponsiveContainer>
-            </CardContent>
-          </Card>
+            </div>
+          </div>
 
-          <Card className="border-2 border-gray-200 shadow-xl">
-            <CardHeader>
-              <CardTitle>Accumulation Schedule</CardTitle>
-              <div className="flex gap-4 mt-2">
-                <Badge className="bg-blue-100 text-blue-700">Annual Schedule</Badge>
-              </div>
-            </CardHeader>
-            <CardContent>
-              <div className="overflow-x-auto">
-                <table className="w-full text-sm">
-                  <thead className="bg-blue-600 text-white">
-                    <tr>
-                      <th className="p-3 text-left">Year</th>
-                      <th className="p-3 text-right">Deposit</th>
-                      <th className="p-3 text-right">Interest</th>
-                      <th className="p-3 text-right">Ending Balance</th>
+          <div className="bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden">
+            <div className="px-6 py-4 border-b border-gray-100">
+              <h3 className="font-semibold text-gray-900">Accumulation Schedule</h3>
+              <p className="text-xs text-gray-400 mt-0.5">Annual breakdown of deposits, interest earned, and balance</p>
+            </div>
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="bg-green-700 text-white">
+                    <th className="p-3 text-left font-semibold">Year</th>
+                    <th className="p-3 text-right font-semibold">Deposit</th>
+                    <th className="p-3 text-right font-semibold">Interest</th>
+                    <th className="p-3 text-right font-semibold">Ending Balance</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {calculateInvestment.schedule.map((row) => (
+                    <tr key={row.year} className="border-b border-gray-100 hover:bg-gray-50">
+                      <td className="p-3 font-medium text-gray-900">{row.year}</td>
+                      <td className="p-3 text-right text-gray-700">{fmt(row.deposit)}</td>
+                      <td className="p-3 text-right text-green-700">{fmt(row.interest)}</td>
+                      <td className="p-3 text-right font-semibold text-gray-900">{fmt(row.endingBalance)}</td>
                     </tr>
-                  </thead>
-                  <tbody>
-                    {calculateInvestment.schedule.map((row) => (
-                      <tr key={row.year} className="border-b hover:bg-gray-50">
-                        <td className="p-3 font-semibold">{row.year}</td>
-                        <td className="p-3 text-right">{formatCurrency(row.deposit)}</td>
-                        <td className="p-3 text-right">{formatCurrency(row.interest)}</td>
-                        <td className="p-3 text-right font-semibold">{formatCurrency(row.endingBalance)}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </CardContent>
-          </Card>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
         </>
       )}
     </div>

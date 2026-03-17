@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from "react";
+// src/pages/FinalExam.jsx
+import React, { useState, useEffect, useMemo } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
 import { createPageUrl } from "@/utils";
@@ -7,194 +8,144 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import {
   Trophy, Sparkles, AlertCircle, CheckCircle, Zap,
-  ArrowLeft, BookOpen, TrendingUp, Award
+  ArrowLeft, BookOpen, Award,
 } from "lucide-react";
 import { toast } from "sonner";
-import CourseCertificate from "../components/CourseCertificate";
 
-// NOTE: Base44 removed in migration pass.
-// TODO (later phase): replace these stubs with your real API/client layer.
-const getLocalUser = () => {
+// ─── Helpers ──────────────────────────────────────────────────
+
+const safeParse = (r, fb) => { try { return r ? JSON.parse(r) : fb; } catch { return fb; } };
+const getJSON   = (k, fb) => safeParse(localStorage.getItem(k), fb);
+const setJSON   = (k, v)  => localStorage.setItem(k, JSON.stringify(v));
+const getLocalUser  = ()  => getJSON("sprout_user", null);
+const setLocalUser  = (u) => setJSON("sprout_user", u);
+const safeUUID      = ()  => { try { return globalThis?.crypto?.randomUUID?.() || null; } catch { return null; } };
+
+const BASE = import.meta.env.BASE_URL || "/";
+async function fetchWithCache(url, key, fb = []) {
   try {
-    const raw = localStorage.getItem("sprout_user");
-    return raw ? JSON.parse(raw) : null;
-  } catch {
-    return null;
-  }
-};
+    const res = await fetch(url, { cache: "no-store" });
+    if (!res.ok) throw new Error();
+    const d = await res.json();
+    setJSON(key, d);
+    return Array.isArray(d) ? d : fb;
+  } catch { return getJSON(key, fb); }
+}
 
 const data = {
-  async listCourses() {
-    return [];
+  courses:  () => fetchWithCache(`${BASE}data/courses.json`,  "sprout_courses",  []),
+  lessons:  () => fetchWithCache(`${BASE}data/lessons.json`,  "sprout_lessons",  []),
+  progress: (email, courseId) => {
+    const all = getJSON("sprout_user_progress", []);
+    return all.filter(p => p.user_email === email && String(p.course_id) === String(courseId));
   },
-  async listLessons(/* courseId */) {
-    return [];
+  upsertProgress: (record) => {
+    const all = getJSON("sprout_user_progress", []);
+    const idx = all.findIndex(p => String(p.id) === String(record.id));
+    if (idx >= 0) all[idx] = { ...all[idx], ...record }; else all.push(record);
+    setJSON("sprout_user_progress", all);
+    return record;
   },
-  async listUserProgress(/* userEmail, courseId */) {
-    return [];
-  },
-  async getCourseCompletion(/* userEmail, courseId */) {
-    return null;
-  },
-  async upsertCourseCompletion(/* payload */) {
-    return;
-  },
-  async updateUserXP(/* payload */) {
-    return;
-  }
 };
 
-export default function FinalExam() {
-  const navigate = useNavigate();
-  const queryClient = useQueryClient();
-  const [user, setUser] = useState(null);
-  const [examAnswers, setExamAnswers] = useState({});
-  const [examSubmitted, setExamSubmitted] = useState(false);
-  const [score, setScore] = useState(0);
-  const [showCertificate, setShowCertificate] = useState(false);
+// ─── Main ─────────────────────────────────────────────────────
 
-  const urlParams = new URLSearchParams(window.location.search);
-  const courseId = urlParams.get("courseId");
+export default function FinalExam() {
+  const navigate     = useNavigate();
+  const queryClient  = useQueryClient();
+  const [user,           setUser]           = useState(null);
+  const [examAnswers,    setExamAnswers]    = useState({});
+  const [examSubmitted,  setExamSubmitted]  = useState(false);
+  const [score,          setScore]          = useState(0);
+  const [showCertificate,setShowCertificate]= useState(false);
+
+  // FIX: HashRouter puts params in the hash, not window.location.search
+  const courseId = useMemo(() => {
+    const hash = window.location.hash;                 // "#/finalexam?courseId=abc"
+    const q    = hash.indexOf("?");
+    if (q === -1) return null;
+    return new URLSearchParams(hash.slice(q + 1)).get("courseId");
+  }, []);
 
   useEffect(() => {
-    const currentUser = getLocalUser();
-    if (!currentUser) {
-      navigate(createPageUrl("Login"));
-      return;
-    }
-    setUser(currentUser);
+    const u = getLocalUser();
+    if (!u) { navigate(createPageUrl("Login")); return; }
+    setUser(u);
   }, [navigate]);
 
   const { data: course } = useQuery({
-    queryKey: ["course", courseId],
+    queryKey: ["finalexam_course", courseId],
     queryFn: async () => {
-      const courses = await data.listCourses();
-      return courses.find((c) => c.id === courseId);
+      const all = await data.courses();
+      return all.find(c => String(c.id) === String(courseId)) || null;
     },
     enabled: !!courseId,
   });
 
   const { data: lessons = [] } = useQuery({
-    queryKey: ["lessons", courseId],
+    queryKey: ["finalexam_lessons", courseId],
     queryFn: async () => {
-      const allLessons = await data.listLessons(courseId);
-      return allLessons
-        .filter((l) => l.course_id === courseId)
-        .sort((a, b) => (a.order || 0) - (b.order || 0));
+      const all = await data.lessons();
+      return all.filter(l => String(l.course_id) === String(courseId)).sort((a, b) => (a.order || 0) - (b.order || 0));
     },
     enabled: !!courseId,
   });
 
   const { data: userProgress = [] } = useQuery({
-    queryKey: ["userProgress", user?.email, courseId],
-    queryFn: async () => {
+    queryKey: ["finalexam_progress", user?.email, courseId],
+    queryFn: () => {
       if (!user?.email || !courseId) return [];
-      return data.listUserProgress(user.email, courseId);
+      return data.progress(user.email, courseId);
     },
     enabled: !!user && !!courseId,
   });
 
-  const { data: courseCompletion } = useQuery({
-    queryKey: ["courseCompletion", user?.email, courseId],
-    queryFn: async () => {
-      if (!user?.email || !courseId) return null;
-      return data.getCourseCompletion(user.email, courseId);
-    },
-    enabled: !!user && !!courseId,
-  });
+  const allLessonsComplete = lessons.length > 0 && lessons.every(l =>
+    userProgress.some(p => String(p.lesson_id) === String(l.id) && p.completed)
+  );
 
   const completeMutation = useMutation({
-    mutationFn: async ({ examScore }) => {
+    mutationFn: async ({ finalScore }) => {
       if (!user?.email || !courseId) return;
-
-      const now = new Date().toISOString();
-      const finalExamXP = 500;
-
-      await data.upsertCourseCompletion({
-        user_email: user.email,
-        course_id: courseId,
-        completed: true,
-        completed_date: now,
-        final_exam_score: examScore,
-      });
-
-      await data.updateUserXP({
-        email: user.email,
-        xp_delta: finalExamXP,
-        courses_completed_delta: 1,
-      });
+      const xpReward  = course?.xp_reward || 0;
+      const newXP     = (user.xp_points || 0) + xpReward;
+      const newLevel  = Math.floor(newXP / 500) + 1;
+      const updated   = { ...user, xp_points: newXP, level: newLevel };
+      setLocalUser(updated);
+      setUser(updated);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["courseCompletion"] });
-      queryClient.invalidateQueries({ queryKey: ["user"] });
-      toast.success("🎉 Course completed! +500 XP");
-      setShowCertificate(true);
+      queryClient.invalidateQueries({ queryKey: ["userProgress"] });
+      toast.success(`Course complete! +${course?.xp_reward || 0} XP`);
     },
   });
 
-  const handleExamSubmit = () => {
-    if (!course?.final_exam_questions) {
-      toast.error("This course is missing a final exam. Please contact support.");
-      return;
-    }
-
-    const totalQuestions = course.final_exam_questions.length;
-    let correctAnswers = 0;
-
-    course.final_exam_questions.forEach((q, index) => {
-      if (examAnswers[index] === q.correct_answer) {
-        correctAnswers++;
-      }
-    });
-
-    const examScore = Math.round((correctAnswers / totalQuestions) * 100);
-    setScore(examScore);
+  const handleSubmit = () => {
+    const questions = course?.final_exam_questions || [];
+    if (!questions.length) { toast.error("No exam questions found."); return; }
+    let correct = 0;
+    questions.forEach((q, i) => { if (examAnswers[i] === q.correct_answer) correct++; });
+    const finalScore = Math.round((correct / questions.length) * 100);
+    setScore(finalScore);
     setExamSubmitted(true);
-
-    if (examScore === 100) {
-      completeMutation.mutate({ examScore });
+    if (finalScore >= 70) {
+      completeMutation.mutate({ finalScore });
+      setShowCertificate(true);
     }
   };
 
-  const handleRetakeExam = () => {
-    setExamAnswers({});
-    setExamSubmitted(false);
-    setScore(0);
-    window.scrollTo({ top: 0, behavior: "smooth" });
-  };
-
-  // Loading state with timeout
-  const [loadingTimeout, setLoadingTimeout] = useState(false);
-
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      if (!course) setLoadingTimeout(true);
-    }, 10000);
-
-    return () => clearTimeout(timer);
-  }, [course]);
-
-  if (!course && loadingTimeout) {
+  // ── Guard: no courseId ──
+  if (!courseId) {
     return (
-      <div className="min-h-screen flex items-center justify-center p-4">
-        <Card className="max-w-md border-none shadow-xl">
+      <div className="min-h-screen flex items-center justify-center bg-white p-6">
+        <Card className="max-w-md border border-gray-200 shadow-lg">
           <CardContent className="p-8 text-center">
-            <AlertCircle className="w-16 h-16 text-red-500 mx-auto mb-4" />
-            <h2 className="text-2xl font-bold text-gray-900 mb-2">Having Trouble Loading</h2>
-            <p className="text-gray-600 mb-6">
-              We're having trouble loading this exam. Please refresh or try again in a moment.
-            </p>
-            <div className="flex gap-3 justify-center">
-              <Button
-                onClick={() => window.location.reload()}
-                className="bg-gradient-to-r from-lime-400 to-green-500 hover:from-lime-500 hover:to-green-600 text-white"
-              >
-                Retry
-              </Button>
-              <Button variant="outline" onClick={() => navigate(createPageUrl("Learn"))}>
-                Back to Courses
-              </Button>
-            </div>
+            <AlertCircle className="w-10 h-10 text-amber-500 mx-auto mb-4" />
+            <h2 className="text-xl font-bold text-gray-900 mb-2">Missing Course ID</h2>
+            <p className="text-gray-500 mb-6">Navigate here from a course page.</p>
+            <Button onClick={() => navigate(createPageUrl("Learn"))} className="bg-green-700 hover:bg-green-800 text-white">
+              Back to Courses
+            </Button>
           </CardContent>
         </Card>
       </div>
@@ -203,37 +154,24 @@ export default function FinalExam() {
 
   if (!course) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <div className="w-16 h-16 border-4 border-lime-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading exam...</p>
-        </div>
+      <div className="min-h-screen flex items-center justify-center bg-white">
+        <div className="w-10 h-10 border-2 border-gray-200 border-t-green-700 rounded-full animate-spin" />
       </div>
     );
   }
 
-  const allLessonsCompleted =
-    lessons.length > 0 &&
-    lessons.every((lesson) =>
-      userProgress.some((p) => p.lesson_id === lesson.id && p.completed)
-    );
+  const questions = course?.final_exam_questions || [];
 
-  if (lessons.length > 0 && !allLessonsCompleted) {
+  if (!allLessonsComplete) {
     return (
-      <div className="min-h-screen flex items-center justify-center p-4">
-        <Card className="max-w-md border-none shadow-xl">
+      <div className="min-h-screen bg-gray-50 p-6 flex items-center justify-center">
+        <Card className="max-w-md border border-gray-200 shadow-lg">
           <CardContent className="p-8 text-center">
-            <AlertCircle className="w-16 h-16 text-orange-500 mx-auto mb-4" />
-            <h2 className="text-2xl font-bold text-gray-900 mb-2">Not Ready Yet!</h2>
-            <p className="text-gray-600 mb-6">
-              You must complete all lessons before taking the final exam.
-            </p>
-            <Button
-              onClick={() => navigate(createPageUrl(`CourseDetail?id=${courseId}`))}
-              className="bg-gradient-to-r from-lime-400 to-green-500 hover:from-lime-500 hover:to-green-600 text-white"
-            >
-              <ArrowLeft className="w-4 h-4 mr-2" />
-              Back to Course
+            <BookOpen className="w-12 h-12 text-green-700 mx-auto mb-4" />
+            <h2 className="text-xl font-bold text-gray-900 mb-2">Complete All Lessons First</h2>
+            <p className="text-gray-500 mb-6">Finish every lesson in <strong>{course.name}</strong> before taking the final exam.</p>
+            <Button onClick={() => navigate(createPageUrl(`CourseDetail?id=${courseId}`))} className="bg-green-700 hover:bg-green-800 text-white">
+              Go to Course
             </Button>
           </CardContent>
         </Card>
@@ -241,31 +179,16 @@ export default function FinalExam() {
     );
   }
 
-  if (showCertificate) {
+  if (!questions.length) {
     return (
-      <CourseCertificate
-        course={course}
-        user={user}
-        completionDate={new Date().toISOString()}
-        onContinue={() => navigate(createPageUrl("Learn"))}
-      />
-    );
-  }
-
-  if (!course.final_exam_questions || course.final_exam_questions.length === 0) {
-    return (
-      <div className="min-h-screen flex items-center justify-center p-4">
-        <Card className="max-w-md border-none shadow-xl">
+      <div className="min-h-screen bg-gray-50 p-6 flex items-center justify-center">
+        <Card className="max-w-md border border-gray-200 shadow-lg">
           <CardContent className="p-8 text-center">
-            <AlertCircle className="w-16 h-16 text-red-500 mx-auto mb-4" />
-            <h2 className="text-2xl font-bold text-gray-900 mb-2">Missing Exam</h2>
-            <p className="text-gray-600 mb-6">This course doesn't have a final exam configured yet.</p>
-            <Button
-              onClick={() => navigate(createPageUrl(`CourseDetail?id=${courseId}`))}
-              className="bg-gradient-to-r from-lime-400 to-green-500 hover:from-lime-500 hover:to-green-600 text-white"
-            >
-              <ArrowLeft className="w-4 h-4 mr-2" />
-              Back to Course
+            <Trophy className="w-12 h-12 text-green-700 mx-auto mb-4" />
+            <h2 className="text-xl font-bold text-gray-900 mb-2">No Exam Available</h2>
+            <p className="text-gray-500 mb-6">This course doesn't have a final exam yet.</p>
+            <Button onClick={() => navigate(createPageUrl("Learn"))} className="bg-green-700 hover:bg-green-800 text-white">
+              Browse Courses
             </Button>
           </CardContent>
         </Card>
@@ -274,223 +197,106 @@ export default function FinalExam() {
   }
 
   return (
-    <div className="min-h-screen p-4 md:p-8 bg-gradient-to-br from-purple-50 via-pink-50 to-orange-50">
-      <div className="max-w-5xl mx-auto space-y-6">
+    <div className="min-h-screen bg-gray-50 p-4 md:p-8">
+      <div className="max-w-2xl mx-auto space-y-5">
+
+        {/* Back */}
+        <Button variant="outline" onClick={() => navigate(createPageUrl(`CourseDetail?id=${courseId}`))} className="border-gray-200 text-gray-700 hover:bg-gray-50">
+          <ArrowLeft className="w-4 h-4 mr-2" />
+          Back to Course
+        </Button>
+
         {/* Header */}
-        <div className="flex items-center justify-between flex-wrap gap-4">
-          <Button
-            variant="outline"
-            onClick={() => navigate(createPageUrl(`CourseDetail?id=${courseId}`))}
-            className="shadow-md"
-          >
-            <ArrowLeft className="w-4 h-4 mr-2" />
-            Back to Course
-          </Button>
-          <Badge className="bg-purple-100 text-purple-700 text-sm px-3 py-1">
-            Final Exam
-          </Badge>
+        <div className="bg-green-700 text-white rounded-2xl p-8 text-center">
+          <Trophy className="w-12 h-12 mx-auto mb-3 text-green-200" />
+          <h1 className="text-2xl font-bold mb-1">Final Exam</h1>
+          <p className="text-green-200 text-sm">{course.name}</p>
+          <div className="flex justify-center gap-4 mt-4 text-sm">
+            <span className="bg-white/15 rounded-full px-3 py-1">{questions.length} questions</span>
+            <span className="bg-white/15 rounded-full px-3 py-1">70% to pass</span>
+            <span className="flex items-center gap-1 bg-white/15 rounded-full px-3 py-1">
+              <Zap className="w-3 h-3" />{course.xp_reward} XP
+            </span>
+          </div>
         </div>
 
-        {/* Exam Header */}
-        <Card className="border-none shadow-2xl bg-gradient-to-r from-purple-500 via-pink-500 to-orange-500 text-white overflow-hidden">
-          <CardContent className="p-8 md:p-12 relative">
-            <div className="absolute top-0 right-0 opacity-10">
-              <Trophy className="w-64 h-64" />
-            </div>
-            <div className="relative z-10">
-              <div className="flex items-center gap-3 mb-4">
-                <Award className="w-12 h-12" />
-                <div>
-                  <h1 className="text-4xl md:text-5xl font-bold mb-2">Final Exam</h1>
-                  <p className="text-xl opacity-90">{course.name}</p>
-                </div>
-              </div>
-              <div className="grid grid-cols-3 gap-4 mt-8 p-6 bg-white/10 backdrop-blur-sm rounded-xl">
-                <div className="text-center">
-                  <p className="text-3xl font-bold">{course.final_exam_questions.length}</p>
-                  <p className="text-sm opacity-90">Questions</p>
-                </div>
-                <div className="text-center">
-                  <p className="text-3xl font-bold">100%</p>
-                  <p className="text-sm opacity-90">Required</p>
-                </div>
-                <div className="text-center">
-                  <p className="text-3xl font-bold">500 XP</p>
-                  <p className="text-sm opacity-90">Reward</p>
-                </div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Exam Instructions */}
-        {!examSubmitted && (
-          <Card className="border-2 border-purple-200 shadow-lg bg-purple-50">
-            <CardContent className="p-6">
-              <h3 className="font-bold text-lg text-gray-900 mb-3">📋 Instructions</h3>
-              <ul className="space-y-2 text-gray-700">
-                <li className="flex items-start gap-2">
-                  <CheckCircle className="w-5 h-5 text-purple-600 flex-shrink-0 mt-0.5" />
-                  <span>
-                    You must score <strong>100%</strong> to complete the course
-                  </span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <CheckCircle className="w-5 h-5 text-purple-600 flex-shrink-0 mt-0.5" />
-                  <span>You can retake the exam as many times as needed</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <CheckCircle className="w-5 h-5 text-purple-600 flex-shrink-0 mt-0.5" />
-                  <span>Review the lessons if you need a refresher</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <CheckCircle className="w-5 h-5 text-purple-600 flex-shrink-0 mt-0.5" />
-                  <span>Earn a certificate upon successful completion!</span>
-                </li>
-              </ul>
-            </CardContent>
-          </Card>
-        )}
-
-        {/* Exam Questions */}
-        <div className="space-y-6">
-          {course.final_exam_questions.map((question, qIndex) => (
-            <Card key={qIndex} className="border-2 border-gray-200 shadow-xl overflow-hidden">
-              <CardHeader className="bg-gradient-to-r from-purple-50 to-pink-50 border-b-2 border-purple-200">
-                <div className="flex items-start gap-4">
-                  <div className="w-14 h-14 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center flex-shrink-0 text-white font-bold text-xl shadow-lg">
-                    {qIndex + 1}
-                  </div>
-                  <p className="font-bold text-xl text-gray-900 flex-1 pt-3">
-                    {question.question}
-                  </p>
-                </div>
-              </CardHeader>
-              <CardContent className="p-6 space-y-3">
-                {question.options.map((option, oIndex) => {
-                  const isSelected = examAnswers[qIndex] === oIndex;
-                  const isCorrect = question.correct_answer === oIndex;
-                  const showResult = examSubmitted;
-
-                  return (
-                    <button
-                      key={oIndex}
-                      onClick={() => !examSubmitted && setExamAnswers({ ...examAnswers, [qIndex]: oIndex })}
-                      disabled={examSubmitted}
-                      className={`w-full p-5 rounded-xl text-left transition-all font-medium text-base relative overflow-hidden group ${
-                        showResult
-                          ? isCorrect
-                            ? "bg-gradient-to-r from-green-400 to-emerald-500 text-white border-2 border-green-600 shadow-lg"
-                            : isSelected
-                            ? "bg-gradient-to-r from-red-400 to-pink-500 text-white border-2 border-red-600"
-                            : "bg-gray-100 border-2 border-gray-300 text-gray-500"
-                          : isSelected
-                          ? "bg-gradient-to-r from-purple-500 to-pink-500 text-white border-2 border-purple-600 shadow-lg scale-105"
-                          : "bg-white border-2 border-gray-300 hover:border-purple-400 hover:shadow-md hover:scale-102 text-gray-700"
-                      }`}
-                    >
-                      <div className="flex items-center justify-between relative z-10">
-                        <span>{option}</span>
-                        {showResult && isCorrect && <CheckCircle className="w-6 h-6 flex-shrink-0 ml-2" />}
-                        {showResult && isSelected && !isCorrect && <AlertCircle className="w-6 h-6 flex-shrink-0 ml-2" />}
-                      </div>
-                    </button>
-                  );
-                })}
-
-                {examSubmitted && question.explanation && (
-                  <div className="mt-4 p-5 rounded-xl bg-gradient-to-r from-blue-50 to-cyan-50 border-l-4 border-blue-500">
-                    <p className="text-sm text-blue-900 flex items-start gap-2">
-                      <Sparkles className="w-5 h-5 flex-shrink-0 mt-0.5 text-blue-600" />
-                      <span>
-                        <strong className="font-bold">Explanation:</strong> {question.explanation}
-                      </span>
-                    </p>
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-
-        {/* Submit/Results */}
-        {!examSubmitted ? (
-          <Card className="border-none shadow-xl bg-gradient-to-r from-purple-500 to-pink-500 text-white sticky bottom-4">
-            <CardContent className="p-6">
-              <div className="flex flex-col md:flex-row items-center justify-between gap-4">
-                <div>
-                  <p className="text-sm opacity-90">
-                    {Object.keys(examAnswers).length} of {course.final_exam_questions.length} questions answered
-                  </p>
-                </div>
-                <Button
-                  onClick={handleExamSubmit}
-                  disabled={Object.keys(examAnswers).length !== course.final_exam_questions.length}
-                  className="bg-white text-purple-600 hover:bg-gray-100 h-14 px-10 text-lg shadow-xl disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  <Trophy className="w-6 h-6 mr-2" />
-                  Submit Final Exam
+        {/* Result / certificate */}
+        {examSubmitted && (
+          <div className={`rounded-2xl border-2 p-8 text-center ${score >= 70 ? "bg-green-50 border-green-200" : "bg-amber-50 border-amber-200"}`}>
+            {score >= 70 ? (
+              <>
+                <Trophy className="w-14 h-14 text-green-700 mx-auto mb-3" />
+                <p className="text-3xl font-bold text-green-700 mb-1">{score}%</p>
+                <p className="text-green-800 font-semibold text-lg mb-1">Congratulations!</p>
+                <p className="text-green-600 text-sm mb-6">You passed the final exam. +{course.xp_reward} XP awarded.</p>
+                <Button onClick={() => navigate(createPageUrl("Learn"))} className="bg-green-700 hover:bg-green-800 text-white px-8">
+                  Continue Learning
                 </Button>
-              </div>
-            </CardContent>
-          </Card>
-        ) : (
-          <Card
-            className={`border-none shadow-2xl ${
-              score === 100
-                ? "bg-gradient-to-r from-green-400 to-emerald-500"
-                : "bg-gradient-to-r from-orange-400 to-red-500"
-            } text-white`}
-          >
-            <CardContent className="p-8 md:p-12 text-center">
-              {score === 100 ? (
-                <>
-                  <Trophy className="w-32 h-32 mx-auto mb-6 animate-bounce" />
-                  <h2 className="text-5xl md:text-6xl font-bold mb-4">Perfect Score!</h2>
-                  <p className="text-7xl font-bold mb-6">{score}%</p>
-                  <p className="text-2xl opacity-90 mb-8">🎉 Congratulations! You've mastered this course!</p>
-                  <div className="flex items-center justify-center gap-3 mb-10 text-3xl font-bold">
-                    <Zap className="w-10 h-10" />
-                    +500 XP Earned!
-                  </div>
-                  <Button
-                    onClick={() => setShowCertificate(true)}
-                    className="bg-white text-green-600 hover:bg-gray-100 h-16 px-12 text-xl shadow-2xl"
-                  >
-                    <Award className="w-6 h-6 mr-2" />
-                    View Certificate
+              </>
+            ) : (
+              <>
+                <AlertCircle className="w-14 h-14 text-amber-500 mx-auto mb-3" />
+                <p className="text-3xl font-bold text-amber-600 mb-1">{score}%</p>
+                <p className="text-amber-800 font-semibold text-lg mb-1">Almost there</p>
+                <p className="text-amber-600 text-sm mb-6">You need 70% to pass. Review the course and try again.</p>
+                <div className="flex gap-3 justify-center">
+                  <Button variant="outline" onClick={() => { setExamAnswers({}); setExamSubmitted(false); setScore(0); }} className="border-amber-300 text-amber-700 hover:bg-amber-50">
+                    Retake Exam
                   </Button>
-                </>
-              ) : (
-                <>
-                  <AlertCircle className="w-32 h-32 mx-auto mb-6" />
-                  <h2 className="text-5xl font-bold mb-4">Keep Trying!</h2>
-                  <p className="text-7xl font-bold mb-6">{score}%</p>
-                  <p className="text-2xl opacity-90 mb-10">
-                    You need 100% to complete the course. Review the lessons and try again!
-                  </p>
-                  <div className="flex gap-4 justify-center flex-wrap">
-                    <Button
-                      onClick={() => navigate(createPageUrl(`CourseDetail?id=${courseId}`))}
-                      variant="outline"
-                      className="h-14 px-8 text-base bg-white/20 border-2 border-white text-white hover:bg-white/30"
-                    >
-                      <BookOpen className="w-5 h-5 mr-2" />
-                      Review Course
-                    </Button>
-                    <Button
-                      onClick={handleRetakeExam}
-                      className="h-14 px-8 text-base bg-white text-orange-600 hover:bg-gray-100"
-                    >
-                      <TrendingUp className="w-5 h-5 mr-2" />
-                      Retake Exam
-                    </Button>
-                  </div>
-                </>
-              )}
-            </CardContent>
-          </Card>
+                  <Button onClick={() => navigate(createPageUrl(`CourseDetail?id=${courseId}`))} className="bg-green-700 hover:bg-green-800 text-white">
+                    Review Course
+                  </Button>
+                </div>
+              </>
+            )}
+          </div>
         )}
+
+        {/* Questions */}
+        {!examSubmitted && (
+          <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6 md:p-10 space-y-10">
+            {questions.map((q, qIdx) => (
+              <div key={qIdx}>
+                <p className="font-semibold text-gray-900 mb-4 leading-relaxed">
+                  <span className="inline-flex items-center justify-center w-6 h-6 bg-green-700 text-white rounded-full text-xs font-bold mr-2">{qIdx + 1}</span>
+                  {q.question}
+                </p>
+                <div className="space-y-3">
+                  {q.options?.map((opt, oIdx) => {
+                    const selected = examAnswers[qIdx] === oIdx;
+                    return (
+                      <button
+                        key={oIdx}
+                        onClick={() => setExamAnswers({ ...examAnswers, [qIdx]: oIdx })}
+                        className={`w-full text-left p-4 rounded-xl border-2 text-sm font-medium transition-all ${
+                          selected
+                            ? "border-green-700 bg-green-50 text-green-900"
+                            : "border-gray-200 bg-white text-gray-700 hover:border-green-300 hover:bg-green-50/50"
+                        }`}
+                      >
+                        <span className={`inline-flex items-center justify-center w-5 h-5 rounded-full border text-xs font-bold mr-3 ${selected ? "bg-green-700 border-green-700 text-white" : "border-gray-400 text-gray-500"}`}>
+                          {String.fromCharCode(65 + oIdx)}
+                        </span>
+                        {opt}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            ))}
+
+            <div className="pt-4 border-t border-gray-100 flex gap-3">
+              <Button
+                onClick={handleSubmit}
+                disabled={Object.keys(examAnswers).length < questions.length}
+                className="flex-1 bg-green-700 hover:bg-green-800 text-white disabled:opacity-50 h-12 text-base font-semibold"
+              >
+                Submit Exam
+              </Button>
+            </div>
+          </div>
+        )}
+
       </div>
     </div>
   );

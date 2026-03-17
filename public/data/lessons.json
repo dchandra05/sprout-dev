@@ -1869,5 +1869,929 @@
     "created_by_id": "6914e9e56385c913e0144616",
     "created_by": "chand193@msu.edu",
     "is_sample": false
+  },
+  {
+    "id": "lesson-bud-001",
+    "course_id": "course-budgeting-001",
+    "title": "Why Budgeting Matters",
+    "order": 1,
+    "duration_minutes": 5,
+    "xp_reward": 50,
+    "content": "## Why Budgeting Matters\n\nMoney is limited. And there are always more things to spend it on than you have money for.\n\nA budget is how you take control. It shows you exactly where your money goes — so you can make smarter choices instead of wondering why you're broke at the end of the month.\n\n## Three Core Reasons to Budget\n\n**Know where your money goes.** Most people who struggle financially don't have a spending problem — they have a tracking problem. They simply don't know where the money went.\n\n**Make informed choices.** When you see your spending clearly, you can decide what actually matters to you — and cut what doesn't.\n\n**Plan for goals.** Want to buy a car? Travel? Build an emergency fund? A budget makes those goals real by showing you exactly how to get there.\n\n## The 50/15/5 Rule\n\nThis is a simple framework that works for most people:\n\n- **50%** of your take-home pay — maximum for essentials (rent, groceries, utilities, car payment, minimum debt payments)\n- **15%** of your pre-tax income — for retirement savings\n- **5%** of your take-home pay — for emergency savings\n\nThe remaining money can cover wants and other goals.\n\n## A Budget Is a Living Document\n\nYour budget isn't carved in stone. Every time your life changes — new job, raise, new apartment, new family member — your budget should change too.",
+    "quiz_questions": [
+      {
+        "question": "What percentage of take-home pay should go toward essential expenses according to the 50/15/5 rule?",
+        "options": [
+          "15%",
+          "5%",
+          "50%",
+          "75%"
+        ],
+        "correct_answer": 2,
+        "explanation": "The 50/15/5 rule limits essential expenses (rent, food, utilities) to no more than 50% of your take-home pay."
+      },
+      {
+        "question": "Which of these is NOT a reason to budget?",
+        "options": [
+          "Know where your money goes",
+          "Make informed spending choices",
+          "Impress your bank manager",
+          "Plan for financial goals"
+        ],
+        "correct_answer": 2,
+        "explanation": "Budgeting is for you — to understand your money, make choices, and reach goals. Impressing anyone else is not a financial benefit."
+      },
+      {
+        "question": "True or false: Once you create a budget, it should stay the same forever.",
+        "options": [
+          "True",
+          "False — a budget is a living document that updates with your life",
+          "True, unless you go bankrupt",
+          "Only update it once a year"
+        ],
+        "correct_answer": 1,
+        "explanation": "A budget is a living document. Major life changes (new job, moving, having kids) all require updates to your budget."
+      }
+    ]
+  },
+  {
+    "id": "lesson-bud-002",
+    "course_id": "course-budgeting-001",
+    "title": "Reading Your Pay Stub",
+    "order": 2,
+    "duration_minutes": 6,
+    "xp_reward": 60,
+    "content": "## Reading Your Pay Stub\n\nYour paycheck is not the number your employer told you when you were hired. That was your *gross pay*. What hits your bank account is *net pay* — and the difference is significant.\n\n## Key Items on a Pay Stub\n\n**Gross Pay** — Your total earnings before any deductions. This is the headline number.\n\n**FICA Medicare Tax** — Funds Medicare (2.9% total; you pay half = 1.45%)\n\n**FICA Social Security Tax** — Funds Social Security (12.4% total; you pay half = 6.2%)\n\n**Federal Income Tax** — Based on your filing status (single/married) and allowances claimed\n\n**State Income Tax** — Varies by state (some states have none)\n\n**401(k) Contribution** — Your retirement savings deduction\n\n**Health/Dental Insurance** — Your share of employer-sponsored benefits\n\n**HSA Contribution** — If you have a Health Savings Account\n\n**Net Pay** — What actually lands in your bank account after all deductions\n\n## Why This Matters\n\nIf you earn $60,000/year, your monthly gross is $5,000. But after taxes and deductions, your net (take-home) pay might be $3,600–$4,000. Budget planning must be based on net pay — not gross pay.",
+    "quiz_questions": [
+      {
+        "question": "What is the difference between gross pay and net pay?",
+        "options": [
+          "Gross pay is lower; net pay is higher",
+          "Gross is your total earnings; net is what you take home after deductions",
+          "They are the same number",
+          "Net pay includes bonuses; gross does not"
+        ],
+        "correct_answer": 1,
+        "explanation": "Gross pay is your total earnings. Net pay is what's deposited after taxes (FICA, federal, state) and benefit deductions are removed."
+      },
+      {
+        "question": "FICA taxes fund which two programs?",
+        "options": [
+          "State roads and federal courts",
+          "Social Security and Medicare",
+          "Education and defense",
+          "Your 401(k) and HSA"
+        ],
+        "correct_answer": 1,
+        "explanation": "FICA stands for Federal Insurance Contributions Act. The taxes fund Social Security (retirement/disability) and Medicare (health insurance for seniors)."
+      },
+      {
+        "question": "When building your personal budget, which figure should you base it on?",
+        "options": [
+          "Gross pay",
+          "Net (take-home) pay",
+          "Your salary before taxes",
+          "Your pre-bonus earnings"
+        ],
+        "correct_answer": 1,
+        "explanation": "Budget using net pay — the actual amount deposited. Basing a budget on gross pay leads to overspending since taxes and deductions come out first."
+      }
+    ]
+  },
+  {
+    "id": "lesson-bud-003",
+    "course_id": "course-budgeting-001",
+    "title": "Building Your First Budget",
+    "order": 3,
+    "duration_minutes": 8,
+    "xp_reward": 75,
+    "content": "## Building Your First Budget\n\nLet's make this real. Imagine you just graduated college and landed a job paying $60,000/year.\n\n## Step 1: Calculate Your Take-Home Pay\n\nYour gross monthly pay: $5,000\nAfter federal/state taxes and FICA: approximately $3,700–$4,000/month\n\nFor this exercise, use $3,800 as your net monthly pay.\n\n## Step 2: List Essential Expenses (Target: 50% = $1,900)\n\n- Rent: $1,100–$1,300\n- Utilities (electric, internet): $120\n- Groceries: $250\n- Car payment + insurance: $350\n- Phone: $60\n\nTotal essentials: approximately $1,880–$2,080\n\n## Step 3: Retirement Savings (15% of gross = $750/month pre-tax)\n\nContribute at least enough to your 401(k) to get your employer match. If your employer matches 4%, contribute at least 4%.\n\n## Step 4: Emergency Savings (5% of net = $190/month)\n\nAutomatic transfer to a savings account. Build toward 3–6 months of expenses.\n\n## Step 5: What Remains\n\n$3,800 − $1,980 (essentials) − $190 (emergency savings) = ~$1,630 for wants, dining out, entertainment, and other goals.\n\n## The Key Insight\n\nYour budget is a plan — not a punishment. The goal is to spend intentionally, not to deprive yourself.",
+    "quiz_questions": [
+      {
+        "question": "You earn $3,800/month net. Using 50/15/5, how much is your emergency savings target per month?",
+        "options": [
+          "$570",
+          "$190",
+          "$760",
+          "$50"
+        ],
+        "correct_answer": 1,
+        "explanation": "5% of $3,800 net pay = $190/month for emergency savings. This amount goes to a dedicated savings account."
+      },
+      {
+        "question": "What is the right order for budget priorities?",
+        "options": [
+          "Entertainment, then savings, then rent",
+          "Essentials and savings first, then wants with what remains",
+          "Wants first since you work hard",
+          "All categories get equal amounts"
+        ],
+        "correct_answer": 1,
+        "explanation": "Pay essentials and automate savings first. Then spend what's left on wants. This 'pay yourself first' method builds wealth consistently."
+      }
+    ]
+  },
+  {
+    "id": "lesson-bank-001",
+    "course_id": "course-banking-002",
+    "title": "Types of Financial Institutions",
+    "order": 1,
+    "duration_minutes": 6,
+    "xp_reward": 50,
+    "content": "## Types of Financial Institutions\n\nNot all banks are the same. Choosing the right one can save you hundreds in fees and earn you more interest on your savings.\n\n## Traditional Banks\n\nChase, Bank of America, Wells Fargo, 5th Third. Physical branches everywhere. Face-to-face service. But higher fees and lower interest rates because brick-and-mortar locations are expensive to run.\n\n## Online Banks\n\nAlly, Marcus, Capital One 360. Web-based or mobile-only. No physical branches. Lower overhead = higher interest rates on savings, lower fees. Almost all services are available digitally. No face-to-face, but strong chat and phone support.\n\n## Credit Unions\n\nNon-profit financial institutions owned by members. Members pool resources, which allows credit unions to offer lower interest rates on loans and sometimes higher rates on savings. Often community-focused.\n\n## Financial Companies with Banking Services\n\nFidelity, Vanguard, Schwab, TD Ameritrade. Investment platforms that also offer checking, savings, and ATM services — often with excellent ATM fee reimbursements worldwide.\n\n## Payment Services\n\nVenmo, PayPal, Apple Pay, Google Pay — these are payment tools linked to your bank account, not banks themselves. They make it easy to send and receive money but should not hold large amounts of your savings.\n\n## What to Look For\n\n- FDIC insured (up to $250,000 per account)\n- Low or no fees\n- Competitive interest rates on savings\n- ATM access and reimbursements\n- Quality mobile app",
+    "quiz_questions": [
+      {
+        "question": "Why do online banks often offer better rates than traditional banks?",
+        "options": [
+          "They take more investment risk",
+          "No physical branches means lower operating costs passed on as better rates",
+          "They are less regulated",
+          "They have wealthier customers"
+        ],
+        "correct_answer": 1,
+        "explanation": "Without the cost of maintaining physical branches and large staff, online banks have lower overhead and can offer higher interest and lower fees."
+      },
+      {
+        "question": "FDIC insurance protects deposits up to:",
+        "options": [
+          "$10,000",
+          "$100,000",
+          "$250,000 per account",
+          "Unlimited amounts"
+        ],
+        "correct_answer": 2,
+        "explanation": "The FDIC insures deposits up to $250,000 per depositor, per institution. If your bank fails, your deposits are protected up to this limit."
+      }
+    ]
+  },
+  {
+    "id": "lesson-bank-002",
+    "course_id": "course-banking-002",
+    "title": "Checking, Savings, and Debit Cards",
+    "order": 2,
+    "duration_minutes": 5,
+    "xp_reward": 50,
+    "content": "## Checking, Savings, and Debit Cards\n\n## Checking Accounts\n\nYour financial command center. Money flows in (direct deposit) and out (bill pay, debit card, checks). Not designed to earn interest — designed for frequent transactions.\n\n**Key features:**\n- Direct deposit of your paycheck\n- Bill payment (automatic and manual)\n- Debit card access\n- Check writing\n\n**Watch out for:** Overdraft fees. If you spend more than your balance, banks charge $25–$35 per overdraft. Always know your balance.\n\n## Savings Accounts\n\nMoney you don't need immediately. Earns interest (more at online banks). FDIC insured. Lower returns than investments — but safe and liquid.\n\n**Use for:** Emergency fund, short-term goals (vacation, car down payment).\n\n**Current savings rates:** Traditional banks: 0.01–0.1%. Online banks: 4–5%+ (as of 2024).\n\n## Debit Cards\n\nLooks like a credit card. Spends from your checking account directly. No credit check needed. No interest charged. But: no credit-building benefit, and fewer fraud protections than credit cards.\n\n**Important:** If your debit card is compromised, real money leaves your account immediately. With credit cards, you dispute first, then it's resolved — your money stays put during the dispute.",
+    "quiz_questions": [
+      {
+        "question": "What is the primary risk of overdrawing your checking account?",
+        "options": [
+          "Lower interest rates",
+          "Overdraft fees of $25–$35 per transaction",
+          "Your account is automatically closed",
+          "No consequence — banks cover it"
+        ],
+        "correct_answer": 1,
+        "explanation": "Most banks charge $25–$35 per overdraft. Multiple overdrafts in one day can pile up quickly. Always track your checking account balance."
+      },
+      {
+        "question": "Where should you keep your emergency fund?",
+        "options": [
+          "Invested in the stock market",
+          "In a high-yield savings account that earns interest",
+          "In cash under your mattress",
+          "In your checking account"
+        ],
+        "correct_answer": 1,
+        "explanation": "Emergency funds belong in a high-yield savings account — easily accessible, FDIC-insured, and earning meaningful interest while you wait."
+      }
+    ]
+  },
+  {
+    "id": "lesson-credit-001",
+    "course_id": "course-credit-003",
+    "title": "How Credit Cards Work",
+    "order": 1,
+    "duration_minutes": 6,
+    "xp_reward": 60,
+    "content": "## How Credit Cards Work\n\nA credit card lets you borrow money from a bank to make purchases. You get a billing cycle (usually monthly), and if you pay the full balance within the grace period (25–30 days), you owe zero interest.\n\n## The Golden Rule\n\n**Pay your full balance every month.** Not the minimum. The full amount.\n\nIf you only pay the minimum, the remaining balance accumulates interest — typically 20–29% APR. At 25% APR on a $2,000 balance making only minimum payments, you'd pay over $1,000 in interest and take years to pay it off.\n\n## How Credit Cards Help You\n\n**Build credit history.** Using a card responsibly and paying it off builds the credit score you'll need for apartment rentals, car loans, and mortgages.\n\n**Fraud protection.** If your card is stolen and charges are made, you dispute them — you don't lose your actual money during the dispute.\n\n**Rewards.** Cash back, travel points, no foreign transaction fees, rental car insurance, trip protection.\n\n## What to Check Before Getting a Card\n\n- APR (Annual Percentage Rate) — the interest rate you'd pay on balances\n- Annual fee — is there one? Is the value worth it?\n- Late payment fees\n- Foreign transaction fees (matters if you travel)\n\n## Set Up Auto-Pay\n\nAutomate your full monthly payment from your checking account. This prevents missed payments, protects your credit score, and eliminates any interest charges.",
+    "quiz_questions": [
+      {
+        "question": "What happens if you only make the minimum payment on a credit card with a $2,000 balance at 25% APR?",
+        "options": [
+          "The balance disappears quickly",
+          "You pay hundreds to thousands in interest and take years to repay",
+          "Nothing — minimum payments are designed to clear the balance fast",
+          "Your credit score improves dramatically"
+        ],
+        "correct_answer": 1,
+        "explanation": "At 25% APR, only paying minimums means most of your payment goes to interest. A $2,000 balance could cost over $1,000 in interest and take years to clear."
+      },
+      {
+        "question": "What is APR on a credit card?",
+        "options": [
+          "Annual Profit Rate",
+          "The yearly interest rate charged on outstanding balances",
+          "A reward program percentage",
+          "Your credit score range"
+        ],
+        "correct_answer": 1,
+        "explanation": "APR (Annual Percentage Rate) is the yearly cost of borrowing on your card. If you carry a balance, this is the rate applied to it — usually 19–29%."
+      },
+      {
+        "question": "What is the best way to avoid paying credit card interest?",
+        "options": [
+          "Pay the minimum each month",
+          "Pay the full balance every month",
+          "Pay every other month",
+          "Transfer your balance frequently"
+        ],
+        "correct_answer": 1,
+        "explanation": "Paying the full statement balance every month within the grace period means you pay zero interest — while still building credit and earning rewards."
+      }
+    ]
+  },
+  {
+    "id": "lesson-invest-001",
+    "course_id": "course-investing-004",
+    "title": "Stocks: Owning a Piece of a Company",
+    "order": 1,
+    "duration_minutes": 7,
+    "xp_reward": 70,
+    "content": "## Stocks: Owning a Piece of a Company\n\nA stock is a share of ownership in a corporation. When you buy 10 shares of Apple (AAPL), you own a tiny fraction of Apple's total value.\n\n## How You Make Money with Stocks\n\n**Price appreciation.** If you buy a stock at $100 and it rises to $140, you've made 40%. Sell, and the gain is yours.\n\n**Dividends.** Some stable companies (like Coca-Cola or Johnson & Johnson) pay shareholders regular dividends — a share of profits, typically quarterly.\n\n## The Risk Reality\n\nStocks can go up — and they can go down. There are no guarantees. Individual company stocks carry more risk than funds because one bad quarter, product failure, or scandal can tank a single stock.\n\n## Key Principles for Stock Investors\n\n**Own for the long term.** Short-term trading is a losing game for most people. Time in the market beats timing the market.\n\n**Diversify.** Own 15–30 stocks across different industries. Don't put 50% in one company.\n\n**Research before buying.** Understand the business: what does the company do? How does it make money? What are its competitive advantages?\n\n**Add to winners.** If a company you believe in keeps performing, the compounding of gains over years is where real wealth builds.\n\n## The KISS Principle\n\nFor most investors, index funds and ETFs that track the S&P 500 are a simpler, lower-risk alternative to picking individual stocks.",
+    "quiz_questions": [
+      {
+        "question": "What does it mean to own stock in a company?",
+        "options": [
+          "You lent money to the company",
+          "You own a fractional share of the company's assets and future profits",
+          "You have a guaranteed return",
+          "You work for the company"
+        ],
+        "correct_answer": 1,
+        "explanation": "Stock ownership means you hold a fraction of the corporation — entitled to a proportional share of its assets and profits."
+      },
+      {
+        "question": "Which of the following is a key principle of successful stock investing?",
+        "options": [
+          "Trade as frequently as possible to maximize gains",
+          "Own diversified stocks for the long term (3–5+ years)",
+          "Concentrate all money in the one best stock",
+          "Sell immediately when a stock drops 5%"
+        ],
+        "correct_answer": 1,
+        "explanation": "Long-term ownership in a diversified set of quality companies outperforms frequent trading for most investors, due to compounding and reduced transaction costs."
+      }
+    ]
+  },
+  {
+    "id": "lesson-invest-002",
+    "course_id": "course-investing-004",
+    "title": "Bonds: Lending to Governments and Companies",
+    "order": 2,
+    "duration_minutes": 6,
+    "xp_reward": 60,
+    "content": "## Bonds: Lending to Governments and Companies\n\nA bond is essentially an IOU. When you buy a bond, you're lending money to a government or company. In return, they promise to pay you interest (the coupon rate) for a set period, then return your original investment (principal) at maturity.\n\n## Types of Bonds\n\n**Government bonds** — Issued by federal governments (U.S. Treasury bonds). Very low risk because governments can levy taxes to repay. Lower returns as a result.\n\n**Municipal bonds** — Issued by states and cities for roads, schools, infrastructure. Often tax-exempt.\n\n**Corporate bonds** — Issued by companies to raise money. Higher risk than government bonds (companies can go bankrupt), so they pay higher interest.\n\n## Risk vs. Return\n\nBond holders have higher claim than stockholders if a company fails — they get paid first. This makes bonds safer than stocks, but they offer lower potential returns.\n\n## Example\n\nYou buy a $1,000 bond at 5% interest maturing in 5 years:\n- Year 1: $1,050\n- Year 2: $1,102.50\n- Year 3: $1,157.63\n- Year 5: You receive your $1,000 principal back + accumulated interest\n\n## Where Bonds Fit in a Portfolio\n\nBonds provide stability. As investors approach retirement, they typically shift from stocks (higher risk/reward) toward bonds (lower risk/reward) to protect their savings.",
+    "quiz_questions": [
+      {
+        "question": "When you buy a bond, you are:",
+        "options": [
+          "Buying ownership in a company",
+          "Lending money to a government or company in exchange for interest payments",
+          "Opening a savings account",
+          "Buying real estate"
+        ],
+        "correct_answer": 1,
+        "explanation": "A bond is a debt instrument — you lend money and receive regular interest (coupon) payments, then get your principal back at maturity."
+      },
+      {
+        "question": "Compared to stocks, bonds typically offer:",
+        "options": [
+          "Higher risk and higher returns",
+          "Lower risk and lower returns",
+          "The same risk and returns",
+          "No returns at all"
+        ],
+        "correct_answer": 1,
+        "explanation": "Bonds are safer than stocks (bondholders have higher claim priority) but offer lower potential returns. This makes them useful for portfolio stability."
+      }
+    ]
+  },
+  {
+    "id": "lesson-invest-003",
+    "course_id": "course-investing-004",
+    "title": "ETFs and Mutual Funds",
+    "order": 3,
+    "duration_minutes": 7,
+    "xp_reward": 70,
+    "content": "## ETFs and Mutual Funds: Instant Diversification\n\nInstead of picking individual stocks, ETFs and mutual funds let you buy a basket of many investments at once.\n\n## Mutual Funds\n\nPooled money from many investors, managed by professional fund managers. Fund managers research and select investments actively, trying to beat the market.\n\n**How you earn money:** Dividends, bond interest, and capital gains.\n**Cost:** Expense ratios of 0.5–2%+ per year.\n**Downside:** Most actively managed mutual funds fail to beat their benchmark index over the long term — and you pay for the management regardless.\n\n## ETFs (Exchange Traded Funds)\n\nSimilar to mutual funds but typically passively managed — they track an index (like the S&P 500) rather than trying to beat it.\n\n**Advantages over mutual funds:**\n- Trade like stocks throughout the day\n- Lower expense ratios (often 0.03–0.20%)\n- More tax efficient\n- No minimum investment requirements\n\n## The S&P 500 Index Fund\n\nThe single most recommended investment for most people. Holds the 500 largest U.S. companies. Historically returns ~10% annually over long periods. An S&P 500 ETF like VOO or SPY costs as little as 0.03% per year.\n\n## Target Date Funds\n\nA fund that automatically adjusts its stock/bond mix as you approach a target retirement year. More stocks when young (higher growth), more bonds as you near retirement (lower risk). Popular for 401(k) accounts — the 'set and forget' option.",
+    "quiz_questions": [
+      {
+        "question": "What is the main advantage of an ETF over an actively managed mutual fund?",
+        "options": [
+          "ETFs are guaranteed to earn 15% per year",
+          "ETFs typically have lower fees and don't require active management to beat the market",
+          "ETFs are only for wealthy investors",
+          "ETFs have no risk"
+        ],
+        "correct_answer": 1,
+        "explanation": "ETFs are passively managed (tracking an index), resulting in much lower expense ratios (0.03–0.20%) compared to actively managed mutual funds (0.5–2%+). Lower costs mean more of your money stays invested."
+      },
+      {
+        "question": "What does an S&P 500 index fund hold?",
+        "options": [
+          "500 government bonds",
+          "The 500 largest publicly traded U.S. companies",
+          "Real estate properties",
+          "International stocks only"
+        ],
+        "correct_answer": 1,
+        "explanation": "The S&P 500 index tracks the 500 largest U.S. companies by market capitalization, providing broad diversification across sectors."
+      }
+    ]
+  },
+  {
+    "id": "lesson-saving-001",
+    "course_id": "course-saving-005",
+    "title": "The Power of Compound Interest",
+    "order": 1,
+    "duration_minutes": 6,
+    "xp_reward": 60,
+    "content": "## The Power of Compound Interest\n\nAlbert Einstein reportedly called compound interest the 'eighth wonder of the world.' Whether or not he said it, the math is undeniably powerful.\n\n## What Is Compound Interest?\n\nCompound interest means you earn interest on your interest — not just on your original investment. Over time, this creates exponential rather than linear growth.\n\n## A Simple Example\n\nYou invest $1,000 at 10% annual return:\n\n- Year 1: $1,100\n- Year 5: $1,611\n- Year 10: $2,594\n- Year 20: $6,727\n- Year 30: $17,449\n\nYou invested $1,000 and 30 years later — without adding another dollar — it's worth $17,449.\n\n## The Time Factor Is Everything\n\nStarting at 22 vs. 32 makes an enormous difference:\n\n- Investing $200/month from age 22 to 32 (10 years, then stopping) at 10% return = ~$600,000 by age 65\n- Investing $200/month from age 32 to 65 (33 years) at 10% return = ~$450,000 by age 65\n\nThe person who started earlier — and stopped earlier — ends up with more. That's compound interest.\n\n## The Takeaway\n\nTime is your most valuable asset in investing. The earlier you start saving and investing, the less you need to contribute to achieve the same result.",
+    "quiz_questions": [
+      {
+        "question": "Compound interest means:",
+        "options": [
+          "You earn interest only on your original deposit",
+          "You earn interest on both your original deposit and your accumulated interest",
+          "Your interest rate increases every year",
+          "Interest is paid in compound amounts only"
+        ],
+        "correct_answer": 1,
+        "explanation": "Compound interest means you earn returns on your returns. This causes your money to grow exponentially — slowly at first, then dramatically over decades."
+      },
+      {
+        "question": "Why does starting to save earlier matter so much?",
+        "options": [
+          "Banks give discounts to younger investors",
+          "Compound interest needs time — more years of compounding creates dramatically larger outcomes",
+          "It doesn't matter when you start as long as you invest a lot",
+          "Tax rules favor younger investors"
+        ],
+        "correct_answer": 1,
+        "explanation": "Each additional year of compounding multiplies your returns. Starting at 22 vs. 32 can mean hundreds of thousands more in wealth at retirement — even with the same monthly contributions."
+      }
+    ]
+  },
+  {
+    "id": "lesson-saving-002",
+    "course_id": "course-saving-005",
+    "title": "Emergency Funds and Financial Safety Nets",
+    "order": 2,
+    "duration_minutes": 5,
+    "xp_reward": 50,
+    "content": "## Emergency Funds and Financial Safety Nets\n\nLife is unpredictable. Your car breaks down. You lose your job. A medical bill arrives unexpectedly. An emergency fund is what keeps these moments from becoming financial disasters.\n\n## What Is an Emergency Fund?\n\nCash set aside specifically for unexpected, necessary expenses. Not for planned purchases. Not for vacations. For genuine emergencies.\n\n## How Much to Save\n\n**Target: 3–6 months of essential living expenses.**\n\nIf your monthly essentials (rent, utilities, groceries, car) total $2,500:\n- Minimum emergency fund: $7,500\n- Ideal emergency fund: $12,000–$15,000\n\n## Where to Keep It\n\nA high-yield savings account — not your checking account (too easy to spend), not the stock market (can drop when you need it most). Online banks like Ally or Marcus currently offer 4–5% APY, so your emergency fund grows while it sits.\n\n## How to Build It\n\nAutomate a monthly transfer to your emergency fund. Even $50/month gets you to $600 in a year. Start small if needed — the habit matters more than the amount initially.\n\n## Once You Have It\n\nDon't touch it except for real emergencies. A sale at your favorite store is not an emergency. An unexpected car repair is.",
+    "quiz_questions": [
+      {
+        "question": "How much should a solid emergency fund typically cover?",
+        "options": [
+          "One week of expenses",
+          "3–6 months of essential living expenses",
+          "One year of your gross salary",
+          "Your monthly rent only"
+        ],
+        "correct_answer": 1,
+        "explanation": "The standard recommendation is 3–6 months of essential expenses — enough to handle job loss, medical bills, or major repairs without going into debt."
+      },
+      {
+        "question": "Where is the best place to keep an emergency fund?",
+        "options": [
+          "Invested in the stock market for higher returns",
+          "In a high-yield savings account — accessible, safe, and earning interest",
+          "In your main checking account",
+          "In cash at home"
+        ],
+        "correct_answer": 1,
+        "explanation": "Emergency funds should be in a high-yield savings account: easily accessible when needed, FDIC-insured against bank failure, and earning solid interest while stored."
+      }
+    ]
+  },
+  {
+    "id": "lesson-bud-004",
+    "course_id": "course-budgeting-001",
+    "title": "Budget Exercise 1: First Job Budget",
+    "order": 4,
+    "duration_minutes": 7,
+    "xp_reward": 70,
+    "content": "## Budget Exercise 1: First Job Budget\n\nYou just landed your first full-time job paying $45,000/year. Here's what that looks like month-to-month.\n\n**Monthly gross pay:** $3,750  \n**Estimated take-home (after taxes + FICA):** ~$2,900\n\nApplying the 50/15/5 rule:\n- 50% on essentials: $1,450 maximum\n- 15% of gross for retirement: $563\n- 5% on emergency savings: $145\n\n## Map Your Essential Expenses\n\nEssential expenses are costs you MUST pay every month:\n\n- Rent: $800\n- Utilities: $80\n- Groceries: $250\n- Transportation: $200\n- Phone: $60\n- **Total: $1,390** (under the $1,450 ceiling)\n\n## Handle the Discretionary Budget\n\nDiscretionary = nice to have, not must-have:\n\n- Entertainment: $100\n- Dining out: $150\n- Personal care: $75\n- Subscriptions: $40\n- **Total: $365**\n\n## The Zero-Based Check\n\nAt month-end, every dollar should be assigned a purpose:\n\n- Income: $2,900\n- Essentials: $1,390\n- Discretionary: $365\n- Emergency fund: $145\n- Retirement (401k from gross): $563\n- **Remaining buffer: $100**\n\nIf you're not sure where money goes, track every purchase for 30 days. The answer usually surprises people.",
+    "quiz_questions": [
+      {
+        "question": "Using the 50/15/5 rule on a $2,900/month take-home, what is the maximum essential expense budget?",
+        "options": [
+          "$435",
+          "$1,450",
+          "$2,900",
+          "$580"
+        ],
+        "correct_answer": 1,
+        "explanation": "50% of $2,900 = $1,450. This is the ceiling for rent, utilities, groceries, transportation, and phone combined."
+      },
+      {
+        "question": "Which of these is a discretionary expense?",
+        "options": [
+          "Rent",
+          "Groceries",
+          "Netflix subscription",
+          "Car insurance"
+        ],
+        "correct_answer": 2,
+        "explanation": "Netflix is a want, not a need. Rent, groceries, and car insurance are essential expenses you cannot easily skip."
+      },
+      {
+        "question": "What does 'zero-based budgeting' mean?",
+        "options": [
+          "Spend nothing",
+          "Every dollar is assigned a category until $0 is unallocated",
+          "Keep zero in savings",
+          "Only budget for free activities"
+        ],
+        "correct_answer": 1,
+        "explanation": "Zero-based budgeting means income minus all allocations equals zero. Every dollar has a purpose — savings, bills, retirement, or spending."
+      }
+    ]
+  },
+  {
+    "id": "lesson-bud-005",
+    "course_id": "course-budgeting-001",
+    "title": "Tracking and Adjusting Your Budget",
+    "order": 5,
+    "duration_minutes": 6,
+    "xp_reward": 60,
+    "content": "## Tracking and Adjusting Your Budget\n\nA budget you never look at is just a spreadsheet. Tracking is what transforms it into a tool.\n\nThe goal: at the end of each month, compare what you *planned* to spend against what you *actually* spent.\n\n## Two Ways to Track\n\n**Manual tracking** — record every purchase yourself. Tedious but gives full control and awareness.\n\n**App-based tracking** — tools like YNAB, Mint, or your bank's app automatically categorize transactions. Faster, but easier to ignore.\n\nEither works. The habit is what matters, not the tool.\n\n## Finding the Leaks\n\nMost people losing money to unknowns are bleeding from:\n\n- **Subscriptions** — services you forgot about\n- **Dining out** — the most underestimated category in nearly every budget\n- **Small frequent purchases** — coffee, convenience stores, impulse online orders\n\n$6/day on coffee = $180/month = $2,160/year.\n\n## When to Adjust Your Budget\n\nReview and adjust when:\n- Your income changes (raise, new job, side income)\n- You take on or pay off a debt\n- A new major expense appears\n- You consistently overspend a category (signal: adjust or change behavior)\n\n## The Monthly Budget Check-In\n\nSet a recurring 15-minute appointment each month:\n1. Compare actual vs. budgeted spending by category\n2. Find the biggest variance — where did you go over?\n3. Decide: adjust the budget or adjust the behavior?\n4. Set one financial intention for next month",
+    "quiz_questions": [
+      {
+        "question": "You budgeted $200 for dining but spent $340. What is the right response?",
+        "options": [
+          "Ignore it — it was a special month",
+          "Either raise the dining budget or reduce dining spending going forward",
+          "Cancel all restaurant visits forever",
+          "Reduce rent to compensate"
+        ],
+        "correct_answer": 1,
+        "explanation": "Consistently going over a category means either the budget was unrealistic (raise it) or the behavior needs to change. Both are valid — you decide based on priorities."
+      },
+      {
+        "question": "Which category is most commonly underestimated in personal budgets?",
+        "options": [
+          "Rent",
+          "Dining out",
+          "Insurance",
+          "Utilities"
+        ],
+        "correct_answer": 1,
+        "explanation": "Dining out is the most frequently underestimated expense. Small frequent restaurant visits accumulate to hundreds per month that people rarely account for in advance."
+      },
+      {
+        "question": "How often should you review your budget at minimum?",
+        "options": [
+          "Once a year",
+          "Only when broke",
+          "Monthly, and whenever a major life change happens",
+          "Every single day"
+        ],
+        "correct_answer": 2,
+        "explanation": "A monthly review is the minimum. Any major life change (raise, new expense, move, job change) should also trigger an immediate review."
+      }
+    ]
+  },
+  {
+    "id": "lesson-bud-006",
+    "course_id": "course-budgeting-001",
+    "title": "Setting and Reaching Financial Goals",
+    "order": 6,
+    "duration_minutes": 7,
+    "xp_reward": 80,
+    "content": "## Setting and Reaching Financial Goals\n\nBudgeting without goals is just tracking. The point of managing your money is to get somewhere — a financial goal gives your budget purpose.\n\n## Types of Financial Goals\n\n**Short-term (under 1 year):**\n- $1,000 emergency fund\n- Holiday travel fund\n- New computer or phone\n\n**Medium-term (1–5 years):**\n- Car down payment\n- Wedding fund\n- 3–6 month emergency fund\n\n**Long-term (5+ years):**\n- Home down payment\n- Retirement\n- Financial independence\n\n## Making Goals SMART\n\nVague goals die. Specific goals survive.\n\n- ❌ \"I want to save more money\"\n- ✅ \"I will save $3,000 for an emergency fund by December by setting aside $250/month\"\n\n**S**pecific · **M**easurable · **A**chievable · **R**elevant · **T**ime-bound\n\n## Sinking Funds: The Underused Hack\n\nA sinking fund is money set aside monthly for a future predictable expense.\n\nCar registration costs $360/year? Save $30/month in a dedicated \"car\" fund — no surprises in November.\n\nGreat sinking fund categories: annual subscriptions, holidays, car repairs, medical deductibles.\n\n## Goal Priority Order\n\nMost financial experts agree on this order:\n1. $1,000 starter emergency fund\n2. Employer 401(k) match (free money — always take it)\n3. Pay off high-interest debt (credit cards, 20%+ APR)\n4. 3–6 month emergency fund\n5. Retirement savings (15% of gross)\n6. Other goals (house, travel, car)",
+    "quiz_questions": [
+      {
+        "question": "What is a 'sinking fund'?",
+        "options": [
+          "A fund that loses value over time",
+          "Money saved monthly for a future known expense",
+          "A retirement account that decreases with age",
+          "An emergency fund you use up"
+        ],
+        "correct_answer": 1,
+        "explanation": "A sinking fund is money set aside each month for a future predictable expense (car registration, holiday gifts, insurance premiums) so it doesn't hit your budget all at once."
+      },
+      {
+        "question": "According to most financial experts, what is the FIRST financial priority?",
+        "options": [
+          "Max out your Roth IRA",
+          "Pay off student loans",
+          "Build a $1,000 starter emergency fund",
+          "Save for a home down payment"
+        ],
+        "correct_answer": 2,
+        "explanation": "A $1,000 emergency fund is the first step. It prevents going into credit card debt for unexpected expenses, which derails every other financial goal."
+      },
+      {
+        "question": "Which goal is written in SMART format?",
+        "options": [
+          "I want to save money",
+          "Save $5,000 for a car down payment within 18 months by saving $278/month",
+          "Get out of debt someday",
+          "Invest more this year"
+        ],
+        "correct_answer": 1,
+        "explanation": "This goal is Specific ($5,000 car down payment), Measurable ($278/month), Achievable, Relevant, and Time-bound (18 months) — all five SMART criteria."
+      }
+    ]
+  },
+  {
+    "id": "lesson-bank-003",
+    "course_id": "course-banking-002",
+    "title": "Online Banking and Mobile Apps",
+    "order": 3,
+    "duration_minutes": 5,
+    "xp_reward": 50,
+    "content": "## Online Banking and Mobile Apps\n\nIn 2024, most banking happens on a phone or laptop, not in a branch. Using these tools safely is a core financial skill.\n\n## What You Can Do Online\n\n- Check balances and transaction history\n- Transfer money between accounts\n- Set up automatic payments and recurring transfers\n- Pay bills directly from your bank\n- Send money via Zelle or bank-to-bank transfer\n- Set alerts for low balances or suspicious activity\n- Freeze or unfreeze your debit card instantly\n\n## Mobile Deposit\n\nDeposit checks by photographing them in your bank's app — no branch needed.\n\n1. Open your bank app → select 'Deposit Check'\n2. Photograph the front and back of the endorsed check\n3. Submit — funds available within 1–2 business days\n\n**Important:** Write 'For mobile deposit only' on the back before photographing. Keep the physical check for 30 days, then shred it.\n\n## Protecting Your Online Banking Account\n\n- Use a strong, unique password (not reused anywhere else)\n- Enable two-factor authentication (2FA) — always\n- Never access banking on public Wi-Fi without a VPN\n- Never share your credentials, even with callers claiming to be your bank\n- Review transactions weekly and report suspicious activity immediately\n\n## Alerts Are Your Early Warning System\n\nSet these alerts immediately:\n- Balance below $200 (avoid overdrafts)\n- Any transaction over $50 (catch fraud fast)\n- Login from a new device (security alert)",
+    "quiz_questions": [
+      {
+        "question": "What should you write on the back of a check before mobile deposit?",
+        "options": [
+          "Your account number",
+          "For mobile deposit only",
+          "The current date",
+          "Nothing — the front is sufficient"
+        ],
+        "correct_answer": 1,
+        "explanation": "Writing 'For mobile deposit only' endorses the check for that specific purpose and prevents it from being cashed again at a branch."
+      },
+      {
+        "question": "What is two-factor authentication (2FA)?",
+        "options": [
+          "Two different passwords",
+          "A second verification step after entering your password",
+          "Two separate bank accounts",
+          "A two-minute login delay"
+        ],
+        "correct_answer": 1,
+        "explanation": "2FA adds a second security layer. Even if someone steals your password, they still need the second factor (usually a text code) to access your account."
+      },
+      {
+        "question": "When is it unsafe to access online banking?",
+        "options": [
+          "On your home Wi-Fi",
+          "On your phone's cellular data",
+          "On public Wi-Fi without a VPN",
+          "Using your bank's official app"
+        ],
+        "correct_answer": 2,
+        "explanation": "Public Wi-Fi can be intercepted. Always use cellular data or a trusted private network when accessing banking apps and websites."
+      }
+    ]
+  },
+  {
+    "id": "lesson-bank-004",
+    "course_id": "course-banking-002",
+    "title": "Protecting Your Money from Fees and Fraud",
+    "order": 4,
+    "duration_minutes": 6,
+    "xp_reward": 60,
+    "content": "## Protecting Your Money from Fees and Fraud\n\nKnowing how to use a bank is only half the skill. The other half is keeping your money safe from fees, fraud, and mistakes.\n\n## FDIC Insurance: Your Safety Net\n\nThe FDIC insures deposits at member banks up to **$250,000 per depositor, per bank**.\n\nIf your bank fails, the government returns your deposits up to $250,000. Your money is safe. This applies to checking, savings, CDs, and money market accounts. Credit unions have equivalent coverage through NCUA.\n\n## Common Bank Fees to Avoid\n\n- **Monthly maintenance fee** — $8–$25/month, often waivable with direct deposit\n- **Overdraft fee** — $25–$35 per overdraft; opt out of overdraft coverage to prevent this\n- **Out-of-network ATM fee** — $2–$4 per withdrawal; use in-network ATMs or online banks that reimburse fees\n- **Minimum balance fee** — charged when balance drops below a threshold\n\nOnline banks (Ally, Marcus, Chime) typically charge zero monthly fees and reimburse ATM fees.\n\n## Recognizing and Reporting Fraud\n\n**Signs of fraud:**\n- Transactions you don't recognize\n- Unexpected account changes or closures\n- Calls claiming your account is compromised\n\n**What to do:**\n1. Call your bank immediately using the number on the back of your card\n2. Freeze your card via the app\n3. File a fraud report\n4. Change all account passwords\n\n**Your protections:** Under federal law, unauthorized debit card transactions must be reported within 60 days for full protection.",
+    "quiz_questions": [
+      {
+        "question": "How much does FDIC insurance protect per depositor per bank?",
+        "options": [
+          "$100,000",
+          "$250,000",
+          "$500,000",
+          "Unlimited"
+        ],
+        "correct_answer": 1,
+        "explanation": "FDIC insurance covers up to $250,000 per depositor per FDIC-insured institution. Your deposits are safe even if the bank fails."
+      },
+      {
+        "question": "What is the easiest way to avoid overdraft fees?",
+        "options": [
+          "Keep $10,000 minimum",
+          "Track your balance and opt out of overdraft coverage",
+          "Only use cash",
+          "Pay a monthly overdraft plan"
+        ],
+        "correct_answer": 1,
+        "explanation": "Tracking your balance prevents overdrafts. Opting out of overdraft coverage means transactions are declined rather than triggering a $35 fee."
+      },
+      {
+        "question": "You notice a $200 charge you didn't make. What do you do first?",
+        "options": [
+          "Wait to see if it reverses",
+          "Call your bank immediately and freeze the card",
+          "Close your account",
+          "Post about it online"
+        ],
+        "correct_answer": 1,
+        "explanation": "Report unauthorized charges immediately. Federal consumer protections require prompt reporting — delays can reduce your coverage."
+      }
+    ]
+  },
+  {
+    "id": "lesson-bank-005",
+    "course_id": "course-banking-002",
+    "title": "Interest Rates: Earning vs Paying",
+    "order": 5,
+    "duration_minutes": 6,
+    "xp_reward": 60,
+    "content": "## Interest Rates: Earning vs Paying\n\nInterest is money that grows on other money. Understanding it means understanding one of the most powerful forces in personal finance.\n\nThere are two sides: **earning** interest (on savings) and **paying** it (on debt). The goal: maximize earning, minimize paying.\n\n## Earning Interest on Savings\n\nWhen you deposit money, the bank pays you interest for using it.\n\n**APY (Annual Percentage Yield)** — the real annual return including compounding.\n\n- Traditional bank savings: 0.01%–0.05% APY (almost nothing)\n- High-yield savings account (HYSA): 4.0%–5.0% APY (much better)\n\n**Why the gap?** Online banks have lower costs and pass savings to customers.\n\n## Compounding on Savings\n\n$10,000 saved for 10 years:\n- At 0.05%: grows to $10,050\n- At 4.5%: grows to $15,530 (+$5,530 from interest alone)\n\nOver 30 years at 4.5%: grows to $38,140. Money more than triples.\n\n## Paying Interest on Debt\n\nCommon interest rates:\n- Mortgage: 6–8% APR\n- Car loan: 5–10% APR\n- Student loan: 5–8% APR\n- Credit card: 20–30% APR\n\n**Credit cards are the most expensive form of debt.** A $1,000 balance at 25% APR costs $250/year in interest alone, even if you never make another purchase.\n\n## The Golden Rule\n\nEarn interest on savings. Avoid high-interest debt.\n\nA 4.5% HYSA is only worth it if you're not simultaneously carrying 25% credit card debt. Pay high-interest debt first — always.",
+    "quiz_questions": [
+      {
+        "question": "What does APY measure?",
+        "options": [
+          "Annual loan cost",
+          "Real annual return on savings including compounding",
+          "Monthly interest paid on a credit card",
+          "Annual fee on an account"
+        ],
+        "correct_answer": 1,
+        "explanation": "APY (Annual Percentage Yield) is the real annual return on savings, including the compounding effect. Higher APY means more growth on your deposited money."
+      },
+      {
+        "question": "Why do high-yield savings accounts pay more than traditional bank savings accounts?",
+        "options": [
+          "They are riskier and not FDIC insured",
+          "Online banks have lower overhead and pass savings to customers",
+          "They require $10,000 minimum deposit",
+          "They are only for business accounts"
+        ],
+        "correct_answer": 1,
+        "explanation": "Online banks operate without physical branches, dramatically reducing their costs. They share those savings as higher interest rates on customer deposits."
+      },
+      {
+        "question": "You have $2,000 in savings earning 4% APY and $2,000 in credit card debt at 22% APR. What should you do?",
+        "options": [
+          "Keep both as is",
+          "Pay off the credit card — the 22% cost far outweighs the 4% earned",
+          "Invest both in stocks",
+          "Open another savings account"
+        ],
+        "correct_answer": 1,
+        "explanation": "Paying off 22% APR debt is equivalent to earning a guaranteed 22% return. This far exceeds the 4% you earn in savings. Eliminate high-interest debt before building savings beyond your emergency fund."
+      }
+    ]
+  },
+  {
+    "id": "lesson-credit-002",
+    "course_id": "course-credit-003",
+    "title": "Your Credit Score Explained",
+    "order": 2,
+    "duration_minutes": 7,
+    "xp_reward": 70,
+    "content": "## Your Credit Score Explained\n\nYour credit score is a three-digit number (300–850) that tells lenders how likely you are to repay debt. The higher the score, the better your loan terms, credit card rates, and even apartment applications.\n\n## The Five Factors\n\nFICO scores — the most common model — are calculated from five factors:\n\n- **Payment history (35%)** — Did you pay on time?\n- **Credit utilization (30%)** — How much of your limit are you using?\n- **Length of credit history (15%)** — How old are your accounts?\n- **Credit mix (10%)** — Do you have varied credit types?\n- **New credit (10%)** — Have you applied recently?\n\n## Score Ranges\n\n- 800–850: Exceptional — best rates available\n- 740–799: Very Good — nearly all approvals\n- 670–739: Good — most approvals, good rates\n- 580–669: Fair — higher rates, some denials\n- Below 580: Poor — limited options, high rates\n\n## What Hurts Your Score Most\n\n**Payment history (35%)** is the biggest factor. A single 30-day late payment can drop your score by 50–100 points and stay on your report for 7 years.\n\n**High utilization (30%)** is second. Using more than 30% of your credit limit signals financial stress. Ideally keep it under 10%.\n\n**Closing old accounts** hurts by shortening account age and reducing available credit (which raises utilization).\n\n## Monitor Your Credit for Free\n\nYou're entitled to one free credit report per year from each bureau (Equifax, Experian, TransUnion) at AnnualCreditReport.com.\n\nMany banks and cards offer free monthly FICO score access. About 20% of credit reports contain errors — check yours.",
+    "quiz_questions": [
+      {
+        "question": "What is the single most important factor in your FICO credit score?",
+        "options": [
+          "Credit utilization",
+          "Length of credit history",
+          "Payment history",
+          "Number of cards"
+        ],
+        "correct_answer": 2,
+        "explanation": "Payment history accounts for 35% of your FICO score. Paying every bill on time, every month, is the single most impactful thing you can do for your credit."
+      },
+      {
+        "question": "What credit utilization percentage do experts recommend staying below?",
+        "options": [
+          "50%",
+          "75%",
+          "30% (ideal: under 10%)",
+          "Utilization doesn't matter"
+        ],
+        "correct_answer": 2,
+        "explanation": "Under 30% is acceptable; under 10% is excellent. Using 80% of a credit limit signals financial stress to lenders even if you pay in full each month."
+      },
+      {
+        "question": "A credit score of 740 would be described as:",
+        "options": [
+          "Poor",
+          "Fair",
+          "Good",
+          "Very Good"
+        ],
+        "correct_answer": 3,
+        "explanation": "740–799 is the 'Very Good' range. You would receive near-top approval rates and competitive interest rates on loans and credit cards."
+      }
+    ]
+  },
+  {
+    "id": "lesson-credit-003",
+    "course_id": "course-credit-003",
+    "title": "Good Debt vs Bad Debt",
+    "order": 3,
+    "duration_minutes": 6,
+    "xp_reward": 60,
+    "content": "## Good Debt vs Bad Debt\n\nNot all debt is equal. Some debt builds wealth. Other debt destroys it. Knowing the difference is foundational to sound financial decision-making.\n\n## What Makes Debt 'Good'?\n\nGood debt:\n- Funds something that increases in value or builds future earning potential\n- Has a low interest rate\n- Has a reasonable repayment timeline\n\n**Examples:**\n- **Mortgage** — buys an appreciating asset; 6–7% APR over 30 years\n- **Student loans (when intentional)** — may increase earning potential; 5–8% APR\n- **Small business loan** — funds revenue-generating activity\n\n## What Makes Debt 'Bad'?\n\nBad debt:\n- Funds consumption or depreciating assets\n- Carries a high interest rate\n- Creates ongoing payment for something already consumed\n\n**Examples:**\n- **Credit card debt** — 20–30% APR on everyday purchases\n- **Payday loans** — 300–400% effective APR\n- **High-rate car loans** — 15%+ APR on a depreciating vehicle\n\n## The Debt-to-Income Ratio (DTI)\n\nLenders measure your DTI: total monthly debt payments ÷ gross monthly income.\n\n- Under 36%: healthy\n- 37–49%: manageable but tight\n- 50%+: high risk — may prevent mortgage or loan approval\n\nExample: $500/month in debt payments on $3,500/month gross = 14% DTI. Excellent.\n\n## When You Have Debt: Repayment Order\n\n1. **Avalanche method** — pay minimums on all, then target highest-rate debt first (saves the most money)\n2. **Snowball method** — pay minimums on all, then target smallest balance first (builds momentum)\n\nNever skip minimum payments — late payments permanently damage your credit.",
+    "quiz_questions": [
+      {
+        "question": "Which is generally considered 'good debt'?",
+        "options": [
+          "Credit card at 24% APR",
+          "A payday loan",
+          "A mortgage on a home",
+          "A personal loan for a vacation"
+        ],
+        "correct_answer": 2,
+        "explanation": "A mortgage finances an asset (a home) that historically appreciates in value, at a relatively low interest rate — the classic example of debt used to build wealth."
+      },
+      {
+        "question": "What does a 45% DTI mean?",
+        "options": [
+          "You invest 45% of income",
+          "45% of gross monthly income goes to debt payments",
+          "You default 45% of the time",
+          "45% is discretionary spending"
+        ],
+        "correct_answer": 1,
+        "explanation": "DTI (Debt-to-Income) = total monthly debt payments ÷ gross monthly income. A 45% DTI means nearly half your income services debt, which is financially stressful and can block mortgage approval."
+      },
+      {
+        "question": "You have a $500 credit card balance at 22% APR and a $2,000 student loan at 5%. Which should get extra payments?",
+        "options": [
+          "Student loan — larger balance",
+          "Credit card — higher rate costs more",
+          "Pay equally on both",
+          "Invest extra instead"
+        ],
+        "correct_answer": 1,
+        "explanation": "Pay off the highest-interest debt first (debt avalanche). At 22% APR, the credit card is costing significantly more per dollar of balance than the 5% student loan."
+      }
+    ]
+  },
+  {
+    "id": "lesson-saving-003",
+    "course_id": "course-saving-005",
+    "title": "High-Yield Savings: Where to Park Your Money",
+    "order": 3,
+    "duration_minutes": 6,
+    "xp_reward": 60,
+    "content": "## High-Yield Savings: Where to Park Your Money\n\nNot all savings accounts are equal. Knowing where to keep your money can mean the difference between earning almost nothing and earning hundreds of dollars per year — passively.\n\n## The Problem with Traditional Savings Accounts\n\nTraditional big-bank savings accounts pay 0.01%–0.05% APY. At that rate, $10,000 earns $5/year. That's not savings — that's holding money while inflation erodes its value.\n\n## High-Yield Savings Accounts (HYSAs)\n\nOffered primarily by online banks, HYSAs pay 4.0%–5.0% APY — 50 to 100x more than traditional accounts.\n\nThey are:\n- FDIC insured (equally safe)\n- Free to open and maintain\n- Accessible via transfer within 1–2 business days\n\n**Best for:** Emergency fund, short-term savings goals, money you might need within 1–2 years.\n\n## Certificates of Deposit (CDs)\n\nA CD locks your money for a fixed term (3 months to 5 years) in exchange for a guaranteed fixed rate.\n\n- **Pro:** Locked-in guaranteed rate\n- **Con:** Early withdrawal penalties — your money is committed\n\n**Best for:** Money you definitely won't need during the term.\n\n## The Right Account for Each Goal\n\n- Emergency fund → HYSA\n- Down payment (2+ years away) → HYSA or CD\n- Short-term goal (under 6 months) → HYSA\n- Daily spending → Checking account\n\n## Inflation: Why 'Safe' Isn't Always Safe\n\nInflation averages 2–3% per year. Money in a 0.05% APY account loses real purchasing power annually. A 4–5% HYSA keeps pace with or slightly beats inflation.\n\nKeeping large amounts in low-yield accounts is a quiet, slow financial mistake.",
+    "quiz_questions": [
+      {
+        "question": "What is the main advantage of a HYSA over a traditional savings account?",
+        "options": [
+          "HYSAs are not FDIC insured",
+          "HYSAs earn 50–100x more interest while being equally safe",
+          "HYSAs allow faster withdrawals",
+          "HYSAs are only for high-income earners"
+        ],
+        "correct_answer": 1,
+        "explanation": "HYSAs are FDIC insured and equally safe. They simply pay significantly higher interest because online banks have lower operating costs."
+      },
+      {
+        "question": "What is the main downside of a Certificate of Deposit (CD)?",
+        "options": [
+          "Lower interest rate than savings",
+          "Not FDIC insured",
+          "Early withdrawal penalties — money is locked in",
+          "Only available to businesses"
+        ],
+        "correct_answer": 2,
+        "explanation": "CDs offer fixed rates in exchange for locking your money for a set term. Withdrawing early typically incurs a penalty. Only use CDs for money you definitively won't need early."
+      },
+      {
+        "question": "Why is keeping large cash balances in a 0.05% APY account a mistake?",
+        "options": [
+          "Banks aren't safe",
+          "Inflation at 2–3%/year means the money loses real purchasing power each year",
+          "Banks charge fees for large balances",
+          "FDIC doesn't cover large accounts"
+        ],
+        "correct_answer": 1,
+        "explanation": "If inflation is 3% and your savings earns 0.05%, you're effectively losing 2.95% of purchasing power per year. A HYSA at 4–5% APY keeps up with or beats inflation."
+      }
+    ]
+  },
+  {
+    "id": "lesson-saving-004",
+    "course_id": "course-saving-005",
+    "title": "Retirement Savings: 401(k) and IRA Basics",
+    "order": 4,
+    "duration_minutes": 8,
+    "xp_reward": 80,
+    "content": "## Retirement Savings: 401(k) and IRA Basics\n\nRetirement may feel abstract now, but the math is clear: starting early is the single most powerful financial move you can make. Money invested at 22 grows far more than money invested at 42.\n\n## The 401(k): Your Employer's Retirement Plan\n\nA 401(k) is a tax-advantaged account offered through employers.\n\n- Contributions come from your paycheck before taxes\n- Money grows tax-free until withdrawal\n- You pay income tax only when you withdraw in retirement\n- **2024 limit:** $23,000/year\n\n**The employer match:** Many employers match contributions (e.g., \"50% match up to 6% of salary\"). This is free money. **Always contribute at least enough to get the full match.**\n\nExample: $60,000 salary, employer matches 50% up to 6%.\n- Your contribution: $3,600/year\n- Employer adds: $1,800/year — automatic 50% return before any investment growth\n\n## Traditional vs Roth\n\n**Traditional:** Contribute pre-tax now. Pay taxes on withdrawal.\n\n**Roth:** Contribute after-tax now. Withdraw completely **tax-free** in retirement.\n\nFor young people in lower tax brackets: **Roth is almost always better.**\n\n## The IRA: Your Personal Plan\n\nAn IRA is separate from your employer — you open it yourself.\n\n- **2024 limit:** $7,000/year (Roth or Traditional)\n- **Roth income limit:** $161,000 (single) or $240,000 (married) in 2024\n\n## Recommended Priority Order\n\n1. 401(k) — at least up to full employer match\n2. Roth IRA — max it out ($7,000)\n3. 401(k) — max the full $23,000\n4. Taxable brokerage — for anything beyond\n\n## The Power of Starting Early\n\n$200/month invested at age 22 at 7% average return → **$525,000 by age 65**\n\n$200/month starting at age 32 → **$243,000 by age 65**\n\nSame contribution. 10 years earlier = $282,000 more. Start now.",
+    "quiz_questions": [
+      {
+        "question": "What is an employer 401(k) match and why does it matter?",
+        "options": [
+          "A fee for using the plan",
+          "Free money added by your employer when you contribute — always capture the full match",
+          "The government's annual contribution limit",
+          "A tax credit for retirement saving"
+        ],
+        "correct_answer": 1,
+        "explanation": "An employer match means your employer adds money when you contribute. Contributing enough to capture the full match is the highest-return, zero-risk financial move for most employees."
+      },
+      {
+        "question": "For a young person in a low tax bracket today, which retirement account is generally recommended?",
+        "options": [
+          "Traditional 401(k) — tax deduction now is most valuable",
+          "Roth IRA — tax-free growth and withdrawals are better long-term",
+          "Regular savings account",
+          "Annuity"
+        ],
+        "correct_answer": 1,
+        "explanation": "Young people pay taxes now at a low rate, then all future Roth growth and withdrawals are completely tax-free. The tax-free compounding advantage over 40+ years is enormous."
+      },
+      {
+        "question": "Investing $200/month starting at 22 vs 32 at 7% return — how much more do you earn by starting earlier?",
+        "options": [
+          "$24,000 more (just 10 years of contributions)",
+          "About the same",
+          "Approximately $282,000 more",
+          "Starting later is actually better"
+        ],
+        "correct_answer": 2,
+        "explanation": "Starting at 22: ~$525,000. Starting at 32: ~$243,000. The 10-year difference creates ~$282,000 in additional wealth from the same monthly contribution — the power of compound growth."
+      }
+    ]
+  },
+  {
+    "id": "lesson-invest-004",
+    "course_id": "course-investing-004",
+    "title": "Risk, Return, and Time Horizon",
+    "order": 4,
+    "duration_minutes": 6,
+    "xp_reward": 65,
+    "content": "## Risk, Return, and Time Horizon\n\nEvery investment involves risk — the possibility of losing money. In exchange for risk, investors expect higher potential return. This tradeoff is the foundation of all investing.\n\n## The Risk-Return Tradeoff\n\nHigher potential return = higher potential loss. You cannot separate them.\n\n- Cash / savings: 0.1%–5% · Very Low risk\n- Government bonds: 3%–5% · Low risk\n- Corporate bonds: 4%–7% · Medium risk\n- US Stock index (S&P 500): 7%–10% historical avg · Medium-High risk\n- Individual stocks: Highly variable · High risk\n- Cryptocurrencies: Highly variable · Very High risk\n\n## What Is Volatility?\n\nVolatility measures how much an investment's value swings. The S&P 500 averages ~10%/year historically — but some years it's up 25%, others down 35%.\n\n**Short-term volatility is the price you pay for long-term returns.**\n\n## Time Horizon Changes Everything\n\nHow long until you need the money determines how much volatility you can accept.\n\n**Long (10+ years):** Can handle high volatility. Time allows recovery from downturns. → Stocks, equity index funds\n\n**Short (under 3 years):** Cannot afford to wait for recovery. → HYSA, bonds, CDs\n\nExample: If you need a down payment in 2 years, stocks are too risky — the market could drop 30% right when you need the money.\n\n## Diversification: Managing Risk\n\nSpread risk across different asset types, sectors, and geographies. A single company can go to zero. A diversified index fund holding 3,000+ companies nearly never does.\n\n## The Simple Long-Term Strategy\n\nFor most long-term investors, a simple approach beats complex ones:\n\n1. Invest regularly (automate contributions)\n2. Use low-cost index funds\n3. Don't panic during downturns\n4. Stay invested for decades\n\nThis strategy has beaten most professional fund managers over any 20-year period.",
+    "quiz_questions": [
+      {
+        "question": "You need money in 18 months for a down payment. Where should it be invested?",
+        "options": [
+          "Individual tech stocks",
+          "A high-yield savings account or short-term bonds",
+          "Cryptocurrency",
+          "A 30-year government bond"
+        ],
+        "correct_answer": 1,
+        "explanation": "Short time horizon = cannot risk a major market downturn. HYSA or short-term bonds preserve capital. Stocks could lose 30%+ right before you need the money."
+      },
+      {
+        "question": "The S&P 500 averages ~10%/year but swings widely year to year. This fluctuation is called:",
+        "options": [
+          "Fraud",
+          "Diversification",
+          "Volatility",
+          "Compound interest"
+        ],
+        "correct_answer": 2,
+        "explanation": "Volatility measures how much an investment's value fluctuates. The S&P 500's short-term volatility is the price investors pay for its strong long-term historical returns."
+      },
+      {
+        "question": "Why are diversified index funds preferred over individual stocks for most investors?",
+        "options": [
+          "Index funds always go up",
+          "They spread risk across hundreds of companies and have lower fees",
+          "Individual stocks are lower return",
+          "Index funds are only in retirement accounts"
+        ],
+        "correct_answer": 1,
+        "explanation": "Index funds hold hundreds or thousands of stocks — one company failing doesn't sink the portfolio. They also have much lower fees than actively managed funds, compounding significantly over decades."
+      }
+    ]
+  },
+  {
+    "id": "lesson-invest-005",
+    "course_id": "course-investing-004",
+    "title": "Getting Started: Your First $1,000 Invested",
+    "order": 5,
+    "duration_minutes": 7,
+    "xp_reward": 75,
+    "content": "## Getting Started: Your First $1,000 Invested\n\nThe biggest barrier to investing isn't knowledge — it's starting. This lesson walks through exactly how to invest your first $1,000, step by step.\n\n## Step 1: Prerequisites Before Investing\n\nBefore putting money in the market, confirm:\n- You have a $1,000 starter emergency fund\n- You contribute enough to 401(k) to get the full employer match\n- You have no high-interest debt (credit cards, payday loans)\n\nIf all three are met, you're ready to invest additional money.\n\n## Step 2: Choose Your Account Type\n\n**Investing for retirement (5+ years):** Open a **Roth IRA** — tax-free growth is a major long-term advantage.\n\n**Investing for a medium-term goal (3–10 years):** Open a **taxable brokerage account** — no contribution limits, full flexibility.\n\n## Step 3: Choose a Brokerage\n\nLook for: zero minimums, commission-free trades, low-cost index funds.\n\nSolid options: Fidelity, Vanguard, Schwab, M1 Finance.\n\n## Step 4: Choose What to Buy\n\nFor most beginners, one fund is enough:\n\n- **VTI** (Vanguard Total Stock Market ETF) — 0.03% fee\n- **FSKAX** (Fidelity Total Market Index) — 0.015% fee\n- **SWTSX** (Schwab Total Market Index) — 0.03% fee\n\nThese hold thousands of US companies. Instant diversification.\n\n**Set up automatic monthly contributions.** Even $50/month compounds significantly over decades.\n\n## Step 5: Stay the Course\n\nThe most common investing mistake: panic-selling during downturns.\n\nMarkets go down. Sometimes a lot, temporarily. The investors who win are those who stay invested and keep contributing during downturns.\n\n**Your job:** Invest regularly, ignore short-term noise, check your portfolio quarterly at most.\n\n## The Long Game\n\n$1,000 invested at 22, growing at 8% average: worth ~$26,000 by age 65 — from a single one-time investment. Start now, even if small.",
+    "quiz_questions": [
+      {
+        "question": "What should you do BEFORE putting money in the stock market?",
+        "options": [
+          "Read every finance book",
+          "Pay off your mortgage",
+          "Build emergency fund, capture 401k match, eliminate high-interest debt",
+          "Wait until you have $10,000"
+        ],
+        "correct_answer": 2,
+        "explanation": "Before investing: (1) $1,000 emergency fund, (2) capture full employer 401k match, (3) pay off high-interest debt. These steps provide better guaranteed returns than market investing."
+      },
+      {
+        "question": "For a 22-year-old investing for retirement, what account type is generally best?",
+        "options": [
+          "Traditional IRA",
+          "Roth IRA",
+          "Savings account",
+          "Money market"
+        ],
+        "correct_answer": 1,
+        "explanation": "Roth IRA is best for young people in lower tax brackets. Contributions are after-tax, but all growth and withdrawals in retirement are completely tax-free — a massive long-term advantage."
+      },
+      {
+        "question": "The market drops 25% after you invest. What is the right response?",
+        "options": [
+          "Sell everything immediately",
+          "Stay invested, continue regular contributions, and wait for recovery",
+          "Move everything to savings",
+          "Only invest in gold"
+        ],
+        "correct_answer": 1,
+        "explanation": "Market downturns are temporary. Selling locks in losses. Staying invested and continuing contributions during downturns means buying more shares at lower prices — setting up stronger gains in recovery."
+      }
+    ]
   }
 ]

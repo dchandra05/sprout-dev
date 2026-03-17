@@ -3,27 +3,36 @@ import InterestCalculator from "../components/InterestCalculator";
 
 export default function InvestmentCalculator() {
   return (
-    <div className="min-h-screen p-4 md:p-8 bg-gradient-to-br from-blue-50 via-white to-green-50">
-      <div className="max-w-7xl mx-auto space-y-6">
-        <div className="text-center mb-8">
-          <h1 className="text-4xl font-bold text-gray-900 mb-4">
-            Investment Growth Calculator
-          </h1>
-          <p className="text-lg text-gray-600 max-w-3xl mx-auto">
-            See how your investments can grow over time with compound interest and regular contributions. 
-            Adjust the values to match your financial goals and watch your future wealth build!
+    <div className="min-h-screen bg-gray-50">
+      <div className="max-w-5xl mx-auto px-4 py-8 md:px-8 md:py-12 space-y-6">
+        <div className="mb-2">
+          <h1 className="text-2xl md:text-3xl font-bold text-gray-900 mb-1">Investment Growth Calculator</h1>
+          <p className="text-gray-500 text-sm">
+            See how compound interest grows your money over time. Adjust the values to match your financial goals.
           </p>
         </div>
 
         <InterestCalculator />
 
-        <div className="mt-12 bg-gradient-to-r from-lime-50 to-green-50 border-l-4 border-lime-500 p-6 rounded-lg">
-          <h3 className="font-bold text-lg text-gray-900 mb-2">💡 Pro Tips</h3>
-          <ul className="space-y-2 text-gray-700">
-            <li>• <strong>Start early:</strong> Time is your biggest advantage with compound interest</li>
-            <li>• <strong>Contribute regularly:</strong> Even small monthly contributions add up significantly</li>
-            <li>• <strong>Be consistent:</strong> The power of compound interest grows exponentially over time</li>
-            <li>• <strong>Average stock market return:</strong> Historically around 10% annually (though past performance doesn't guarantee future results)</li>
+        <div className="bg-white border border-gray-200 rounded-xl p-5 shadow-sm">
+          <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-3">Key Principles</p>
+          <ul className="space-y-2 text-sm text-gray-700">
+            <li className="flex items-start gap-2">
+              <span className="w-1.5 h-1.5 rounded-full bg-green-700 flex-shrink-0 mt-1.5" />
+              <span><strong>Start early.</strong> Time is your biggest advantage with compound interest.</span>
+            </li>
+            <li className="flex items-start gap-2">
+              <span className="w-1.5 h-1.5 rounded-full bg-green-700 flex-shrink-0 mt-1.5" />
+              <span><strong>Contribute regularly.</strong> Even small monthly contributions add up significantly over decades.</span>
+            </li>
+            <li className="flex items-start gap-2">
+              <span className="w-1.5 h-1.5 rounded-full bg-green-700 flex-shrink-0 mt-1.5" />
+              <span><strong>Be consistent.</strong> The power of compound interest grows exponentially over time.</span>
+            </li>
+            <li className="flex items-start gap-2">
+              <span className="w-1.5 h-1.5 rounded-full bg-green-700 flex-shrink-0 mt-1.5" />
+              <span><strong>Historical average:</strong> The US stock market has returned roughly 10% annually over the long term (past performance does not guarantee future results).</span>
+            </li>
           </ul>
         </div>
       </div>

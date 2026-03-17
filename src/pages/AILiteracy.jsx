@@ -1,319 +1,329 @@
 // src/pages/AILiteracy.jsx
-// ✅ FIXED: Works with or without authentication
-// - Uses safe auth check (getCurrentUser instead of me)
-// - No redirect on missing auth
-// - Progress tracking works for logged-in users only
+// Fixes:
+//  1. Background changed to white (was purple gradient)
+//  2. Added prominent "Continue Learning" / "Start Course" CTA button
+//  3. Removed purple color scheme — uses site-standard green
+//  4. Clean, professional layout matching rest of Sprout
 
 import React, { useState, useEffect } from "react";
-import { getCurrentUserSafe, getAllAIDayProgressForUser } from "@/lib/appClient";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
 import { createPageUrl } from "@/utils";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Progress } from "@/components/ui/progress";
+import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { 
-  Lock, CheckCircle, Brain, ChevronRight, Trophy, 
-  Calendar, Clock, Zap, Target, BookOpen, LogIn
+import { Progress } from "@/components/ui/progress";
+import {
+  Brain,
+  CheckCircle,
+  Lock,
+  Clock,
+  Zap,
+  Play,
+  ArrowLeft,
+  Trophy,
+  ChevronRight,
+  Target,
+  BookOpen,
+  LogIn,
 } from "lucide-react";
-import { upsertLessonProgress } from "@/lib/activityTracker";
+
+import {
+  getCurrentUserSafe,
+  getAIDayProgress,
+} from "@/lib/appClient";
+
+// ── AI Day definitions ─────────────────────────────────────────
+
+const DAYS = [
+  { number: 1,  title: "What is AI and Why AI Literacy Matters" },
+  { number: 2,  title: "How Machines Learn: Data, Training, and Models" },
+  { number: 3,  title: "Computer Vision and Image Recognition" },
+  { number: 4,  title: "Generative AI and Hallucinations" },
+  { number: 5,  title: "Using AI Effectively: Prompt Engineering" },
+  { number: 6,  title: "AI Ethics: Bias, Privacy, and Deepfakes" },
+  { number: 7,  title: "AI and the Future of Work" },
+  { number: 8,  title: "Real-World AI Applications Across Industries" },
+  { number: 9,  title: "Building Your AI Toolkit" },
+  { number: 10, title: "Course Wrap-Up and Final Assessment" },
+];
+
+// ── Helpers ────────────────────────────────────────────────────
+
+const safeParse = (r, fb) => { try { return r ? JSON.parse(r) : fb; } catch { return fb; } };
+const getLocalUser = () => safeParse(localStorage.getItem("sprout_user"), null);
 
 export default function AILiteracy() {
   const navigate = useNavigate();
-  const [user, setUser] = useState(null);
+  const [user, setUser]           = useState(null);
   const [isLoadingUser, setIsLoadingUser] = useState(true);
-  const queryClient = useQueryClient();
 
   useEffect(() => {
-    const loadUser = async () => {
+    const load = async () => {
       try {
-        const currentUser = await getCurrentUserSafe();
-        // null means unauthenticated — treat as guest
-        setUser(currentUser ?? { id: "guest", email: "guest@example.com", full_name: "Guest User", isGuest: true });
-      } catch (error) {
-        console.error("Error loading user:", error);
-        setUser({ id: "guest", email: "guest@example.com", full_name: "Guest User", isGuest: true });
+        // Try Supabase user first, fall back to localStorage
+        const remoteUser = await getCurrentUserSafe().catch(() => null);
+        const localUser  = getLocalUser();
+        const resolved   = remoteUser || localUser;
+        setUser(resolved || { isGuest: true });
+      } catch {
+        const localUser = getLocalUser();
+        setUser(localUser || { isGuest: true });
       } finally {
         setIsLoadingUser(false);
       }
     };
-    loadUser();
+    load();
   }, []);
 
-  // Course metadata is static - no need to fetch from DB
-  const course = { id: "course_ai_literacy", name: "AI Literacy: Using AI Responsibly and Effectively" };
-
-  // Fetch progress from Supabase for logged-in users
-  const { data: dayProgress = [] } = useQuery({
-    queryKey: ['aiDayProgress', user?.email],
-    queryFn: () => getAllAIDayProgressForUser(user.email),
-    enabled: !!user && !user.isGuest
+  // Fetch AI day progress for all 10 days
+  const { data: dayProgressList = [] } = useQuery({
+    queryKey: ["allAIDayProgress", user?.email],
+    queryFn: async () => {
+      if (!user?.email) return [];
+      const results = await Promise.all(
+        DAYS.map((d) =>
+          getAIDayProgress({ user_email: user.email, day_number: d.number }).catch(() => null)
+        )
+      );
+      return results.filter(Boolean);
+    },
+    enabled: !!user && !user.isGuest,
   });
 
-  const days = [
-    { 
-      number: 1, 
-      title: "What is AI and Why AI Literacy Matters",
-      icon: Brain,
-      color: "from-purple-400 to-pink-500"
-    },
-    { 
-      number: 2, 
-      title: "How Machines Learn: Data, Training, and Models",
-      icon: Target,
-      color: "from-blue-400 to-cyan-500"
-    },
-    { 
-      number: 3, 
-      title: "AI in the Real World",
-      icon: BookOpen,
-      color: "from-green-400 to-emerald-500"
-    },
-    { 
-      number: 4, 
-      title: "Generative AI and Hallucinations",
-      icon: Zap,
-      color: "from-yellow-400 to-orange-500"
-    },
-    { 
-      number: 5, 
-      title: "Using AI Effectively",
-      icon: Target,
-      color: "from-indigo-400 to-purple-500"
-    },
-    { 
-      number: 6, 
-      title: "Ethics: Bias, Privacy, Deepfakes",
-      icon: Brain,
-      color: "from-red-400 to-pink-500"
-    },
-    { 
-      number: 7, 
-      title: "AI and Society",
-      icon: BookOpen,
-      color: "from-teal-400 to-cyan-500"
-    },
-    { 
-      number: 8, 
-      title: "Practical AI Skills Lab",
-      icon: Zap,
-      color: "from-lime-400 to-green-500"
-    },
-    { 
-      number: 9, 
-      title: "Capstone + Review",
-      icon: Trophy,
-      color: "from-orange-400 to-red-500"
-    },
-    { 
-      number: 10, 
-      title: "Final Exam + Certification",
-      icon: Trophy,
-      color: "from-purple-500 to-pink-600"
-    }
-  ];
+  // ── Derived values ─────────────────────────────────────────
 
   const getDayStatus = (dayNumber) => {
-    // For guest users, all days are available
-    if (!user || user.isGuest) {
-      return 'available';
-    }
-
-    const progress = dayProgress.find(p => p.day_number === dayNumber);
-    if (progress?.completed) return 'completed';
-    
-    if (dayNumber === 1) return 'available';
-    
-    const previousDay = dayProgress.find(p => p.day_number === dayNumber - 1);
-    if (previousDay?.completed) return 'available';
-    
-    return 'locked';
+    if (!user || user.isGuest) return "available";
+    const prog = dayProgressList.find((p) => p.day_number === dayNumber);
+    if (prog?.completed) return "completed";
+    if (dayNumber === 1) return "available";
+    const prevProg = dayProgressList.find((p) => p.day_number === dayNumber - 1);
+    if (prevProg?.completed) return "available";
+    return "locked";
   };
 
-  const completedDays = dayProgress.filter(p => p.completed).length;
+  const completedDays   = dayProgressList.filter((p) => p.completed).length;
   const progressPercent = (completedDays / 10) * 100;
 
-  // ✅ Don't show loading spinner - render immediately with what we have
+  // Next day to continue (first non-completed available day)
+  const nextDay = DAYS.find((d) => getDayStatus(d.number) === "available");
+
+  // ── Loading ────────────────────────────────────────────────
+
   if (isLoadingUser) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-purple-50 via-white to-pink-50">
-        <div className="text-center">
-          <div className="w-16 h-16 border-4 border-purple-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading AI Literacy Course...</p>
-        </div>
+      <div className="min-h-screen flex items-center justify-center bg-white">
+        <div className="w-10 h-10 border-4 border-green-600 border-t-transparent rounded-full animate-spin" />
       </div>
     );
   }
 
+  // ── Render ─────────────────────────────────────────────────
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-pink-50 p-4 md:p-8">
-      <div className="max-w-6xl mx-auto space-y-8">
-        {/* Header */}
-        <div className="text-center space-y-4">
-          <div className="inline-block p-4 bg-gradient-to-br from-purple-500 to-pink-500 rounded-2xl shadow-lg">
-            <Brain className="w-12 h-12 text-white" />
+    <div className="min-h-screen bg-white">
+      <div className="max-w-3xl mx-auto px-4 py-6 md:px-8 md:py-10 space-y-6">
+
+        {/* Back */}
+        <Button
+          variant="outline"
+          onClick={() => navigate(createPageUrl("Learn"))}
+          className="border-gray-200 text-gray-600 hover:bg-gray-50"
+        >
+          <ArrowLeft className="w-4 h-4 mr-2" />
+          All Courses
+        </Button>
+
+        {/* Course header */}
+        <div className="flex items-start gap-4">
+          <div className="w-14 h-14 rounded-2xl bg-green-700 flex items-center justify-center flex-shrink-0">
+            <Brain className="w-7 h-7 text-white" />
           </div>
-          <h1 className="text-4xl md:text-5xl font-bold text-gray-900">
-            AI Literacy Course
-          </h1>
-          <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-            A comprehensive 2-week program teaching you to understand, use, and critically evaluate AI
-          </p>
+          <div>
+            <Badge className="mb-2 bg-green-50 text-green-700 border-green-200 text-xs">AI & Technology</Badge>
+            <h1 className="text-2xl md:text-3xl font-bold text-gray-900 leading-tight">
+              AI Literacy Course
+            </h1>
+            <p className="text-gray-500 text-sm mt-1">
+              10 days · 10 hours · 1,000 XP available
+            </p>
+          </div>
         </div>
 
-        {/* ✅ Guest User Notice */}
-        {user.isGuest && (
-          <Card className="border-2 border-purple-200 shadow-lg bg-purple-50/50 backdrop-blur-sm">
-            <CardContent className="p-6">
-              <div className="flex items-start gap-4">
-                <div className="p-3 bg-purple-100 rounded-lg">
-                  <LogIn className="w-6 h-6 text-purple-600" />
-                </div>
-                <div className="flex-1">
-                  <h3 className="font-semibold text-gray-900 mb-1">
-                    You're viewing as a guest
-                  </h3>
-                  <p className="text-sm text-gray-600 mb-3">
-                    All lessons are available to view, but progress won't be saved. 
-                    Log in to track your completion and earn XP!
+        <p className="text-gray-600 leading-relaxed">
+          A comprehensive program teaching you to understand, use, and critically evaluate AI —
+          from how models are trained to how to use them responsibly.
+        </p>
+
+        {/* Guest notice */}
+        {user?.isGuest && (
+          <div className="flex items-start gap-3 p-4 bg-amber-50 border border-amber-200 rounded-xl text-sm">
+            <LogIn className="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" />
+            <div>
+              <p className="font-semibold text-gray-800">Viewing as guest</p>
+              <p className="text-gray-600">
+                All lessons are available, but progress won't be saved.{" "}
+                <button
+                  onClick={() => navigate(createPageUrl("Login"))}
+                  className="text-green-700 font-semibold hover:underline"
+                >
+                  Log in to save progress
+                </button>
+              </p>
+            </div>
+          </div>
+        )}
+
+        {/* Progress + Continue CTA */}
+        {!user?.isGuest && (
+          <div className="bg-white border border-gray-200 rounded-xl p-5 space-y-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-semibold text-gray-700">Your Progress</p>
+                <p className="text-xs text-gray-500">{completedDays} of 10 days complete</p>
+              </div>
+              <span className="text-green-700 font-bold text-lg">{Math.round(progressPercent)}%</span>
+            </div>
+            <div className="h-2.5 bg-gray-100 rounded-full overflow-hidden">
+              <div
+                className="h-full bg-green-700 rounded-full transition-all duration-500"
+                style={{ width: `${progressPercent}%` }}
+              />
+            </div>
+
+            {/* ── FIXED: Continue Learning button ── */}
+            {nextDay && completedDays < 10 && (
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-1">
+                <div>
+                  <p className="text-xs text-gray-500 font-medium uppercase tracking-wide">
+                    {completedDays > 0 ? "Continue Learning" : "Start Course"}
                   </p>
-                  <Button
-                    onClick={() => navigate(createPageUrl("Login"))}
-                    className="bg-purple-600 hover:bg-purple-700 text-white"
-                  >
-                    <LogIn className="w-4 h-4 mr-2" />
-                    Log In to Save Progress
-                  </Button>
+                  <p className="font-semibold text-gray-900 text-sm mt-0.5">
+                    Day {nextDay.number}: {nextDay.title}
+                  </p>
                 </div>
+                <Button
+                  onClick={() => navigate(createPageUrl(`AIDay${nextDay.number}`))}
+                  className="bg-green-700 hover:bg-green-800 text-white flex-shrink-0 gap-2"
+                >
+                  <Play className="w-4 h-4" />
+                  {completedDays > 0 ? "Continue" : "Start Day 1"}
+                </Button>
               </div>
-            </CardContent>
-          </Card>
+            )}
+
+            {completedDays === 10 && (
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-1">
+                <div>
+                  <p className="text-xs text-green-700 font-semibold uppercase tracking-wide flex items-center gap-1">
+                    <Trophy className="w-3.5 h-3.5" /> All Days Complete!
+                  </p>
+                  <p className="font-semibold text-gray-900 text-sm mt-0.5">
+                    You've finished the AI Literacy course.
+                  </p>
+                </div>
+                <Button
+                  onClick={() => navigate(createPageUrl("AIDay10"))}
+                  className="bg-green-700 hover:bg-green-800 text-white flex-shrink-0 gap-2"
+                >
+                  <Trophy className="w-4 h-4" /> Final Assessment
+                </Button>
+              </div>
+            )}
+          </div>
         )}
 
-        {/* Progress Overview - Only show for logged-in users */}
-        {!user.isGuest && (
-          <Card className="border-none shadow-xl bg-white/80 backdrop-blur-sm">
-            <CardHeader>
-              <div className="flex justify-between items-center">
-                <CardTitle className="flex items-center gap-2">
-                  <Calendar className="w-5 h-5 text-purple-500" />
-                  Your Progress
-                </CardTitle>
-                <span className="text-3xl font-bold text-purple-600">{Math.round(progressPercent)}%</span>
-              </div>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <Progress value={progressPercent} className="h-3" />
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                <div className="text-center p-3 bg-purple-50 rounded-lg">
-                  <div className="text-2xl font-bold text-purple-600">{completedDays}</div>
-                  <div className="text-sm text-gray-600">Days Completed</div>
-                </div>
-                <div className="text-center p-3 bg-blue-50 rounded-lg">
-                  <div className="text-2xl font-bold text-blue-600">{10 - completedDays}</div>
-                  <div className="text-sm text-gray-600">Days Remaining</div>
-                </div>
-                <div className="text-center p-3 bg-green-50 rounded-lg">
-                  <div className="text-2xl font-bold text-green-600">10</div>
-                  <div className="text-sm text-gray-600">Hours Total</div>
-                </div>
-                <div className="text-center p-3 bg-orange-50 rounded-lg">
-                  <div className="text-2xl font-bold text-orange-600">1000</div>
-                  <div className="text-sm text-gray-600">XP Available</div>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+        {/* Guest CTA */}
+        {user?.isGuest && (
+          <div className="bg-green-700 rounded-xl p-6 text-white flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+            <div>
+              <p className="text-green-200 text-sm font-medium mb-1">Start Course</p>
+              <h3 className="text-xl font-bold mb-1">Day 1: {DAYS[0].title}</h3>
+              <p className="text-green-200 text-sm">60 min · 100 XP</p>
+            </div>
+            <Button
+              onClick={() => navigate(createPageUrl("AIDay1"))}
+              className="bg-white text-green-800 hover:bg-green-50 font-semibold shadow-md flex-shrink-0 px-6"
+            >
+              <Play className="w-4 h-4 mr-2" />
+              Start Day 1
+            </Button>
+          </div>
         )}
 
-        {/* Course Days */}
-        <div className="space-y-4">
-          <h2 className="text-2xl font-bold text-gray-900">Course Days</h2>
-          <div className="grid gap-4">
-            {days.map((day) => {
-              const status = getDayStatus(day.number);
-              const Icon = day.icon;
-              const isLocked = status === 'locked';
-              const isCompleted = status === 'completed';
+        {/* Day list */}
+        <div className="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
+          <div className="px-6 py-4 border-b border-gray-100">
+            <h2 className="font-semibold text-gray-900 text-lg">Course Days</h2>
+            <p className="text-gray-400 text-sm">10 lessons · 10 hours total</p>
+          </div>
+
+          <div className="divide-y divide-gray-100">
+            {DAYS.map((day) => {
+              const status      = getDayStatus(day.number);
+              const isLocked    = status === "locked";
+              const isCompleted = status === "completed";
+              const isCurrent   = nextDay?.number === day.number && !isCompleted;
 
               return (
-                <Card
+                <div
                   key={day.number}
-                  className={`border-none shadow-lg transition-all ${
-                    isLocked 
-                      ? 'opacity-60 cursor-not-allowed bg-gray-50' 
-                      : 'cursor-pointer hover:shadow-2xl bg-white/80 backdrop-blur-sm'
-                  }`}
                   onClick={() => !isLocked && navigate(createPageUrl(`AIDay${day.number}`))}
+                  className={`flex items-center gap-4 px-6 py-4 transition-all ${
+                    isLocked
+                      ? "opacity-50 cursor-not-allowed"
+                      : "cursor-pointer hover:bg-green-50/60 group"
+                  }`}
                 >
-                  <CardContent className="p-6">
-                    <div className="flex items-center gap-4">
-                      {/* Day Number Circle */}
-                      <div className={`w-16 h-16 rounded-full flex items-center justify-center bg-gradient-to-br ${day.color} flex-shrink-0`}>
-                        {isCompleted ? (
-                          <CheckCircle className="w-8 h-8 text-white" />
-                        ) : isLocked ? (
-                          <Lock className="w-8 h-8 text-white" />
-                        ) : (
-                          <span className="text-2xl font-bold text-white">{day.number}</span>
-                        )}
-                      </div>
+                  {/* Status circle */}
+                  <div className={`w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 ${
+                    isCompleted ? "bg-green-700" :
+                    isLocked    ? "bg-gray-200" :
+                    isCurrent   ? "bg-green-100 ring-2 ring-green-700 group-hover:bg-green-200" :
+                                  "bg-green-100 group-hover:bg-green-200"
+                  }`}>
+                    {isCompleted ? (
+                      <CheckCircle className="w-5 h-5 text-white" />
+                    ) : isLocked ? (
+                      <Lock className="w-4 h-4 text-gray-400" />
+                    ) : (
+                      <span className="text-green-800 font-bold text-sm">{day.number}</span>
+                    )}
+                  </div>
 
-                      {/* Content */}
-                      <div className="flex-1">
-                        <div className="flex items-center gap-2 mb-1">
-                          <h3 className="text-xl font-bold text-gray-900">Day {day.number}</h3>
-                          {isCompleted && (
-                            <Badge className="bg-green-100 text-green-700">Completed</Badge>
-                          )}
-                          {isLocked && (
-                            <Badge variant="outline" className="text-gray-500">Locked</Badge>
-                          )}
-                        </div>
-                        <p className="text-gray-600">{day.title}</p>
-                        <div className="flex items-center gap-4 mt-2 text-sm text-gray-500">
-                          <span className="flex items-center gap-1">
-                            <Clock className="w-4 h-4" />
-                            60 min
-                          </span>
-                          <span className="flex items-center gap-1">
-                            <Zap className="w-4 h-4 text-yellow-500" />
-                            100 XP
-                          </span>
-                        </div>
-                      </div>
-
-                      {/* Arrow */}
-                      {!isLocked && (
-                        <ChevronRight className="w-6 h-6 text-gray-400" />
-                      )}
+                  {/* Content */}
+                  <div className="flex-1 min-w-0">
+                    <p className={`font-semibold truncate text-sm ${isLocked ? "text-gray-400" : "text-gray-900"}`}>
+                      Day {day.number}: {day.title}
+                    </p>
+                    <div className="flex items-center gap-3 text-xs text-gray-500 mt-0.5">
+                      <span className="flex items-center gap-1"><Clock className="w-3 h-3" />60 min</span>
+                      <span className="flex items-center gap-1 text-green-700 font-medium">
+                        <Zap className="w-3 h-3" />100 XP
+                      </span>
                     </div>
-                  </CardContent>
-                </Card>
+                  </div>
+
+                  {/* Right badge */}
+                  {isCompleted && (
+                    <Badge className="bg-green-50 text-green-800 border border-green-200 text-xs flex-shrink-0">Done</Badge>
+                  )}
+                  {isLocked && (
+                    <Badge variant="outline" className="text-gray-400 border-gray-200 text-xs flex-shrink-0">Locked</Badge>
+                  )}
+                  {isCurrent && (
+                    <Badge className="bg-green-700 text-white text-xs flex-shrink-0">Next</Badge>
+                  )}
+                  {!isCompleted && !isLocked && !isCurrent && (
+                    <Play className="w-4 h-4 text-gray-300 group-hover:text-green-700 transition-colors flex-shrink-0" />
+                  )}
+                </div>
               );
             })}
           </div>
         </div>
 
-        {/* Certificate Info */}
-        {!user.isGuest && completedDays === 10 && (
-          <Card className="border-none shadow-xl bg-gradient-to-r from-purple-500 to-pink-500 text-white">
-            <CardContent className="p-8 text-center">
-              <Trophy className="w-16 h-16 mx-auto mb-4" />
-              <h2 className="text-3xl font-bold mb-2">Congratulations!</h2>
-              <p className="text-lg opacity-90 mb-6">
-                You've completed all 10 days. Take the final exam to earn your certificate!
-              </p>
-              <Button
-                onClick={() => navigate(createPageUrl("AIDay10"))}
-                className="bg-white text-purple-600 hover:bg-gray-100"
-              >
-                Take Final Exam
-              </Button>
-            </CardContent>
-          </Card>
-        )}
       </div>
     </div>
   );

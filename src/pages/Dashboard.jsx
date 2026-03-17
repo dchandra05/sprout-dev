@@ -1,370 +1,259 @@
-import React, { useState, useEffect } from "react";
+// src/pages/Dashboard.jsx
+// Clean white + dark green. No emojis. Professional.
+import React, { useState, useEffect, useMemo } from "react";
+import { useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
-import { useNavigate, Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Progress } from "@/components/ui/progress";
 import {
-  Flame, Trophy, BookOpen, Target, Zap, ArrowRight,
-  TrendingUp, Award, ChevronRight, Sparkles, Calculator
+  Flame, Zap, BookOpen, Award, TrendingUp,
+  ChevronRight, Target, Sprout, ArrowRight,
+  CheckCircle, Clock,
 } from "lucide-react";
 
-// NOTE: Base44 removed in migration pass.
-// TODO (later phase): wire these to your real backend/API.
-const getLocalUser = () => {
-  try {
-    const raw = localStorage.getItem("sprout_user");
-    return raw ? JSON.parse(raw) : null;
-  } catch {
-    return null;
-  }
-};
+// ─── Data helpers ─────────────────────────────────────────────
 
-const data = {
-  async listCourses() {
-    return [];
-  },
-  async listUserProgress(/* userEmail */) {
-    return [];
-  },
-  async listRecentActivity(/* userEmail */) {
-    return [];
-  },
-  async listUserBadges(/* userEmail */) {
-    return [];
-  }
-};
+const safeParse = (r, fb) => { try { return r ? JSON.parse(r) : fb; } catch { return fb; } };
+const getJSON   = (k, fb) => safeParse(localStorage.getItem(k), fb);
+const setJSON   = (k, v)  => localStorage.setItem(k, JSON.stringify(v));
+const getLocalUser = () => getJSON("sprout_user", null);
+
+const BASE = import.meta.env.BASE_URL || "/";
+async function fetchWithCache(url, key, fb = []) {
+  try {
+    const res = await fetch(url, { cache: "no-store" });
+    if (!res.ok) throw new Error();
+    const d = await res.json();
+    setJSON(key, d);
+    return Array.isArray(d) ? d : fb;
+  } catch { return getJSON(key, fb); }
+}
+
+// ─── Stat card ────────────────────────────────────────────────
+
+function StatCard({ icon: Icon, value, label, sub, iconColor, borderColor }) {
+  return (
+    <div style={{
+      background: "white", border: `1px solid ${borderColor || "#e5e7eb"}`,
+      borderRadius: 14, padding: "20px 18px",
+      boxShadow: "0 1px 3px rgba(0,0,0,0.05)",
+      display: "flex", flexDirection: "column", gap: 4,
+    }}>
+      <div style={{ width: 36, height: 36, borderRadius: 10, background: `${iconColor}15`, display: "flex", alignItems: "center", justifyContent: "center", marginBottom: 8 }}>
+        <Icon size={18} color={iconColor} />
+      </div>
+      <span style={{ fontSize: 26, fontWeight: 800, color: "#111827", lineHeight: 1 }}>{value}</span>
+      <span style={{ fontSize: 13, fontWeight: 600, color: "#374151" }}>{label}</span>
+      {sub && <span style={{ fontSize: 12, color: "#9ca3af" }}>{sub}</span>}
+    </div>
+  );
+}
+
+// ─── Course progress card ─────────────────────────────────────
+
+function CourseCard({ course, progress, onClick }) {
+  const pct = Math.round(progress);
+  return (
+    <div
+      onClick={onClick}
+      style={{
+        background: "white", border: "1px solid #e5e7eb", borderRadius: 14,
+        padding: "18px 20px", cursor: "pointer", transition: "all 0.15s",
+        boxShadow: "0 1px 3px rgba(0,0,0,0.05)",
+      }}
+      onMouseOver={e => { e.currentTarget.style.borderColor = "#166534"; e.currentTarget.style.boxShadow = "0 4px 16px rgba(0,0,0,0.08)"; }}
+      onMouseOut={e => { e.currentTarget.style.borderColor = "#e5e7eb"; e.currentTarget.style.boxShadow = "0 1px 3px rgba(0,0,0,0.05)"; }}
+    >
+      <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 12, marginBottom: 12 }}>
+        <div>
+          <p style={{ fontSize: 14, fontWeight: 700, color: "#111827", margin: "0 0 3px" }}>{course.name}</p>
+          <p style={{ fontSize: 12, color: "#9ca3af", margin: 0 }}>{course.lessons_count} lessons</p>
+        </div>
+        <ChevronRight size={16} color="#9ca3af" style={{ flexShrink: 0, marginTop: 2 }} />
+      </div>
+      {/* Progress bar */}
+      <div style={{ height: 6, background: "#f3f4f6", borderRadius: 999 }}>
+        <div style={{ height: "100%", width: `${pct}%`, background: "#166534", borderRadius: 999 }} />
+      </div>
+      <div style={{ display: "flex", justifyContent: "space-between", marginTop: 6, fontSize: 12 }}>
+        <span style={{ color: "#9ca3af" }}>{pct}% complete</span>
+        <span style={{ color: "#16a34a", fontWeight: 600, display: "flex", alignItems: "center", gap: 3 }}>
+          <Zap size={11} /> {course.xp_reward} XP
+        </span>
+      </div>
+    </div>
+  );
+}
+
+// ─── Main ─────────────────────────────────────────────────────
 
 export default function Dashboard() {
   const navigate = useNavigate();
   const [user, setUser] = useState(null);
 
   useEffect(() => {
-    const currentUser = getLocalUser();
-    if (!currentUser) {
-      navigate(createPageUrl("Login"));
-      return;
-    }
-
-    setUser(currentUser);
-
-    // Redirect to onboarding if not completed
-    if (!currentUser.onboarding_completed) {
-      navigate(createPageUrl("SchoolSelection"));
-    }
+    const u = getLocalUser();
+    if (!u) { navigate(createPageUrl("Login")); return; }
+    setUser(u);
   }, [navigate]);
 
   const { data: courses = [] } = useQuery({
-    queryKey: ["courses"],
-    queryFn: () => data.listCourses(),
+    queryKey: ["dash_courses"],
+    queryFn: () => fetchWithCache(`${BASE}data/courses.json`, "sprout_courses"),
   });
 
-  const { data: userProgress = [] } = useQuery({
-    queryKey: ["userProgress", user?.email],
-    queryFn: () => data.listUserProgress(user?.email),
-    enabled: !!user,
+  const { data: badges = [] } = useQuery({
+    queryKey: ["dash_badges"],
+    queryFn: () => fetchWithCache(`${BASE}data/badges.json`, "sprout_badges"),
   });
 
-  const { data: recentActivity = [] } = useQuery({
-    queryKey: ["recentActivity", user?.email],
-    queryFn: () => data.listRecentActivity(user?.email),
-    enabled: !!user,
+  // Local progress
+  const userProgress = useMemo(() => {
+    if (!user?.email) return [];
+    const all = getJSON("sprout_user_progress", []);
+    return all.filter(p => p.user_email === user.email);
+  }, [user?.email]);
+
+  const completedLessons = userProgress.filter(p => p.completed).length;
+  const userBadges = badges.filter(b => userProgress.some(p => p.badge_id === b.id));
+
+  // Stats from user object (Supabase profile)
+  const xp           = Number(user?.xp_points ?? 0);
+  const level        = Number(user?.level ?? 1);
+  const streak       = Number(user?.current_streak ?? 0);
+  const xpForNext    = level * 500;
+  const xpProgress   = xp % 500;
+
+  // Course progress helper
+  const getCourseProgress = (courseId) => {
+    const course = courses.find(c => String(c.id) === String(courseId));
+    if (!course) return 0;
+    const done = userProgress.filter(p => String(p.course_id) === String(courseId) && p.completed).length;
+    return (done / (Number(course.lessons_count) || 1)) * 100;
+  };
+
+  const inProgressCourses = courses.filter(c => {
+    const p = getCourseProgress(c.id);
+    return p > 0 && p < 100;
   });
 
-  const { data: userBadges = [] } = useQuery({
-    queryKey: ["userBadges", user?.email],
-    queryFn: () => data.listUserBadges(user?.email),
-    enabled: !!user,
-  });
+  const featuredCourses = inProgressCourses.length > 0
+    ? inProgressCourses.slice(0, 3)
+    : courses.filter(c => c.is_featured).slice(0, 3);
 
-  if (!user) return null;
-
-  const completedLessons = userProgress.filter((p) => p.completed).length;
-  const totalXP = user.xp_points || 0;
-  const currentStreak = user.current_streak || 0;
-  const level = user.level || 1;
-  const xpForNextLevel = level * 100;
-  const xpProgress = totalXP % 100;
-
-  const featuredCourses = courses.filter((c) => c.is_featured).slice(0, 3);
+  const name = user?.full_name?.split(" ")[0] || "there";
 
   return (
-    <div className="min-h-screen p-4 md:p-8">
-      <div className="max-w-7xl mx-auto space-y-6">
-        {/* Welcome Header */}
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
+    <div style={{ minHeight: "100vh", background: "#f9fafb" }}>
+      <div style={{ maxWidth: 1100, margin: "0 auto", padding: "32px 24px 80px" }}>
+
+        {/* Welcome */}
+        <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", flexWrap: "wrap", gap: 16, marginBottom: 32 }}>
           <div>
-            <h1 className="text-3xl md:text-4xl font-bold text-gray-900">
-              Welcome back, {user.full_name?.split(" ")[0]}! 👋
+            <h1 style={{ fontSize: 26, fontWeight: 800, color: "#111827", margin: "0 0 4px" }}>
+              Welcome back, {name}
             </h1>
-            <p className="text-gray-600 mt-1">Ready to continue growing today?</p>
-          </div>
-          <Button
-            onClick={() => navigate(createPageUrl("Learn"))}
-            className="bg-gradient-to-r from-lime-400 to-green-500 hover:from-lime-500 hover:to-green-600 text-white shadow-lg shadow-lime-200"
-          >
-            <BookOpen className="w-5 h-5 mr-2" />
-            Browse Courses
-          </Button>
-        </div>
-
-        {/* Stats Grid */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-          {/* Streak Card */}
-          <Card className="border-none shadow-lg bg-gradient-to-br from-orange-400 to-red-500 text-white overflow-hidden relative">
-            <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -translate-y-16 translate-x-16" />
-            <CardHeader className="pb-2">
-              <Flame className="w-8 h-8 mb-2" />
-              <CardTitle className="text-3xl font-bold">{currentStreak}</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-sm opacity-90">Day Streak 🔥</p>
-              <p className="text-xs opacity-75 mt-1">Keep it up!</p>
-            </CardContent>
-          </Card>
-
-          {/* XP Card */}
-          <Card className="border-none shadow-lg bg-gradient-to-br from-purple-400 to-pink-500 text-white overflow-hidden relative">
-            <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -translate-y-16 translate-x-16" />
-            <CardHeader className="pb-2">
-              <Zap className="w-8 h-8 mb-2" />
-              <CardTitle className="text-3xl font-bold">{totalXP}</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-sm opacity-90">Total XP</p>
-              <p className="text-xs opacity-75 mt-1">Level {level}</p>
-            </CardContent>
-          </Card>
-
-          {/* Lessons Card */}
-          <Card className="border-none shadow-lg bg-gradient-to-br from-blue-400 to-cyan-500 text-white overflow-hidden relative">
-            <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -translate-y-16 translate-x-16" />
-            <CardHeader className="pb-2">
-              <BookOpen className="w-8 h-8 mb-2" />
-              <CardTitle className="text-3xl font-bold">{completedLessons}</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-sm opacity-90">Lessons Done</p>
-              <p className="text-xs opacity-75 mt-1">Great progress!</p>
-            </CardContent>
-          </Card>
-
-          {/* Badges Card */}
-          <Card className="border-none shadow-lg bg-gradient-to-br from-yellow-400 to-orange-500 text-white overflow-hidden relative">
-            <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -translate-y-16 translate-x-16" />
-            <CardHeader className="pb-2">
-              <Award className="w-8 h-8 mb-2" />
-              <CardTitle className="text-3xl font-bold">{userBadges.length}</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-sm opacity-90">Badges Earned</p>
-              <p className="text-xs opacity-75 mt-1">Collector!</p>
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* Level Progress */}
-        <Card className="border-none shadow-lg bg-white/80 backdrop-blur-sm">
-          <CardHeader>
-            <div className="flex justify-between items-center">
-              <CardTitle className="flex items-center gap-2">
-                <Sparkles className="w-5 h-5 text-purple-500" />
-                Level {level} Progress
-              </CardTitle>
-              <span className="text-sm text-gray-600">
-                {xpProgress} / {xpForNextLevel} XP
-              </span>
-            </div>
-          </CardHeader>
-          <CardContent>
-            <Progress value={(xpProgress / xpForNextLevel) * 100} className="h-3 bg-gray-200">
-              <div className="h-full bg-gradient-to-r from-purple-400 to-pink-500 rounded-full transition-all" />
-            </Progress>
-            <p className="text-sm text-gray-600 mt-2">
-              {xpForNextLevel - xpProgress} XP until Level {level + 1}
+            <p style={{ fontSize: 15, color: "#6b7280", margin: 0 }}>
+              {inProgressCourses.length > 0
+                ? `You have ${inProgressCourses.length} course${inProgressCourses.length > 1 ? "s" : ""} in progress.`
+                : "Ready to start learning?"}
             </p>
-          </CardContent>
-        </Card>
-
-        {/* Featured Courses */}
-        <div>
-          <div className="flex justify-between items-center mb-4">
-            <h2 className="text-2xl font-bold text-gray-900">Featured Courses</h2>
-            <Link
-              to={createPageUrl("Learn")}
-              className="text-lime-600 hover:text-lime-700 font-medium flex items-center gap-1"
-            >
-              View All
-              <ChevronRight className="w-4 h-4" />
-            </Link>
           </div>
+          <button
+            onClick={() => navigate(createPageUrl("Learn"))}
+            style={{ display: "flex", alignItems: "center", gap: 8, background: "#166534", color: "white", fontWeight: 700, fontSize: 14, padding: "11px 20px", borderRadius: 10, border: "none", cursor: "pointer" }}
+          >
+            <BookOpen size={16} />
+            Browse Courses
+          </button>
+        </div>
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {featuredCourses.map((course) => {
-              const courseProgress = userProgress.filter(
-                (p) => p.course_id === course.id && p.completed
-              ).length;
-              const progressPercent = (courseProgress / (course.lessons_count || 1)) * 100;
+        {/* Stats row */}
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: 14, marginBottom: 28 }}>
+          <StatCard icon={Flame}    value={streak}           label="Day Streak"     sub="Keep it going" iconColor="#f97316" borderColor="#fed7aa" />
+          <StatCard icon={Zap}      value={xp.toLocaleString()} label="Total XP"    sub={`Level ${level}`}  iconColor="#16a34a" borderColor="#bbf7d0" />
+          <StatCard icon={BookOpen} value={completedLessons}  label="Lessons Done"  sub="Great work"    iconColor="#2563eb" borderColor="#bfdbfe" />
+          <StatCard icon={Award}    value={userBadges.length}  label="Badges"       sub="Earned"        iconColor="#d97706" borderColor="#fde68a" />
+        </div>
 
-              const categoryGradients = {
-                Investing: "from-green-400 to-emerald-500",
-                Saving: "from-blue-400 to-cyan-500",
-                "Credit & Debt": "from-purple-400 to-pink-500",
-                Insurance: "from-orange-400 to-red-500",
-              };
+        {/* XP Level bar */}
+        <div style={{ background: "white", border: "1px solid #e5e7eb", borderRadius: 14, padding: "18px 20px", marginBottom: 28, boxShadow: "0 1px 3px rgba(0,0,0,0.05)" }}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 10 }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+              <TrendingUp size={16} color="#166534" />
+              <span style={{ fontSize: 14, fontWeight: 700, color: "#111827" }}>Level {level} Progress</span>
+            </div>
+            <span style={{ fontSize: 13, color: "#6b7280" }}>{xpProgress} / {xpForNext} XP</span>
+          </div>
+          <div style={{ height: 10, background: "#f3f4f6", borderRadius: 999 }}>
+            <div style={{ height: "100%", width: `${Math.min((xpProgress / xpForNext) * 100, 100)}%`, background: "linear-gradient(90deg,#16a34a,#4ade80)", borderRadius: 999, transition: "width 0.5s" }} />
+          </div>
+          <p style={{ fontSize: 12, color: "#9ca3af", marginTop: 6, marginBottom: 0 }}>
+            {xpForNext - xpProgress} XP until Level {level + 1}
+          </p>
+        </div>
 
+        {/* In-progress / featured courses */}
+        <div style={{ marginBottom: 28 }}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14 }}>
+            <h2 style={{ fontSize: 17, fontWeight: 700, color: "#111827", margin: 0 }}>
+              {inProgressCourses.length > 0 ? "Continue Learning" : "Featured Courses"}
+            </h2>
+            <button
+              onClick={() => navigate(createPageUrl("Learn"))}
+              style={{ fontSize: 13, color: "#166534", fontWeight: 600, background: "none", border: "none", cursor: "pointer", display: "flex", alignItems: "center", gap: 4 }}
+            >
+              See all <ChevronRight size={14} />
+            </button>
+          </div>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))", gap: 14 }}>
+            {featuredCourses.map(c => (
+              <CourseCard
+                key={c.id}
+                course={c}
+                progress={getCourseProgress(c.id)}
+                onClick={() => {
+                  if (c.name?.toLowerCase().includes("ai literacy")) navigate(createPageUrl("AILiteracy"));
+                  else navigate(createPageUrl(`CourseDetail?id=${c.id}`));
+                }}
+              />
+            ))}
+          </div>
+        </div>
+
+        {/* Quick links */}
+        <div>
+          <h2 style={{ fontSize: 17, fontWeight: 700, color: "#111827", margin: "0 0 14px" }}>Quick Access</h2>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(160px, 1fr))", gap: 12 }}>
+            {[
+              { label: "All Courses",   icon: BookOpen,   page: "Learn",        color: "#166534" },
+              { label: "Simulations",   icon: Target,     page: "Simulations",  color: "#0f766e" },
+              { label: "Leaderboard",   icon: TrendingUp, page: "Leaderboard",  color: "#1e40af" },
+              { label: "My Progress",   icon: CheckCircle,page: "Progress",     color: "#7c3aed" },
+              { label: "Challenges",    icon: Zap,        page: "Challenges",   color: "#d97706" },
+            ].map(item => {
+              const Icon = item.icon;
               return (
-                <Card
-                  key={course.id}
-                  className="border-none shadow-lg hover:shadow-xl transition-all cursor-pointer group bg-white/80 backdrop-blur-sm overflow-hidden"
-                  onClick={() => navigate(createPageUrl(`CourseDetail?id=${course.id}`))}
+                <button
+                  key={item.page}
+                  onClick={() => navigate(createPageUrl(item.page))}
+                  style={{
+                    background: "white", border: "1px solid #e5e7eb", borderRadius: 12,
+                    padding: "16px 14px", cursor: "pointer", textAlign: "center",
+                    transition: "all 0.15s", boxShadow: "0 1px 3px rgba(0,0,0,0.05)",
+                  }}
+                  onMouseOver={e => { e.currentTarget.style.borderColor = item.color; e.currentTarget.style.transform = "translateY(-2px)"; }}
+                  onMouseOut={e => { e.currentTarget.style.borderColor = "#e5e7eb"; e.currentTarget.style.transform = "translateY(0)"; }}
                 >
-                  <div
-                    className={`h-40 bg-gradient-to-br ${
-                      categoryGradients[course.category] || "from-gray-400 to-gray-500"
-                    } flex items-center justify-center relative`}
-                  >
-                    <div className="absolute inset-0 bg-black/10 group-hover:bg-black/20 transition-colors" />
-                    <div className="text-white text-6xl z-10">{course.icon || "📚"}</div>
+                  <div style={{ width: 36, height: 36, borderRadius: 10, background: `${item.color}12`, display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 8px" }}>
+                    <Icon size={18} color={item.color} />
                   </div>
-                  <CardHeader>
-                    <CardTitle className="text-lg group-hover:text-lime-600 transition-colors">
-                      {course.name}
-                    </CardTitle>
-                    <p className="text-sm text-gray-600 line-clamp-2">{course.description}</p>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="space-y-2">
-                      <div className="flex justify-between text-sm">
-                        <span className="text-gray-600">{Math.round(progressPercent)}% Complete</span>
-                        <span className="text-lime-600 font-medium flex items-center gap-1">
-                          <Zap className="w-3 h-3" />
-                          {course.xp_reward} XP
-                        </span>
-                      </div>
-                      <Progress value={progressPercent} className="h-2" />
-                      <div className="flex items-center gap-2 text-xs text-gray-500 mt-2">
-                        <BookOpen className="w-3 h-3" />
-                        {course.lessons_count} lessons
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
+                  <p style={{ fontSize: 13, fontWeight: 600, color: "#111827", margin: 0 }}>{item.label}</p>
+                </button>
               );
             })}
           </div>
         </div>
 
-        {/* Quick Navigation Grid */}
-        <div>
-          <h2 className="text-2xl font-bold text-gray-900 mb-4">Quick Access</h2>
-          <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
-            <Card
-              className="border-none shadow-lg hover:shadow-xl transition-all cursor-pointer bg-white/80 backdrop-blur-sm"
-              onClick={() => navigate(createPageUrl("Learn"))}
-            >
-              <CardContent className="p-6 text-center">
-                <div className="w-12 h-12 bg-gradient-to-br from-blue-100 to-cyan-100 rounded-xl flex items-center justify-center mx-auto mb-3">
-                  <BookOpen className="w-6 h-6 text-blue-600" />
-                </div>
-                <p className="font-semibold text-gray-900">Browse Courses</p>
-                <p className="text-xs text-gray-600 mt-1">{courses.length} available</p>
-              </CardContent>
-            </Card>
-
-            <Card
-              className="border-none shadow-lg hover:shadow-xl transition-all cursor-pointer bg-white/80 backdrop-blur-sm"
-              onClick={() => navigate(createPageUrl("Goals"))}
-            >
-              <CardContent className="p-6 text-center">
-                <div className="w-12 h-12 bg-gradient-to-br from-lime-100 to-green-100 rounded-xl flex items-center justify-center mx-auto mb-3">
-                  <Target className="w-6 h-6 text-lime-600" />
-                </div>
-                <p className="font-semibold text-gray-900">Savings Goals</p>
-                <p className="text-xs text-gray-600 mt-1">Track progress</p>
-              </CardContent>
-            </Card>
-
-            <Card
-              className="border-none shadow-lg hover:shadow-xl transition-all cursor-pointer bg-white/80 backdrop-blur-sm"
-              onClick={() => navigate(createPageUrl("InvestmentCalculator"))}
-            >
-              <CardContent className="p-6 text-center">
-                <div className="w-12 h-12 bg-gradient-to-br from-green-100 to-emerald-100 rounded-xl flex items-center justify-center mx-auto mb-3">
-                  <Calculator className="w-6 h-6 text-green-600" />
-                </div>
-                <p className="font-semibold text-gray-900">Calculator</p>
-                <p className="text-xs text-gray-600 mt-1">Growth projections</p>
-              </CardContent>
-            </Card>
-
-            <Card
-              className="border-none shadow-lg hover:shadow-xl transition-all cursor-pointer bg-white/80 backdrop-blur-sm"
-              onClick={() => navigate(createPageUrl("Leaderboard"))}
-            >
-              <CardContent className="p-6 text-center">
-                <div className="w-12 h-12 bg-gradient-to-br from-yellow-100 to-orange-100 rounded-xl flex items-center justify-center mx-auto mb-3">
-                  <Trophy className="w-6 h-6 text-yellow-600" />
-                </div>
-                <p className="font-semibold text-gray-900">Leaderboard</p>
-                <p className="text-xs text-gray-600 mt-1">See rankings</p>
-              </CardContent>
-            </Card>
-
-            <Card
-              className="border-none shadow-lg hover:shadow-xl transition-all cursor-pointer bg-white/80 backdrop-blur-sm"
-              onClick={() => navigate(createPageUrl("Progress"))}
-            >
-              <CardContent className="p-6 text-center">
-                <div className="w-12 h-12 bg-gradient-to-br from-purple-100 to-pink-100 rounded-xl flex items-center justify-center mx-auto mb-3">
-                  <TrendingUp className="w-6 h-6 text-purple-600" />
-                </div>
-                <p className="font-semibold text-gray-900">My Progress</p>
-                <p className="text-xs text-gray-600 mt-1">View stats</p>
-              </CardContent>
-            </Card>
-          </div>
-        </div>
-
-        {/* Quick Actions Grid */}
-        <div className="grid md:grid-cols-2 gap-4">
-          <Card className="border-none shadow-lg bg-gradient-to-r from-lime-400 to-green-500 text-white overflow-hidden relative">
-            <div className="absolute top-0 right-0 opacity-10">
-              <Target className="w-48 h-48" />
-            </div>
-            <CardContent className="p-6 relative z-10">
-              <h3 className="text-xl font-bold mb-2">🎯 Daily Challenge</h3>
-              <p className="opacity-90 mb-1">Complete 3 lessons today!</p>
-              <p className="text-sm opacity-75 mb-4">Earn a bonus 50 XP</p>
-              <Button
-                onClick={() => navigate(createPageUrl("Learn"))}
-                className="bg-white text-lime-600 hover:bg-gray-100 shadow-lg"
-              >
-                Start Challenge
-                <ArrowRight className="w-5 h-5 ml-2" />
-              </Button>
-            </CardContent>
-          </Card>
-
-          <Card className="border-none shadow-lg bg-gradient-to-r from-blue-400 to-cyan-500 text-white overflow-hidden relative">
-            <div className="absolute top-0 right-0 opacity-10">
-              <Target className="w-48 h-48" />
-            </div>
-            <CardContent className="p-6 relative z-10">
-              <h3 className="text-xl font-bold mb-2">💰 Savings Goals</h3>
-              <p className="opacity-90 mb-1">Track your financial targets</p>
-              <p className="text-sm opacity-75 mb-4">Set and achieve goals</p>
-              <Button
-                onClick={() => navigate(createPageUrl("Goals"))}
-                className="bg-white text-blue-600 hover:bg-gray-100 shadow-lg"
-              >
-                View Goals
-                <ArrowRight className="w-5 h-5 ml-2" />
-              </Button>
-            </CardContent>
-          </Card>
-        </div>
       </div>
     </div>
   );

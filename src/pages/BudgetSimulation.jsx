@@ -117,19 +117,20 @@ export default function BudgetSimulation() {
   const currentLesson = lessons[lessonNum];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-green-50 via-white to-emerald-50 p-4 md:p-8">
-      <div className="max-w-7xl mx-auto space-y-6">
+    <div className="min-h-screen bg-gray-50">
+      <div className="max-w-5xl mx-auto px-4 py-6 md:px-8 md:py-10 space-y-6">
         <Button
           variant="outline"
           onClick={() =>
             navigate(createPageUrl("CourseDetail") + "?id=6972392c60eb785db714b719")
           }
+          className="border-gray-200 text-gray-700 hover:bg-gray-50"
         >
           <ArrowLeft className="w-4 h-4 mr-2" />
           Back to Course
         </Button>
 
-        <div className="bg-white rounded-xl shadow-lg p-6 md:p-8">
+        <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6 md:p-8">
           {lessonNum === 0 ? (
             <>
               <h1 className="text-3xl font-bold mb-2">

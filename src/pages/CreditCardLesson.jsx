@@ -1,61 +1,92 @@
-import React from "react";
+import React, { useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, CreditCard } from "lucide-react";
+import { ArrowLeft, CreditCard, BookOpen } from "lucide-react";
 import CreditCardStatement from "../components/CreditCardStatement";
 
 export default function CreditCardLesson() {
   const navigate = useNavigate();
 
+  // If redirected from Lesson.jsx it will pass ?courseId=xxx so we can return to the right course
+  const courseId = useMemo(() => {
+    const hash = window.location.hash;
+    const qi   = hash.indexOf("?");
+    if (qi === -1) return null;
+    return new URLSearchParams(hash.slice(qi + 1)).get("courseId");
+  }, []);
+
+  const handleBack = () => {
+    if (courseId) navigate(createPageUrl(`CourseDetail?id=${courseId}`));
+    else navigate(createPageUrl("Learn"));
+  };
+
   return (
-    <div className="min-h-screen p-4 md:p-8 bg-gradient-to-br from-purple-50 via-white to-pink-50">
-      <div className="max-w-5xl mx-auto space-y-6">
-        <Button
-          variant="outline"
-          onClick={() => navigate(createPageUrl("Learn"))}
-          className="shadow-md"
-        >
+    <div className="min-h-screen bg-gray-50">
+      <div className="max-w-4xl mx-auto px-4 py-6 md:px-8 md:py-10 space-y-6">
+
+        {/* Back */}
+        <Button variant="outline" onClick={handleBack} className="border-gray-200 text-gray-700 hover:bg-gray-50">
           <ArrowLeft className="w-4 h-4 mr-2" />
-          Back to Courses
+          {courseId ? "Back to Course" : "All Courses"}
         </Button>
 
-        <div className="text-center mb-8">
-          <div className="flex justify-center mb-4">
-            <div className="w-16 h-16 bg-gradient-to-br from-purple-400 to-pink-500 rounded-full flex items-center justify-center shadow-lg">
-              <CreditCard className="w-9 h-9 text-white" />
-            </div>
+        {/* Header */}
+        <div className="bg-white border border-gray-200 rounded-2xl p-8 flex items-start gap-5 shadow-sm">
+          <div className="w-14 h-14 rounded-xl bg-green-700 flex items-center justify-center flex-shrink-0">
+            <CreditCard className="w-7 h-7 text-white" />
           </div>
-          <h1 className="text-4xl font-bold text-gray-900 mb-4">
-            Understanding Your First Credit Card Statement
-          </h1>
-          <p className="text-lg text-gray-600 max-w-3xl mx-auto">
-            Don't let credit card statements intimidate you! We'll walk through every section together, 
-            so you'll know exactly what you're looking at and how to use it to build great credit.
-          </p>
+          <div>
+            <p className="text-xs font-semibold text-green-700 uppercase tracking-wide mb-1 flex items-center gap-1">
+              <BookOpen className="w-3.5 h-3.5" /> Interactive Lesson
+            </p>
+            <h1 className="text-2xl md:text-3xl font-bold text-gray-900 mb-1">Understanding Your Credit Card Statement</h1>
+            <p className="text-gray-500 text-sm leading-relaxed">
+              Walk through every section of a real credit card statement so you'll know exactly what you're looking at.
+            </p>
+          </div>
         </div>
 
+        {/* Interactive statement */}
         <CreditCardStatement />
 
-        <div className="mt-12 bg-gradient-to-r from-purple-50 to-pink-50 border-l-4 border-purple-500 p-6 rounded-lg">
-          <h3 className="font-bold text-lg text-gray-900 mb-2">🎓 What You Just Learned</h3>
-          <ul className="space-y-2 text-gray-700">
-            <li>• <strong>How to read a credit card statement</strong> from top to bottom</li>
-            <li>• <strong>Why paying only the minimum</strong> is a debt trap</li>
-            <li>• <strong>How to spot fraud</strong> by reviewing transactions</li>
-            <li>• <strong>How statements affect your credit score</strong> (on-time payments & utilization)</li>
-            <li>• <strong>The difference between statement date and due date</strong></li>
+        {/* Summary */}
+        <div className="bg-white border border-gray-200 rounded-xl p-6 shadow-sm">
+          <h3 className="font-bold text-gray-900 mb-3">What You Learned</h3>
+          <ul className="space-y-2 text-sm text-gray-700">
+            <li className="flex items-start gap-2">
+              <span className="w-5 h-5 rounded-full bg-green-100 text-green-700 flex items-center justify-center flex-shrink-0 text-xs font-bold mt-0.5">✓</span>
+              <span>How to read a credit card statement <strong>from top to bottom</strong></span>
+            </li>
+            <li className="flex items-start gap-2">
+              <span className="w-5 h-5 rounded-full bg-green-100 text-green-700 flex items-center justify-center flex-shrink-0 text-xs font-bold mt-0.5">✓</span>
+              <span>Why <strong>paying only the minimum</strong> is a debt trap</span>
+            </li>
+            <li className="flex items-start gap-2">
+              <span className="w-5 h-5 rounded-full bg-green-100 text-green-700 flex items-center justify-center flex-shrink-0 text-xs font-bold mt-0.5">✓</span>
+              <span>How to <strong>spot fraudulent charges</strong> by reviewing transactions</span>
+            </li>
+            <li className="flex items-start gap-2">
+              <span className="w-5 h-5 rounded-full bg-green-100 text-green-700 flex items-center justify-center flex-shrink-0 text-xs font-bold mt-0.5">✓</span>
+              <span>How statements affect your <strong>credit score</strong> (payments & utilization)</span>
+            </li>
+            <li className="flex items-start gap-2">
+              <span className="w-5 h-5 rounded-full bg-green-100 text-green-700 flex items-center justify-center flex-shrink-0 text-xs font-bold mt-0.5">✓</span>
+              <span>The difference between <strong>statement date and due date</strong></span>
+            </li>
           </ul>
         </div>
 
+        {/* CTA */}
         <div className="text-center">
           <Button
             onClick={() => navigate(createPageUrl("CreditCardQuiz"))}
-            className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white h-14 px-8 text-lg shadow-xl"
+            className="bg-green-700 hover:bg-green-800 text-white h-12 px-8 font-semibold rounded-xl"
           >
-            Test Your Knowledge →
+            Test Your Knowledge
           </Button>
         </div>
+
       </div>
     </div>
   );
