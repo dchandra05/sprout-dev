@@ -104,8 +104,29 @@ export default function Signup() {
       }
 
       toast.success("Account created! 🌱");
-      // If a session was returned, navigate to onboarding; otherwise ask to log in
+      // If a session was returned (email confirmation disabled), seed
+      // localStorage so all pages immediately show the correct user.
       if (authData?.session) {
+        const newUser = authData.session.user;
+        const seedProfile = {
+          id:                      newUser.id,
+          email:                   emailNormalized,
+          full_name:               String(form.full_name || "").trim(),
+          phone:                   "",
+          school_id:               "",
+          school_name:             "",
+          grade:                   "",
+          username:                "",
+          show_on_leaderboard:     true,
+          role:                    "user",
+          level:                   1,
+          xp_points:               0,
+          total_lessons_completed: 0,
+          current_streak:          0,
+          longest_streak:          0,
+          onboarding_completed:    false,
+        };
+        localStorage.setItem("sprout_user", JSON.stringify(seedProfile));
         navigate(createPageUrl("SchoolSelection"));
       } else {
         toast("Please check your email to confirm your account before logging in.");

@@ -97,6 +97,12 @@ export async function updateCurrentUserProfile(patch) {
  * Logout
  */
 export async function logout() {
+  // Clear per-user localStorage before signOut so no page can render
+  // stale data from the previous session during the brief transition.
+  localStorage.removeItem("sprout_user");
+  localStorage.removeItem("sprout_user_progress");
+  localStorage.removeItem("sprout_user_badges");
+
   const { error } = await supabase.auth.signOut();
   if (error) throw error;
 }

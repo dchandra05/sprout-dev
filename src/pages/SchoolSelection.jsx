@@ -7,6 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Sprout, School, ArrowRight, Search, CheckCircle } from "lucide-react";
 import { toast } from "sonner";
+import { supabase } from "@/lib/supabaseClient";
 
 /** ----------------------------
  * Hybrid data client (public/data -> localStorage fallback)
@@ -91,7 +92,7 @@ export default function SchoolSelection() {
     setSearchQuery(s.name);
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
     if (!selectedSchool?.id) {
@@ -119,7 +120,34 @@ export default function SchoolSelection() {
       total_courses_completed: user.total_courses_completed ?? 0,
     };
 
+    // Persist to localStorage for immediate use by all pages.
     setLocalUser(updated);
+
+    // Also persist to Supabase so onboarding survives future logins.
+    // We update by user id (from the Supabase auth session) so the row
+    // is always correct regardless of email changes.
+    try {
+      const { data: sessionData } = await supabase.auth.getSession();
+      const uid = sessionData?.session?.user?.id ?? user.id;
+      if (uid && uid !== "guest") {
+        await supabase
+          .from("profiles")
+          .upsert(
+            {
+              id:                   uid,
+              school_id:            selectedSchool.id,
+              school_name:          selectedSchool.name,
+              grade,
+              onboarding_completed: true,
+            },
+            { onConflict: "id" }
+          );
+      }
+    } catch (err) {
+      // Non-fatal — localStorage already has the data so the UX works.
+      console.warn("[SchoolSelection] Supabase upsert warning:", err?.message);
+    }
+
     toast.success("Welcome to Sprout! 🌱");
     navigate(createPageUrl("Dashboard"));
   };

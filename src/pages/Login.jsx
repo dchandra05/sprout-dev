@@ -1,5 +1,4 @@
 // src/pages/Login.jsx
-// Fixed: uses supabase.auth.signInWithPassword() instead of localStorage
 import React, { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
@@ -69,12 +68,38 @@ export default function Login() {
         return;
       }
 
-      // Check onboarding status from profiles table
+      // Fetch the full profile so we can write it to localStorage.
+      // This ensures all pages that use getLocalUser() immediately see
+      // the correct user — not stale data from a previous session.
       const { data: profile } = await supabase
         .from("profiles")
-        .select("onboarding_completed")
+        .select("*")
         .eq("id", data.session.user.id)
         .maybeSingle();
+
+      const authUser = data.session.user;
+      const merged = {
+        id:                      authUser.id,
+        email:                   authUser.email,
+        full_name:               profile?.full_name
+                                   ?? authUser.user_metadata?.full_name
+                                   ?? authUser.user_metadata?.name
+                                   ?? "",
+        phone:                   profile?.phone                    ?? "",
+        school_id:               profile?.school_id                ?? "",
+        school_name:             profile?.school_name              ?? "",
+        grade:                   profile?.grade                    ?? "",
+        username:                profile?.username                 ?? "",
+        show_on_leaderboard:     profile?.show_on_leaderboard      ?? true,
+        role:                    profile?.role                     ?? "user",
+        level:                   profile?.level                    ?? 1,
+        xp_points:               profile?.xp_points                ?? 0,
+        total_lessons_completed: profile?.total_lessons_completed  ?? 0,
+        current_streak:          profile?.current_streak           ?? 0,
+        longest_streak:          profile?.longest_streak           ?? 0,
+        onboarding_completed:    profile?.onboarding_completed     ?? false,
+      };
+      localStorage.setItem("sprout_user", JSON.stringify(merged));
 
       if (profile?.onboarding_completed === false) {
         navigate(createPageUrl("SchoolSelection"), { replace: true });

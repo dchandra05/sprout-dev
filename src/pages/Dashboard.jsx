@@ -1,6 +1,7 @@
 // src/pages/Dashboard.jsx
 import React, { useState, useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
+import { supabase } from "@/lib/supabaseClient";
 import { useQuery } from "@tanstack/react-query";
 import { createPageUrl } from "@/utils";
 import {
@@ -205,9 +206,28 @@ export default function Dashboard() {
   const [user, setUser] = useState(null);
 
   useEffect(() => {
-    const u = getLocalUser();
-    if (!u) { navigate(createPageUrl("Login")); return; }
-    setUser(u);
+    // Fast path: render immediately from localStorage (avoids flash).
+    const cached = getLocalUser();
+    if (cached) setUser(cached);
+
+    // Authoritative path: verify the Supabase session is valid and that
+    // localStorage belongs to the currently authenticated user.
+    supabase.auth.getUser().then(({ data }) => {
+      const authUser = data?.user;
+      if (!authUser) {
+        // No active session — clear stale data and redirect.
+        localStorage.removeItem("sprout_user");
+        navigate(createPageUrl("Login"));
+        return;
+      }
+      if (cached?.id && cached.id !== authUser.id) {
+        // localStorage belongs to a different user (e.g., dev data).
+        // Clear it so AuthContext can write the correct user.
+        localStorage.removeItem("sprout_user");
+        setUser(null);
+        navigate(createPageUrl("Login"));
+      }
+    });
   }, [navigate]);
 
   const { data: courses = [] } = useQuery({
