@@ -131,7 +131,7 @@ export default function Leaderboard() {
     : -1;
 
   return (
-    <div className="min-h-screen p-4 md:p-8">
+    <div className="min-h-screen bg-[#f8f9fa] p-4 md:p-8">
       <div className="max-w-5xl mx-auto space-y-6">
         {/* Header */}
         <div className="text-center mb-8">
@@ -148,7 +148,7 @@ export default function Leaderboard() {
 
         {/* My Rank Card */}
         {user && myRank > 0 && (
-          <Card className="border-none shadow-lg bg-gradient-to-r from-lime-400 to-green-500 text-white">
+          <Card className="border-none shadow-lg bg-[#1c2f3c] text-white">
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-4">
@@ -196,7 +196,7 @@ export default function Leaderboard() {
                   <Medal className="w-8 h-8 text-gray-400 mb-2" />
                   <p className="font-semibold text-center text-sm">{displayUsers[1]?.username || displayUsers[1]?.full_name || "Anonymous"}</p>
                   <p className="text-xs text-gray-600 flex items-center gap-1 mt-1">
-                    <Zap className="w-3 h-3 text-lime-500" />
+                    <Zap className="w-3 h-3 text-[#4a7a96]" />
                     {displayUsers[1]?.xp_points || 0} XP
                   </p>
                 </div>
@@ -209,7 +209,7 @@ export default function Leaderboard() {
                   <Crown className="w-10 h-10 text-yellow-500 mb-2" />
                   <p className="font-bold text-center">{displayUsers[0]?.username || displayUsers[0]?.full_name || "Anonymous"}</p>
                   <p className="text-sm text-gray-600 flex items-center gap-1 mt-1">
-                    <Zap className="w-4 h-4 text-lime-500" />
+                    <Zap className="w-4 h-4 text-[#4a7a96]" />
                     {displayUsers[0]?.xp_points || 0} XP
                   </p>
                 </div>
@@ -222,7 +222,7 @@ export default function Leaderboard() {
                   <Medal className="w-8 h-8 text-orange-600 mb-2" />
                   <p className="font-semibold text-center text-sm">{displayUsers[2]?.username || displayUsers[2]?.full_name || "Anonymous"}</p>
                   <p className="text-xs text-gray-600 flex items-center gap-1 mt-1">
-                    <Zap className="w-3 h-3 text-lime-500" />
+                    <Zap className="w-3 h-3 text-[#4a7a96]" />
                     {displayUsers[2]?.xp_points || 0} XP
                   </p>
                 </div>
@@ -244,14 +244,14 @@ export default function Leaderboard() {
                       key={u.id}
                       className={`flex items-center justify-between p-4 rounded-xl transition-all ${
                         isCurrentUser
-                          ? "bg-gradient-to-r from-lime-50 to-green-50 border-2 border-lime-400"
+                          ? "bg-[#f0f4f7] border-2 border-[#4a7a96]"
                           : "bg-gray-50 hover:bg-gray-100"
                       }`}
                     >
                       <div className="flex items-center gap-4">
                         <div
                           className={`w-10 h-10 flex items-center justify-center rounded-full font-bold ${
-                            isCurrentUser ? "bg-lime-500 text-white" : "bg-gray-200 text-gray-700"
+                            isCurrentUser ? "bg-[#1c2f3c] text-white" : "bg-gray-200 text-gray-700"
                           }`}
                         >
                           {rank}
@@ -260,7 +260,7 @@ export default function Leaderboard() {
                           {((u.username || u.full_name || "?")[0]).toUpperCase()}
                         </div>
                         <div>
-                          <p className={`font-semibold ${isCurrentUser ? "text-lime-700" : "text-gray-900"}`}>
+                          <p className={`font-semibold ${isCurrentUser ? "text-[#1c2f3c]" : "text-gray-900"}`}>
                             {u.username || u.full_name || "Anonymous"}
                             {isCurrentUser && <span className="ml-2 text-xs">(You)</span>}
                           </p>
@@ -275,7 +275,7 @@ export default function Leaderboard() {
                         </div>
                       </div>
                       <div className="text-right">
-                        <p className="font-bold text-lg text-lime-600">{u.xp_points || 0}</p>
+                        <p className="font-bold text-lg text-[#1c2f3c]">{u.xp_points || 0}</p>
                         <p className="text-xs text-gray-500">XP</p>
                       </div>
                     </div>

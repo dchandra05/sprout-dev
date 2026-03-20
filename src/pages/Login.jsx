@@ -90,18 +90,13 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-lime-50 via-white to-green-50">
+    <div className="min-h-screen flex items-center justify-center p-4 bg-[#f8f9fa]">
       <div className="w-full max-w-md">
         {/* Brand */}
         <div className="flex justify-center mb-8">
           <div className="flex items-center gap-3">
-            <div className="w-14 h-14 bg-gradient-to-br from-lime-400 to-green-500 rounded-2xl flex items-center justify-center shadow-lg">
-              <Sprout className="w-8 h-8 text-white" />
-            </div>
-            <div>
-              <h1 className="text-3xl font-bold text-gray-900">Sprout</h1>
-              <p className="text-sm text-gray-500">Grow Your Knowledge</p>
-            </div>
+            <span style={{ fontSize: 30, fontWeight: 900, color: "#1c2f3c", letterSpacing: "-0.4px", lineHeight: 1 }}>Sprout</span>
+            <Sprout className="w-8 h-8" style={{ color: "#1c2f3c" }} strokeWidth={2} />
           </div>
         </div>
 
@@ -157,7 +152,7 @@ export default function Login() {
               <Button
                 type="submit"
                 disabled={isSubmitting}
-                className="w-full h-12 bg-gradient-to-r from-lime-400 to-green-500 hover:from-lime-500 hover:to-green-600 text-white font-bold text-base shadow-lg"
+                className="w-full h-12 bg-[#2a7a4b] hover:bg-[#1e5c37] text-white font-bold text-base shadow-lg"
               >
                 {isSubmitting ? (
                   <div className="flex items-center gap-2">
@@ -173,7 +168,7 @@ export default function Login() {
                 Don't have an account?{" "}
                 <Link
                   to={createPageUrl("Signup")}
-                  className="text-green-600 font-semibold hover:underline"
+                  className="text-[#1c2f3c] font-semibold hover:underline"
                 >
                   Sign up
                 </Link>

@@ -143,7 +143,7 @@ export default function FinalExam() {
             <AlertCircle className="w-10 h-10 text-amber-500 mx-auto mb-4" />
             <h2 className="text-xl font-bold text-gray-900 mb-2">Missing Course ID</h2>
             <p className="text-gray-500 mb-6">Navigate here from a course page.</p>
-            <Button onClick={() => navigate(createPageUrl("Learn"))} className="bg-green-700 hover:bg-green-800 text-white">
+            <Button onClick={() => navigate(createPageUrl("Learn"))} className="bg-[#1c2f3c] hover:bg-[#152330] text-white">
               Back to Courses
             </Button>
           </CardContent>
@@ -164,13 +164,13 @@ export default function FinalExam() {
 
   if (!allLessonsComplete) {
     return (
-      <div className="min-h-screen bg-gray-50 p-6 flex items-center justify-center">
+      <div className="min-h-screen bg-[#ede8e3] p-6 flex items-center justify-center">
         <Card className="max-w-md border border-gray-200 shadow-lg">
           <CardContent className="p-8 text-center">
-            <BookOpen className="w-12 h-12 text-green-700 mx-auto mb-4" />
+            <BookOpen className="w-12 h-12 text-[#1c2f3c] mx-auto mb-4" />
             <h2 className="text-xl font-bold text-gray-900 mb-2">Complete All Lessons First</h2>
             <p className="text-gray-500 mb-6">Finish every lesson in <strong>{course.name}</strong> before taking the final exam.</p>
-            <Button onClick={() => navigate(createPageUrl(`CourseDetail?id=${courseId}`))} className="bg-green-700 hover:bg-green-800 text-white">
+            <Button onClick={() => navigate(createPageUrl(`CourseDetail?id=${courseId}`))} className="bg-[#1c2f3c] hover:bg-[#152330] text-white">
               Go to Course
             </Button>
           </CardContent>
@@ -181,13 +181,13 @@ export default function FinalExam() {
 
   if (!questions.length) {
     return (
-      <div className="min-h-screen bg-gray-50 p-6 flex items-center justify-center">
+      <div className="min-h-screen bg-[#ede8e3] p-6 flex items-center justify-center">
         <Card className="max-w-md border border-gray-200 shadow-lg">
           <CardContent className="p-8 text-center">
-            <Trophy className="w-12 h-12 text-green-700 mx-auto mb-4" />
+            <Trophy className="w-12 h-12 text-[#1c2f3c] mx-auto mb-4" />
             <h2 className="text-xl font-bold text-gray-900 mb-2">No Exam Available</h2>
             <p className="text-gray-500 mb-6">This course doesn't have a final exam yet.</p>
-            <Button onClick={() => navigate(createPageUrl("Learn"))} className="bg-green-700 hover:bg-green-800 text-white">
+            <Button onClick={() => navigate(createPageUrl("Learn"))} className="bg-[#1c2f3c] hover:bg-[#152330] text-white">
               Browse Courses
             </Button>
           </CardContent>
@@ -197,20 +197,20 @@ export default function FinalExam() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 p-4 md:p-8">
+    <div className="min-h-screen bg-[#ede8e3] p-4 md:p-8">
       <div className="max-w-2xl mx-auto space-y-5">
 
         {/* Back */}
-        <Button variant="outline" onClick={() => navigate(createPageUrl(`CourseDetail?id=${courseId}`))} className="border-gray-200 text-gray-700 hover:bg-gray-50">
+        <Button variant="outline" onClick={() => navigate(createPageUrl(`CourseDetail?id=${courseId}`))} className="border-gray-200 text-gray-700 hover:bg-[#ede8e3]">
           <ArrowLeft className="w-4 h-4 mr-2" />
           Back to Course
         </Button>
 
         {/* Header */}
-        <div className="bg-green-700 text-white rounded-2xl p-8 text-center">
-          <Trophy className="w-12 h-12 mx-auto mb-3 text-green-200" />
+        <div className="bg-[#1c2f3c] text-white rounded-2xl p-8 text-center">
+          <Trophy className="w-12 h-12 mx-auto mb-3 text-[#a8c4d4]" />
           <h1 className="text-2xl font-bold mb-1">Final Exam</h1>
-          <p className="text-green-200 text-sm">{course.name}</p>
+          <p className="text-[#a8c4d4] text-sm">{course.name}</p>
           <div className="flex justify-center gap-4 mt-4 text-sm">
             <span className="bg-white/15 rounded-full px-3 py-1">{questions.length} questions</span>
             <span className="bg-white/15 rounded-full px-3 py-1">70% to pass</span>
@@ -222,14 +222,14 @@ export default function FinalExam() {
 
         {/* Result / certificate */}
         {examSubmitted && (
-          <div className={`rounded-2xl border-2 p-8 text-center ${score >= 70 ? "bg-green-50 border-green-200" : "bg-amber-50 border-amber-200"}`}>
+          <div className={`rounded-2xl border-2 p-8 text-center ${score >= 70 ? "bg-[#f0f4f7] border-[#c8dce6]" : "bg-amber-50 border-amber-200"}`}>
             {score >= 70 ? (
               <>
-                <Trophy className="w-14 h-14 text-green-700 mx-auto mb-3" />
-                <p className="text-3xl font-bold text-green-700 mb-1">{score}%</p>
-                <p className="text-green-800 font-semibold text-lg mb-1">Congratulations!</p>
-                <p className="text-green-600 text-sm mb-6">You passed the final exam. +{course.xp_reward} XP awarded.</p>
-                <Button onClick={() => navigate(createPageUrl("Learn"))} className="bg-green-700 hover:bg-green-800 text-white px-8">
+                <Trophy className="w-14 h-14 text-[#1c2f3c] mx-auto mb-3" />
+                <p className="text-3xl font-bold text-[#1c2f3c] mb-1">{score}%</p>
+                <p className="text-[#152330] font-semibold text-lg mb-1">Congratulations!</p>
+                <p className="text-[#4a7a96] text-sm mb-6">You passed the final exam. +{course.xp_reward} XP awarded.</p>
+                <Button onClick={() => navigate(createPageUrl("Learn"))} className="bg-[#1c2f3c] hover:bg-[#152330] text-white px-8">
                   Continue Learning
                 </Button>
               </>
@@ -243,7 +243,7 @@ export default function FinalExam() {
                   <Button variant="outline" onClick={() => { setExamAnswers({}); setExamSubmitted(false); setScore(0); }} className="border-amber-300 text-amber-700 hover:bg-amber-50">
                     Retake Exam
                   </Button>
-                  <Button onClick={() => navigate(createPageUrl(`CourseDetail?id=${courseId}`))} className="bg-green-700 hover:bg-green-800 text-white">
+                  <Button onClick={() => navigate(createPageUrl(`CourseDetail?id=${courseId}`))} className="bg-[#1c2f3c] hover:bg-[#152330] text-white">
                     Review Course
                   </Button>
                 </div>
@@ -258,7 +258,7 @@ export default function FinalExam() {
             {questions.map((q, qIdx) => (
               <div key={qIdx}>
                 <p className="font-semibold text-gray-900 mb-4 leading-relaxed">
-                  <span className="inline-flex items-center justify-center w-6 h-6 bg-green-700 text-white rounded-full text-xs font-bold mr-2">{qIdx + 1}</span>
+                  <span className="inline-flex items-center justify-center w-6 h-6 bg-[#1c2f3c] text-white rounded-full text-xs font-bold mr-2">{qIdx + 1}</span>
                   {q.question}
                 </p>
                 <div className="space-y-3">
@@ -270,11 +270,11 @@ export default function FinalExam() {
                         onClick={() => setExamAnswers({ ...examAnswers, [qIdx]: oIdx })}
                         className={`w-full text-left p-4 rounded-xl border-2 text-sm font-medium transition-all ${
                           selected
-                            ? "border-green-700 bg-green-50 text-green-900"
-                            : "border-gray-200 bg-white text-gray-700 hover:border-green-300 hover:bg-green-50/50"
+                            ? "border-[#1c2f3c] bg-[#f0f4f7] text-[#111c24]"
+                            : "border-gray-200 bg-white text-gray-700 hover:border-[#a8c4d4] hover:bg-[#f0f4f7]/50"
                         }`}
                       >
-                        <span className={`inline-flex items-center justify-center w-5 h-5 rounded-full border text-xs font-bold mr-3 ${selected ? "bg-green-700 border-green-700 text-white" : "border-gray-400 text-gray-500"}`}>
+                        <span className={`inline-flex items-center justify-center w-5 h-5 rounded-full border text-xs font-bold mr-3 ${selected ? "bg-[#1c2f3c] border-[#1c2f3c] text-white" : "border-gray-400 text-gray-500"}`}>
                           {String.fromCharCode(65 + oIdx)}
                         </span>
                         {opt}
@@ -289,7 +289,7 @@ export default function FinalExam() {
               <Button
                 onClick={handleSubmit}
                 disabled={Object.keys(examAnswers).length < questions.length}
-                className="flex-1 bg-green-700 hover:bg-green-800 text-white disabled:opacity-50 h-12 text-base font-semibold"
+                className="flex-1 bg-[#1c2f3c] hover:bg-[#152330] text-white disabled:opacity-50 h-12 text-base font-semibold"
               >
                 Submit Exam
               </Button>

@@ -49,18 +49,18 @@ const CATEGORY_ICONS = {
   "Career Readiness": GraduationCap,
 };
 
-// Accent colors per category (all dark green family)
+// Accent colors per category — dark green for XP/progress, navy for structure
 const CATEGORY_COLORS = {
-  Investing:         { bg: "#f0fdf4", accent: "#166534", border: "#bbf7d0" },
-  Saving:            { bg: "#f0fdf4", accent: "#15803d", border: "#bbf7d0" },
-  "Credit & Debt":   { bg: "#f0fdf4", accent: "#14532d", border: "#86efac" },
-  Insurance:         { bg: "#f0fdf4", accent: "#1a7a3c", border: "#bbf7d0" },
-  "AI & ML":         { bg: "#eff6ff", accent: "#1e40af", border: "#bfdbfe" },
-  "Personal Finance":{ bg: "#f0fdf4", accent: "#166534", border: "#bbf7d0" },
-  "Career Readiness":{ bg: "#f0fdf4", accent: "#14532d", border: "#86efac" },
+  Investing:         { bg: "#f0f7f4", accent: "#2a7a4b", border: "#b6ddc8" },
+  Saving:            { bg: "#f0f7f4", accent: "#2a7a4b", border: "#b6ddc8" },
+  "Credit & Debt":   { bg: "#f0f7f4", accent: "#2a7a4b", border: "#b6ddc8" },
+  Insurance:         { bg: "#f0f7f4", accent: "#2a7a4b", border: "#b6ddc8" },
+  "AI & ML":         { bg: "#f0f4f7", accent: "#1c2f3c", border: "#c8dce6" },
+  "Personal Finance":{ bg: "#f0f7f4", accent: "#2a7a4b", border: "#b6ddc8" },
+  "Career Readiness":{ bg: "#f0f7f4", accent: "#2a7a4b", border: "#b6ddc8" },
 };
 
-const defaultColor = { bg: "#f0fdf4", accent: "#166534", border: "#bbf7d0" };
+const defaultColor = { bg: "#f0f7f4", accent: "#2a7a4b", border: "#b6ddc8" };
 
 // ─── Subcomponents ────────────────────────────────────────────
 
@@ -126,7 +126,7 @@ function CourseCard({ course, progress, onClick }) {
 
         {/* Progress or start */}
         {isComplete ? (
-          <div style={{ display: "flex", alignItems: "center", gap: 6, color: "#16a34a", fontSize: 13, fontWeight: 600 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 6, color: "#2a7a4b", fontSize: 13, fontWeight: 600 }}>
             <CheckCircle size={15} />
             Completed
           </div>
@@ -200,7 +200,7 @@ export default function Learn() {
   };
 
   return (
-    <div style={{ minHeight: "100vh", background: "#f9fafb" }}>
+    <div style={{ minHeight: "100vh", background: "#f8f9fa" }}>
       <div style={{ maxWidth: 1200, margin: "0 auto", padding: "32px 24px 80px" }}>
 
         {/* Header */}
@@ -236,9 +236,9 @@ export default function Learn() {
                 style={{
                   padding: "7px 16px", borderRadius: 999, fontSize: 13, fontWeight: 600,
                   cursor: "pointer", transition: "all 0.15s",
-                  background: active ? "#166534" : "white",
+                  background: active ? "#2a7a4b" : "white",
                   color: active ? "white" : "#374151",
-                  border: active ? "1px solid #166534" : "1px solid #e5e7eb",
+                  border: active ? "1px solid #2a7a4b" : "1px solid #e5e7eb",
                 }}
               >
                 {cat}

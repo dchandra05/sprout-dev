@@ -21,7 +21,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 
-const CircularProgress = ({ current, target, size = 200, color = "#84CC16" }) => {
+const CircularProgress = ({ current, target, size = 200, color = "#1c2f3c" }) => {
   const percentage = Math.min((current / target) * 100, 100);
   const strokeWidth = 12;
   const radius = (size - strokeWidth) / 2;
@@ -123,7 +123,7 @@ export default function Goals() {
     current_amount: "0",
     target_date: "",
     category: "Other",
-    color: "#84CC16",
+    color: "#1c2f3c",
   });
 
   useEffect(() => {
@@ -192,7 +192,7 @@ export default function Goals() {
       current_amount: "0",
       target_date: "",
       category: "Other",
-      color: "#84CC16",
+      color: "#1c2f3c",
     });
     setEditingGoal(null);
   };
@@ -230,7 +230,7 @@ export default function Goals() {
       current_amount: String(goal.current_amount ?? "0"),
       target_date: goal.target_date || "",
       category: goal.category || "Other",
-      color: goal.color || "#84CC16",
+      color: goal.color || "#1c2f3c",
     });
     setShowDialog(true);
   };
@@ -258,7 +258,7 @@ export default function Goals() {
     "Car": "#A855F7",
     "Vacation": "#EC4899",
     "Education": "#F59E0B",
-    "Other": "#84CC16",
+    "Other": "#1c2f3c",
   };
 
   if (!user) return null;
@@ -278,7 +278,7 @@ export default function Goals() {
             <DialogTrigger asChild>
               <Button
                 onClick={() => { resetForm(); setShowDialog(true); }}
-                className="bg-gradient-to-r from-lime-400 to-green-500 hover:from-lime-500 hover:to-green-600 text-white shadow-lg shadow-lime-200"
+                className="bg-[#1c2f3c] hover:bg-[#152330] text-white"
               >
                 <Plus className="w-5 h-5 mr-2" />
                 New Goal
@@ -360,7 +360,7 @@ export default function Goals() {
                   />
                 </div>
 
-                <Button type="submit" className="w-full bg-lime-500 hover:bg-lime-600">
+                <Button type="submit" className="w-full bg-[#1c2f3c] hover:bg-[#152330]">
                   {editingGoal ? "Update Goal" : "Create Goal"}
                 </Button>
               </form>
@@ -377,7 +377,7 @@ export default function Goals() {
             </CardContent>
           </Card>
 
-          <Card className="border-none shadow-lg bg-gradient-to-br from-lime-400 to-green-500 text-white">
+          <Card className="border-none shadow-lg bg-[#1c2f3c] text-white">
             <CardContent className="p-6">
               <Target className="w-8 h-8 mb-2" />
               <p className="text-3xl font-bold">${totalTarget.toLocaleString()}</p>
@@ -431,7 +431,7 @@ export default function Goals() {
                         current={goal.current_amount || 0}
                         target={goal.target_amount || 1}
                         size={180}
-                        color={goal.color || "#84CC16"}
+                        color={goal.color || "#1c2f3c"}
                       />
                     </div>
 
@@ -484,9 +484,9 @@ export default function Goals() {
                     )}
 
                     {goal.completed && (
-                      <div className="p-3 rounded-lg bg-gradient-to-r from-green-50 to-lime-50 border border-green-200 text-center">
-                        <CheckCircle className="w-6 h-6 text-green-600 mx-auto mb-1" />
-                        <p className="text-sm font-semibold text-green-700">Goal Achieved! 🎉</p>
+                      <div className="p-3 rounded-lg bg-[#f0f4f7] border border-[#c8dce6] text-center">
+                        <CheckCircle className="w-6 h-6 text-[#1c2f3c] mx-auto mb-1" />
+                        <p className="text-sm font-semibold text-[#1c2f3c]">Goal Achieved!</p>
                       </div>
                     )}
                   </CardContent>
@@ -504,7 +504,7 @@ export default function Goals() {
               <p className="text-gray-600 mb-6">Start setting financial goals to track your savings progress</p>
               <Button
                 onClick={() => setShowDialog(true)}
-                className="bg-gradient-to-r from-lime-400 to-green-500 hover:from-lime-500 hover:to-green-600"
+                className="bg-[#1c2f3c] hover:bg-[#152330]"
               >
                 <Plus className="w-5 h-5 mr-2" />
                 Create Your First Goal

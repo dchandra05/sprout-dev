@@ -238,18 +238,18 @@ function PhaseStepper({ phase }) {
         <React.Fragment key={i}>
           <div className={`flex items-center gap-1.5 ${i <= phase ? "opacity-100" : "opacity-40"}`}>
             <div className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0 ${
-              i < phase  ? "bg-green-700 text-white" :
-              i === phase ? "bg-green-700 text-white ring-4 ring-green-100" :
+              i < phase  ? "bg-[#1c2f3c] text-white" :
+              i === phase ? "bg-[#1c2f3c] text-white ring-4 ring-[#dce4e8]" :
               "bg-gray-200 text-gray-500"
             }`}>
               {i < phase ? <CheckCircle2 className="w-3.5 h-3.5" /> : i + 1}
             </div>
-            <span className={`text-xs font-medium hidden sm:block ${i === phase ? "text-green-700" : "text-gray-400"}`}>
+            <span className={`text-xs font-medium hidden sm:block ${i === phase ? "text-[#1c2f3c]" : "text-gray-400"}`}>
               {label}
             </span>
           </div>
           {i < PHASE_LABELS.length - 1 && (
-            <div className={`flex-1 h-px mx-1 ${i < phase ? "bg-green-700" : "bg-gray-200"}`} />
+            <div className={`flex-1 h-px mx-1 ${i < phase ? "bg-[#1c2f3c]" : "bg-gray-200"}`} />
           )}
         </React.Fragment>
       ))}
@@ -259,9 +259,9 @@ function PhaseStepper({ phase }) {
 
 function RequirementRow({ met, label }) {
   return (
-    <div className={`flex items-center gap-2 text-sm py-1 ${met ? "text-green-800" : "text-gray-600"}`}>
+    <div className={`flex items-center gap-2 text-sm py-1 ${met ? "text-[#152330]" : "text-gray-600"}`}>
       {met
-        ? <CheckCircle2 className="w-4 h-4 text-green-600 flex-shrink-0" />
+        ? <CheckCircle2 className="w-4 h-4 text-[#4a7a96] flex-shrink-0" />
         : <div className="w-4 h-4 rounded-full border-2 border-gray-300 flex-shrink-0" />
       }
       {label}
@@ -425,23 +425,23 @@ export default function ScenarioBudgetSimulation({ scenarioId = 0, onComplete })
     <div className="space-y-5">
       <PhaseStepper phase={0} />
 
-      <div className="bg-green-700 rounded-2xl p-7 text-white">
+      <div className="bg-[#1c2f3c] rounded-2xl p-7 text-white">
         <div className="flex items-start gap-4 mb-5">
           <div className="w-14 h-14 bg-white/20 rounded-xl flex items-center justify-center flex-shrink-0">
             <Icon className="w-7 h-7 text-white" />
           </div>
           <div>
-            <p className="text-green-200 text-xs font-semibold uppercase tracking-widest mb-1">Budget Simulation</p>
+            <p className="text-[#a8c4d4] text-xs font-semibold uppercase tracking-widest mb-1">Budget Simulation</p>
             <h2 className="text-2xl font-bold leading-snug">{scenario.title}</h2>
-            <p className="text-green-200 text-sm mt-0.5">{scenario.subtitle}</p>
+            <p className="text-[#a8c4d4] text-sm mt-0.5">{scenario.subtitle}</p>
           </div>
         </div>
-        <p className="text-green-100 leading-relaxed text-sm">{scenario.intro}</p>
+        <p className="text-[#dce4e8] leading-relaxed text-sm">{scenario.intro}</p>
       </div>
 
       <div className="bg-white border border-gray-200 rounded-xl p-5 shadow-sm">
         <div className="flex items-center gap-2 mb-4">
-          <Lightbulb className="w-4 h-4 text-green-700" />
+          <Lightbulb className="w-4 h-4 text-[#1c2f3c]" />
           <p className="font-semibold text-gray-900 text-sm">Why this matters</p>
         </div>
         <p className="text-gray-600 text-sm leading-relaxed">{scenario.whyItMatters}</p>
@@ -452,7 +452,7 @@ export default function ScenarioBudgetSimulation({ scenarioId = 0, onComplete })
         <ol className="space-y-3">
           {scenario.whatYouWillDo.map((step, i) => (
             <li key={i} className="flex items-start gap-3">
-              <span className="w-6 h-6 rounded-full bg-green-100 text-green-800 text-xs font-bold flex items-center justify-center flex-shrink-0 mt-0.5">
+              <span className="w-6 h-6 rounded-full bg-[#dce4e8] text-[#152330] text-xs font-bold flex items-center justify-center flex-shrink-0 mt-0.5">
                 {i + 1}
               </span>
               <span className="text-gray-700 text-sm">{step}</span>
@@ -464,7 +464,7 @@ export default function ScenarioBudgetSimulation({ scenarioId = 0, onComplete })
       <div className="bg-white border border-gray-200 rounded-xl p-5 shadow-sm">
         <p className="text-xs font-semibold text-gray-400 uppercase tracking-widest mb-3">Your challenge</p>
         <div className="flex items-center gap-2 mb-2">
-          <Target className="w-4 h-4 text-green-700 flex-shrink-0" />
+          <Target className="w-4 h-4 text-[#1c2f3c] flex-shrink-0" />
           <p className="font-semibold text-gray-900 text-sm">{scenario.challenge.title}</p>
         </div>
         <p className="text-gray-600 text-sm leading-relaxed">{scenario.challenge.description}</p>
@@ -472,7 +472,7 @@ export default function ScenarioBudgetSimulation({ scenarioId = 0, onComplete })
 
       <Button
         onClick={() => setPhase(1)}
-        className="w-full h-12 bg-green-700 hover:bg-green-800 text-white font-semibold text-base"
+        className="w-full h-12 bg-[#1c2f3c] hover:bg-[#152330] text-white font-semibold text-base"
       >
         Start Simulation
         <ArrowRight className="w-4 h-4 ml-2" />
@@ -544,9 +544,9 @@ export default function ScenarioBudgetSimulation({ scenarioId = 0, onComplete })
             {incomeValues.map((inc, i) => {
               const isHigh = inc === Math.max(...incomeValues);
               return (
-                <div key={i} className={`rounded-lg p-2 text-center ${isHigh ? "bg-green-100 border border-green-300" : "bg-gray-50 border border-gray-200"}`}>
+                <div key={i} className={`rounded-lg p-2 text-center ${isHigh ? "bg-[#dce4e8] border border-[#a8c4d4]" : "bg-gray-50 border border-gray-200"}`}>
                   <p className="text-[10px] text-gray-400">{MONTHS[i]}</p>
-                  <p className={`text-xs font-bold ${isHigh ? "text-green-700" : "text-gray-700"}`}>
+                  <p className={`text-xs font-bold ${isHigh ? "text-[#1c2f3c]" : "text-gray-700"}`}>
                     ${(inc / 1000).toFixed(1)}k
                   </p>
                 </div>
@@ -576,8 +576,8 @@ export default function ScenarioBudgetSimulation({ scenarioId = 0, onComplete })
             <span className="text-sm font-semibold text-gray-700">Total Fixed Costs</span>
             <span className="font-bold text-gray-900">${fixedTotal.toLocaleString()}/mo</span>
           </div>
-          <div className="mt-2 bg-green-50 border border-green-200 rounded-lg p-3">
-            <p className="text-xs text-green-800">
+          <div className="mt-2 bg-[#f0f4f7] border border-[#c8dce6] rounded-lg p-3">
+            <p className="text-xs text-[#152330]">
               Remaining for adjustable spending in your lowest-income month:{" "}
               <strong>{fmt(minIncome - fixedTotal)}/month</strong>
             </p>
@@ -590,7 +590,7 @@ export default function ScenarioBudgetSimulation({ scenarioId = 0, onComplete })
           <div className="grid md:grid-cols-2 gap-3">
             {editKeys.map(k => (
               <div key={k} className="flex items-start gap-2.5 p-3 bg-gray-50 rounded-lg border border-gray-100">
-                <div className="w-2 h-2 rounded-full bg-green-600 flex-shrink-0 mt-1.5" />
+                <div className="w-2 h-2 rounded-full bg-[#1c2f3c] flex-shrink-0 mt-1.5" />
                 <div>
                   <p className="text-sm font-semibold text-gray-900">{COL_META[k]?.label}</p>
                   <p className="text-xs text-gray-500">{COL_META[k]?.description}</p>
@@ -604,9 +604,9 @@ export default function ScenarioBudgetSimulation({ scenarioId = 0, onComplete })
         </div>
 
         {/* Challenge reminder */}
-        <div className="bg-white border border-green-200 rounded-xl p-5 shadow-sm">
+        <div className="bg-white border border-[#c8dce6] rounded-xl p-5 shadow-sm">
           <div className="flex items-center gap-2 mb-2">
-            <Target className="w-4 h-4 text-green-700" />
+            <Target className="w-4 h-4 text-[#1c2f3c]" />
             <p className="font-semibold text-gray-900 text-sm">{scenario.challenge.title}</p>
           </div>
           <p className="text-gray-600 text-sm leading-relaxed mb-3">{scenario.challenge.description}</p>
@@ -624,7 +624,7 @@ export default function ScenarioBudgetSimulation({ scenarioId = 0, onComplete })
           <Button variant="outline" onClick={() => setPhase(0)} className="border-gray-200 text-gray-700 flex-1">
             Back
           </Button>
-          <Button onClick={() => setPhase(2)} className="bg-green-700 hover:bg-green-800 text-white flex-1 h-11 font-semibold">
+          <Button onClick={() => setPhase(2)} className="bg-[#1c2f3c] hover:bg-[#152330] text-white flex-1 h-11 font-semibold">
             Begin Budget Lab
             <ArrowRight className="w-4 h-4 ml-2" />
           </Button>
@@ -644,14 +644,14 @@ export default function ScenarioBudgetSimulation({ scenarioId = 0, onComplete })
         <PhaseStepper phase={2} />
 
         {/* Challenge status bar */}
-        <div className={`rounded-xl p-4 border ${challengeMet ? "bg-green-50 border-green-200" : "bg-white border-gray-200"} shadow-sm`}>
+        <div className={`rounded-xl p-4 border ${challengeMet ? "bg-[#f0f4f7] border-[#c8dce6]" : "bg-white border-gray-200"} shadow-sm`}>
           <div className="flex items-center justify-between mb-3">
             <div className="flex items-center gap-2">
-              <Target className="w-4 h-4 text-green-700" />
+              <Target className="w-4 h-4 text-[#1c2f3c]" />
               <p className="font-semibold text-gray-900 text-sm">{scenario.challenge.title}</p>
             </div>
             <span className={`text-xs font-semibold px-2.5 py-1 rounded-full ${
-              challengeMet ? "bg-green-700 text-white" : "bg-gray-100 text-gray-600"
+              challengeMet ? "bg-[#1c2f3c] text-white" : "bg-gray-100 text-gray-600"
             }`}>
               {validation.metCount}/{validation.totalReqs} requirements met
             </span>
@@ -663,7 +663,7 @@ export default function ScenarioBudgetSimulation({ scenarioId = 0, onComplete })
           </div>
           {tip && (
             <div className={`flex items-start gap-2 text-xs rounded-lg p-3 ${
-              challengeMet ? "bg-green-100 text-green-800" : "bg-amber-50 text-amber-800 border border-amber-200"
+              challengeMet ? "bg-[#dce4e8] text-[#152330]" : "bg-amber-50 text-amber-800 border border-amber-200"
             }`}>
               {challengeMet
                 ? <CheckCircle2 className="w-3.5 h-3.5 flex-shrink-0 mt-0.5" />
@@ -686,10 +686,10 @@ export default function ScenarioBudgetSimulation({ scenarioId = 0, onComplete })
                   className={`rounded-lg p-2 text-center cursor-default ${
                     !ok    ? "bg-red-50 border border-red-300"    :
                     tight  ? "bg-amber-50 border border-amber-200" :
-                             "bg-green-50 border border-green-200"
+                             "bg-[#f0f4f7] border border-[#c8dce6]"
                   }`}>
                   <p className="text-[10px] text-gray-500">{m.month}</p>
-                  <p className={`text-[11px] font-bold ${!ok ? "text-red-600" : tight ? "text-amber-700" : "text-green-700"}`}>
+                  <p className={`text-[11px] font-bold ${!ok ? "text-red-600" : tight ? "text-amber-700" : "text-[#1c2f3c]"}`}>
                     {ok ? "+" : "-"}{fmt(m.surplus)}
                   </p>
                 </div>
@@ -711,7 +711,7 @@ export default function ScenarioBudgetSimulation({ scenarioId = 0, onComplete })
               <thead>
                 <tr className="border-b border-gray-200">
                   <th className="text-left py-2 pr-3 text-xs font-semibold text-gray-500 whitespace-nowrap">Month</th>
-                  <th className="text-right py-2 px-2 text-xs font-semibold text-green-700 bg-green-50 rounded whitespace-nowrap">Income</th>
+                  <th className="text-right py-2 px-2 text-xs font-semibold text-[#1c2f3c] bg-[#f0f4f7] rounded whitespace-nowrap">Income</th>
                   <th className="text-right py-2 px-2 text-xs font-semibold text-gray-400 whitespace-nowrap">Fixed</th>
                   {editKeys.map(k => (
                     <th key={k} className="text-center py-2 px-2 text-xs font-semibold text-gray-700 whitespace-nowrap">
@@ -726,7 +726,7 @@ export default function ScenarioBudgetSimulation({ scenarioId = 0, onComplete })
                 {budgetWithTotals.map((m, mi) => (
                   <tr key={mi} className={`border-b border-gray-100 ${m.surplus < 0 ? "bg-red-50" : "hover:bg-gray-50"}`}>
                     <td className="py-1 pr-3 text-xs font-medium text-gray-900">{m.month}</td>
-                    <td className="py-1 px-2 text-right text-xs font-semibold text-green-700 bg-green-50">{fmt(m.income)}</td>
+                    <td className="py-1 px-2 text-right text-xs font-semibold text-[#1c2f3c] bg-[#f0f4f7]">{fmt(m.income)}</td>
                     <td className="py-1 px-2 text-right text-xs text-gray-400">{fmt(m.fixedTotal)}</td>
                     {editKeys.map(k => (
                       <td key={k} className="p-1">
@@ -734,13 +734,13 @@ export default function ScenarioBudgetSimulation({ scenarioId = 0, onComplete })
                           type="number"
                           value={budget[mi][k] ?? 0}
                           onChange={e => updateCell(mi, k, e.target.value)}
-                          className="w-20 h-7 text-right text-xs border-gray-200 focus:border-green-600"
+                          className="w-20 h-7 text-right text-xs border-gray-200 focus:border-[#1c2f3c]"
                           min={0}
                         />
                       </td>
                     ))}
                     <td className="py-1 px-2 text-right text-xs font-semibold text-gray-700">{fmt(m.totalExpense)}</td>
-                    <td className={`py-1 px-2 text-right text-xs font-bold ${m.surplus >= 0 ? "text-green-700" : "text-red-600"}`}>
+                    <td className={`py-1 px-2 text-right text-xs font-bold ${m.surplus >= 0 ? "text-[#1c2f3c]" : "text-red-600"}`}>
                       {m.surplus >= 0 ? "+" : "-"}{fmt(m.surplus)}
                     </td>
                   </tr>
@@ -758,7 +758,7 @@ export default function ScenarioBudgetSimulation({ scenarioId = 0, onComplete })
             onClick={() => setPhase(3)}
             disabled={!challengeMet}
             className={`flex-1 h-11 font-semibold ${
-              challengeMet ? "bg-green-700 hover:bg-green-800 text-white" : "bg-gray-100 text-gray-400 cursor-not-allowed"
+              challengeMet ? "bg-[#1c2f3c] hover:bg-[#152330] text-white" : "bg-gray-100 text-gray-400 cursor-not-allowed"
             }`}
           >
             {challengeMet ? "View Results" : "Complete the challenge to continue"}
@@ -783,18 +783,18 @@ export default function ScenarioBudgetSimulation({ scenarioId = 0, onComplete })
         <PhaseStepper phase={3} />
 
         {/* Score card */}
-        <div className="bg-green-700 rounded-2xl p-6 text-white">
-          <p className="text-green-200 text-xs font-semibold uppercase tracking-widest mb-2">Your Result</p>
+        <div className="bg-[#1c2f3c] rounded-2xl p-6 text-white">
+          <p className="text-[#a8c4d4] text-xs font-semibold uppercase tracking-widest mb-2">Your Result</p>
           <div className="flex items-end gap-4 mb-4">
             <div>
               <p className="text-6xl font-bold leading-none">{score}</p>
-              <p className="text-green-200 text-sm">/ 100</p>
+              <p className="text-[#a8c4d4] text-sm">/ 100</p>
             </div>
             <div className="flex-1">
               <div className="h-3 bg-white/20 rounded-full overflow-hidden mb-1">
                 <div className="h-full bg-white rounded-full transition-all" style={{ width: `${score}%` }} />
               </div>
-              <p className="text-green-100 text-sm">
+              <p className="text-[#dce4e8] text-sm">
                 {score === 100 ? "Perfect balance. All requirements met." :
                  score >= 80  ? "Strong performance. Minor adjustments could improve this." :
                  score >= 60  ? "Decent start. Several areas to improve." :
@@ -809,7 +809,7 @@ export default function ScenarioBudgetSimulation({ scenarioId = 0, onComplete })
               ["Worst Month", `${worstMonth.month} ${worstMonth.surplus < 0 ? "-" : "+"}${fmt(worstMonth.surplus)}`],
             ].map(([label, value]) => (
               <div key={label} className="bg-white/10 rounded-xl p-3">
-                <p className="text-green-200 text-[10px] mb-1">{label}</p>
+                <p className="text-[#a8c4d4] text-[10px] mb-1">{label}</p>
                 <p className="text-white font-semibold text-sm">{value}</p>
               </div>
             ))}
@@ -819,7 +819,7 @@ export default function ScenarioBudgetSimulation({ scenarioId = 0, onComplete })
         {/* Charts */}
         <div className="bg-white border border-gray-200 rounded-xl p-5 shadow-sm">
           <div className="flex items-center gap-2 mb-4">
-            <BarChart2 className="w-4 h-4 text-green-700" />
+            <BarChart2 className="w-4 h-4 text-[#1c2f3c]" />
             <p className="font-semibold text-gray-900 text-sm">Monthly Overview</p>
           </div>
           <ResponsiveContainer width="100%" height={260}>
@@ -838,7 +838,7 @@ export default function ScenarioBudgetSimulation({ scenarioId = 0, onComplete })
 
         <div className="bg-white border border-gray-200 rounded-xl p-5 shadow-sm">
           <div className="flex items-center gap-2 mb-4">
-            <BarChart2 className="w-4 h-4 text-green-700" />
+            <BarChart2 className="w-4 h-4 text-[#1c2f3c]" />
             <p className="font-semibold text-gray-900 text-sm">Annual Spending by Category</p>
           </div>
           <ResponsiveContainer width="100%" height={240}>
@@ -855,7 +855,7 @@ export default function ScenarioBudgetSimulation({ scenarioId = 0, onComplete })
         </div>
 
         {/* Challenge result */}
-        <div className="bg-white border border-green-200 rounded-xl p-5 shadow-sm">
+        <div className="bg-white border border-[#c8dce6] rounded-xl p-5 shadow-sm">
           <p className="text-xs font-semibold text-gray-400 uppercase tracking-widest mb-3">Challenge Outcome</p>
           <div className="space-y-2">
             {scenario.challenge.requirements.map(({ key, label }) => (
@@ -871,7 +871,7 @@ export default function ScenarioBudgetSimulation({ scenarioId = 0, onComplete })
           <Button onClick={() => {
             if (onComplete) onComplete();
             setPhase(4);
-          }} className="bg-green-700 hover:bg-green-800 text-white flex-1 h-11 font-semibold">
+          }} className="bg-[#1c2f3c] hover:bg-[#152330] text-white flex-1 h-11 font-semibold">
             View Takeaways
             <ArrowRight className="w-4 h-4 ml-2" />
           </Button>
@@ -887,9 +887,9 @@ export default function ScenarioBudgetSimulation({ scenarioId = 0, onComplete })
     <div className="space-y-5">
       <PhaseStepper phase={4} />
 
-      <div className="bg-white border border-green-200 rounded-2xl p-7 text-center shadow-sm">
-        <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-          <CheckCircle2 className="w-8 h-8 text-green-700" />
+      <div className="bg-white border border-[#c8dce6] rounded-2xl p-7 text-center shadow-sm">
+        <div className="w-16 h-16 bg-[#dce4e8] rounded-full flex items-center justify-center mx-auto mb-4">
+          <CheckCircle2 className="w-8 h-8 text-[#1c2f3c]" />
         </div>
         <h2 className="text-2xl font-bold text-gray-900 mb-1">Simulation Complete</h2>
         <p className="text-gray-500 text-sm">
@@ -902,8 +902,8 @@ export default function ScenarioBudgetSimulation({ scenarioId = 0, onComplete })
         <div className="space-y-4">
           {scenario.teaching.map(({ headline, body }, i) => (
             <div key={i} className="flex items-start gap-3">
-              <div className="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5">
-                <span className="text-sm font-bold text-green-700">{i + 1}</span>
+              <div className="w-8 h-8 bg-[#dce4e8] rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5">
+                <span className="text-sm font-bold text-[#1c2f3c]">{i + 1}</span>
               </div>
               <div>
                 <p className="font-semibold text-gray-900 text-sm">{headline}</p>
@@ -914,12 +914,12 @@ export default function ScenarioBudgetSimulation({ scenarioId = 0, onComplete })
         </div>
       </div>
 
-      <div className="bg-green-50 border border-green-200 rounded-xl p-5">
+      <div className="bg-[#f0f4f7] border border-[#c8dce6] rounded-xl p-5">
         <div className="flex items-center gap-2 mb-2">
-          <ShieldCheck className="w-4 h-4 text-green-700" />
-          <p className="font-semibold text-green-900 text-sm">Apply This in Real Life</p>
+          <ShieldCheck className="w-4 h-4 text-[#1c2f3c]" />
+          <p className="font-semibold text-[#111c24] text-sm">Apply This in Real Life</p>
         </div>
-        <p className="text-green-800 text-sm leading-relaxed">
+        <p className="text-[#152330] text-sm leading-relaxed">
           The decisions you practiced here — cutting discretionary spending, protecting savings, planning for irregular costs — are directly applicable to your real financial situation. Start with one category and make one change this month.
         </p>
       </div>

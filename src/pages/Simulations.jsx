@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Calculator, TrendingUp, Briefcase, Users, Home, GraduationCap, Wallet, ArrowLeft, Play } from "lucide-react";
 import InterestCalculator from "@/components/InterestCalculator";
@@ -68,26 +68,36 @@ const simulations = [
 export default function Simulations() {
   const [activeSimulation, setActiveSimulation] = useState(null);
 
+  // Support ?launch=simId from Dashboard
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.hash.split("?")[1] || "");
+    const launchId = params.get("launch");
+    if (launchId) {
+      const found = simulations.find(s => s.id === launchId);
+      if (found) setActiveSimulation(found);
+    }
+  }, []);
+
   if (activeSimulation) {
     const Sim = activeSimulation.component;
     return (
-      <div className="min-h-screen bg-gray-50">
+      <div className="min-h-screen bg-[#f8f9fa]">
         <div className="max-w-5xl mx-auto px-4 py-6 md:px-8 md:py-10 space-y-6">
           <Button
             variant="outline"
             onClick={() => setActiveSimulation(null)}
-            className="border-gray-200 text-gray-700 hover:bg-gray-50"
+            className="border-gray-200 text-gray-700 hover:bg-[#ede8e3]"
           >
             <ArrowLeft className="w-4 h-4 mr-2" />
             All Simulations
           </Button>
 
           <div className="bg-white border border-gray-200 rounded-2xl p-6 flex items-center gap-4 shadow-sm">
-            <div className="w-12 h-12 rounded-xl bg-green-700 flex items-center justify-center flex-shrink-0">
+            <div className="w-12 h-12 rounded-xl bg-[#2a7a4b] flex items-center justify-center flex-shrink-0">
               <activeSimulation.icon className="w-6 h-6 text-white" />
             </div>
             <div>
-              <p className="text-xs font-semibold text-green-700 uppercase tracking-wide mb-0.5">{activeSimulation.tag}</p>
+              <p className="text-xs font-semibold text-[#1c2f3c] uppercase tracking-wide mb-0.5">{activeSimulation.tag}</p>
               <h1 className="text-xl font-bold text-gray-900">{activeSimulation.title}</h1>
             </div>
           </div>
@@ -99,7 +109,7 @@ export default function Simulations() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-[#f8f9fa]">
       <div className="max-w-5xl mx-auto px-4 py-8 md:px-8 md:py-12 space-y-8">
 
         <div>
@@ -115,21 +125,21 @@ export default function Simulations() {
             return (
               <div
                 key={sim.id}
-                className="bg-white border border-gray-200 rounded-xl p-5 shadow-sm hover:shadow-md hover:border-green-200 transition-all cursor-pointer group"
+                className="bg-white border border-gray-200 rounded-xl p-5 shadow-sm hover:shadow-md hover:border-[#c8dce6] transition-all cursor-pointer group"
                 onClick={() => setActiveSimulation(sim)}
               >
                 <div className="flex items-start gap-3 mb-4">
-                  <div className="w-10 h-10 rounded-lg bg-green-700 flex items-center justify-center flex-shrink-0">
+                  <div className="w-10 h-10 rounded-lg bg-[#2a7a4b] flex items-center justify-center flex-shrink-0">
                     <Icon className="w-5 h-5 text-white" />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <span className="text-xs font-semibold text-green-700 uppercase tracking-wide">{sim.tag}</span>
+                    <span className="text-xs font-semibold text-[#1c2f3c] uppercase tracking-wide">{sim.tag}</span>
                     <h3 className="font-semibold text-gray-900 text-sm leading-snug mt-0.5">{sim.title}</h3>
                   </div>
                 </div>
                 <p className="text-gray-500 text-xs mb-4 leading-relaxed">{sim.description}</p>
                 <Button
-                  className="w-full h-9 bg-green-700 hover:bg-green-800 text-white text-sm font-medium"
+                  className="w-full h-9 bg-[#2a7a4b] hover:bg-[#1e5c37] text-white text-sm font-medium"
                   onClick={(e) => { e.stopPropagation(); setActiveSimulation(sim); }}
                 >
                   <Play className="w-3.5 h-3.5 mr-1.5" />

@@ -109,18 +109,18 @@ export default function InterestCalculator() {
         ]
       : [];
 
-  const PIE_COLORS = ["#15803d", "#4ade80", "#86efac"];
-  const BAR_COLORS = { starting: "#15803d", contributions: "#4ade80", interest: "#bbf7d0" };
+  const PIE_COLORS = ["#1c2f3c", "#4a7a96", "#7fa8c0"];
+  const BAR_COLORS = { starting: "#1c2f3c", contributions: "#4a7a96", interest: "#c8dce6" };
 
   const selectClass =
-    "w-full h-11 px-3 border border-gray-200 rounded-lg bg-white text-gray-900 text-sm focus:border-green-700 focus:ring-1 focus:ring-green-700 focus:outline-none";
+    "w-full h-11 px-3 border border-gray-200 rounded-lg bg-white text-gray-900 text-sm focus:border-[#1c2f3c] focus:ring-1 focus:ring-[#1c2f3c] focus:outline-none";
 
   return (
     <div className="space-y-6">
       {/* Intro */}
       <div className="bg-white border border-gray-200 rounded-xl p-5 flex items-start gap-3 shadow-sm">
-        <div className="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5">
-          <Info className="w-4 h-4 text-green-700" />
+        <div className="w-8 h-8 bg-[#dce4e8] rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5">
+          <Info className="w-4 h-4 text-[#1c2f3c]" />
         </div>
         <div>
           <p className="font-semibold text-gray-900 text-sm mb-1">How to use this calculator</p>
@@ -133,7 +133,7 @@ export default function InterestCalculator() {
 
       <div className="bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden">
         <div className="px-6 py-4 border-b border-gray-100 flex items-center gap-2">
-          <Calculator className="w-4 h-4 text-green-700" />
+          <Calculator className="w-4 h-4 text-[#1c2f3c]" />
           <h2 className="font-semibold text-gray-900">Investment Growth Calculator</h2>
         </div>
 
@@ -157,7 +157,7 @@ export default function InterestCalculator() {
                       setInputs((s) => ({ ...s, startingAmount: val === "" ? 0 : parseFloat(val) || 0 }));
                       setCalculated(false);
                     }}
-                    className="pl-7 h-11 text-sm border-gray-200 focus:border-green-700"
+                    className="pl-7 h-11 text-sm border-gray-200 focus:border-[#1c2f3c]"
                   />
                 </div>
               </div>
@@ -177,7 +177,7 @@ export default function InterestCalculator() {
                       setInputs((s) => ({ ...s, years: val === "" ? 0 : parseInt(val) || 0 }));
                       setCalculated(false);
                     }}
-                    className="h-11 text-sm border-gray-200 focus:border-green-700"
+                    className="h-11 text-sm border-gray-200 focus:border-[#1c2f3c]"
                   />
                   <span className="text-sm text-gray-500 whitespace-nowrap">years</span>
                 </div>
@@ -198,7 +198,7 @@ export default function InterestCalculator() {
                       setInputs((s) => ({ ...s, returnRate: val === "" ? 0 : parseFloat(val) || 0 }));
                       setCalculated(false);
                     }}
-                    className="h-11 text-sm border-gray-200 focus:border-green-700"
+                    className="h-11 text-sm border-gray-200 focus:border-[#1c2f3c]"
                   />
                   <span className="text-sm text-gray-500">%</span>
                 </div>
@@ -236,7 +236,7 @@ export default function InterestCalculator() {
                       setInputs((s) => ({ ...s, additionalContribution: val === "" ? 0 : parseFloat(val) || 0 }));
                       setCalculated(false);
                     }}
-                    className="pl-7 h-11 text-sm border-gray-200 focus:border-green-700"
+                    className="pl-7 h-11 text-sm border-gray-200 focus:border-[#1c2f3c]"
                   />
                 </div>
               </div>
@@ -253,7 +253,7 @@ export default function InterestCalculator() {
                           value={val}
                           checked={inputs.contributionTiming === val}
                           onChange={(e) => { setInputs((s) => ({ ...s, contributionTiming: e.target.value })); setCalculated(false); }}
-                          className="accent-green-700"
+                          className="accent-[#1c2f3c]"
                         />
                         {val.charAt(0).toUpperCase() + val.slice(1)} of period
                       </label>
@@ -268,7 +268,7 @@ export default function InterestCalculator() {
                           value={val}
                           checked={inputs.contributionFrequency === val}
                           onChange={(e) => { setInputs((s) => ({ ...s, contributionFrequency: e.target.value })); setCalculated(false); }}
-                          className="accent-green-700"
+                          className="accent-[#1c2f3c]"
                         />
                         {label}
                       </label>
@@ -279,7 +279,7 @@ export default function InterestCalculator() {
 
               <Button
                 onClick={handleCalculate}
-                className="w-full h-11 bg-green-700 hover:bg-green-800 text-white font-semibold"
+                className="w-full h-11 bg-[#1c2f3c] hover:bg-[#152330] text-white font-semibold"
               >
                 <Calculator className="w-4 h-4 mr-2" />
                 Calculate
@@ -288,12 +288,12 @@ export default function InterestCalculator() {
 
             {/* Results */}
             <div>
-              <div className="bg-green-700 rounded-t-xl p-5 text-white">
-                <h3 className="font-semibold text-sm text-green-200 mb-3">Results</h3>
+              <div className="bg-[#1c2f3c] rounded-t-xl p-5 text-white">
+                <h3 className="font-semibold text-sm text-[#a8c4d4] mb-3">Results</h3>
                 {calculated && calculateInvestment ? (
                   <div className="space-y-3">
                     <div>
-                      <p className="text-green-200 text-xs mb-0.5">Ending Balance</p>
+                      <p className="text-[#a8c4d4] text-xs mb-0.5">Ending Balance</p>
                       <p className="text-3xl font-bold">{fmt(calculateInvestment.endBalance)}</p>
                     </div>
                     <div className="h-px bg-white/20" />
@@ -304,14 +304,14 @@ export default function InterestCalculator() {
                         ["Interest Earned", calculateInvestment.totalInterest],
                       ].map(([label, val]) => (
                         <div key={label} className="flex justify-between items-center text-sm">
-                          <span className="text-green-200">{label}</span>
+                          <span className="text-[#a8c4d4]">{label}</span>
                           <span className="font-semibold">{fmt(val)}</span>
                         </div>
                       ))}
                     </div>
                   </div>
                 ) : (
-                  <p className="text-green-200 text-sm text-center py-8">
+                  <p className="text-[#a8c4d4] text-sm text-center py-8">
                     Enter your details and click Calculate to see results.
                   </p>
                 )}
@@ -357,13 +357,13 @@ export default function InterestCalculator() {
         return insights.length > 0 ? (
           <div className="bg-white border border-gray-200 rounded-xl p-5 shadow-sm">
             <div className="flex items-center gap-2 mb-3">
-              <Lightbulb className="w-4 h-4 text-green-700" />
+              <Lightbulb className="w-4 h-4 text-[#1c2f3c]" />
               <p className="font-semibold text-gray-900 text-sm">What These Numbers Mean</p>
             </div>
             <div className="space-y-2">
               {insights.map((insight, i) => (
                 <div key={i} className="flex items-start gap-2.5 text-sm text-gray-700">
-                  <div className="w-1.5 h-1.5 rounded-full bg-green-600 flex-shrink-0 mt-1.5" />
+                  <div className="w-1.5 h-1.5 rounded-full bg-[#1c2f3c] flex-shrink-0 mt-1.5" />
                   {insight}
                 </div>
               ))}
@@ -377,7 +377,7 @@ export default function InterestCalculator() {
         <>
           <div className="bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden">
             <div className="px-6 py-4 border-b border-gray-100 flex items-center gap-2">
-              <TrendingUp className="w-4 h-4 text-green-700" />
+              <TrendingUp className="w-4 h-4 text-[#1c2f3c]" />
               <h3 className="font-semibold text-gray-900">Investment Growth Over Time</h3>
             </div>
             <div className="p-5">
@@ -404,7 +404,7 @@ export default function InterestCalculator() {
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
-                  <tr className="bg-green-700 text-white">
+                  <tr className="bg-[#1c2f3c] text-white">
                     <th className="p-3 text-left font-semibold">Year</th>
                     <th className="p-3 text-right font-semibold">Deposit</th>
                     <th className="p-3 text-right font-semibold">Interest</th>
@@ -413,10 +413,10 @@ export default function InterestCalculator() {
                 </thead>
                 <tbody>
                   {calculateInvestment.schedule.map((row) => (
-                    <tr key={row.year} className="border-b border-gray-100 hover:bg-gray-50">
+                    <tr key={row.year} className="border-b border-gray-100 hover:bg-[#f0f4f7]">
                       <td className="p-3 font-medium text-gray-900">{row.year}</td>
                       <td className="p-3 text-right text-gray-700">{fmt(row.deposit)}</td>
-                      <td className="p-3 text-right text-green-700">{fmt(row.interest)}</td>
+                      <td className="p-3 text-right text-[#1c2f3c]">{fmt(row.interest)}</td>
                       <td className="p-3 text-right font-semibold text-gray-900">{fmt(row.endingBalance)}</td>
                     </tr>
                   ))}

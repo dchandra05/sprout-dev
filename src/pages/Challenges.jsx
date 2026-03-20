@@ -159,7 +159,7 @@ export default function Challenges() {
       <Card
         className={`border-none shadow-lg transition-all ${
           isCompleted
-            ? "bg-gradient-to-br from-green-50 to-lime-50 border-2 border-green-300"
+            ? "bg-[#f0f4f7] border-2 border-[#c8dce6]"
             : "bg-white/80 backdrop-blur-sm hover:shadow-xl"
         }`}
       >
@@ -169,8 +169,8 @@ export default function Challenges() {
               <div
                 className={`w-12 h-12 rounded-xl flex items-center justify-center ${
                   isCompleted
-                    ? "bg-gradient-to-br from-green-400 to-lime-500"
-                    : "bg-gradient-to-br from-lime-400 to-green-500"
+                    ? "bg-[#4a7a96]"
+                    : "bg-[#1c2f3c]"
                 }`}
               >
                 {isCompleted ? (
@@ -186,7 +186,7 @@ export default function Challenges() {
             </div>
             <Badge
               className={
-                isCompleted ? "bg-green-500 text-white" : "bg-lime-100 text-lime-700"
+                isCompleted ? "bg-[#2a7a4b] text-white" : "bg-[#f0f7f4] text-[#2a7a4b]"
               }
             >
               +{challenge.xp_reward} XP
@@ -199,11 +199,11 @@ export default function Challenges() {
               <span className="text-gray-600">
                 {progress} / {challenge.requirement_value}
               </span>
-              <span className="font-semibold text-lime-600">{Math.round(percentage)}%</span>
+              <span className="font-semibold text-[#2a7a4b]">{Math.round(percentage)}%</span>
             </div>
             <Progress value={percentage} className="h-2" />
             {isCompleted && (
-              <p className="text-sm text-green-700 font-semibold flex items-center gap-2 mt-3">
+              <p className="text-sm text-[#2a7a4b] font-semibold flex items-center gap-2 mt-3">
                 <CheckCircle className="w-4 h-4" />
                 Challenge Completed! 🎉
               </p>
@@ -222,7 +222,7 @@ export default function Challenges() {
           onClose={() => setCompletedChallenge(null)}
         />
       )}
-      <div className="min-h-screen p-4 md:p-8">
+      <div className="min-h-screen bg-[#f8f9fa] p-4 md:p-8">
         <div className="max-w-7xl mx-auto space-y-6">
           {/* Header */}
           <div>
@@ -236,7 +236,7 @@ export default function Challenges() {
 
           {/* Stats */}
           <div className="grid md:grid-cols-3 gap-4">
-            <Card className="border-none shadow-lg bg-gradient-to-br from-lime-400 to-green-500 text-white">
+            <Card className="border-none shadow-lg bg-[#1c2f3c] text-white">
               <CardContent className="p-6">
                 <Target className="w-8 h-8 mb-2" />
                 <p className="text-3xl font-bold">{completedToday}</p>
@@ -264,7 +264,7 @@ export default function Challenges() {
           {/* Daily Challenges */}
           <div>
             <h2 className="text-2xl font-bold text-gray-900 mb-4 flex items-center gap-2">
-              <Calendar className="w-6 h-6 text-lime-500" />
+              <Calendar className="w-6 h-6 text-[#1c2f3c]" />
               Today's Challenges
             </h2>
             <div className="grid md:grid-cols-2 gap-4">

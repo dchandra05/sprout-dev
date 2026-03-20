@@ -235,17 +235,17 @@ function ConceptStep({ content, onContinue, isLast }) {
       <div className="prose prose-gray max-w-none
         prose-headings:text-gray-900 prose-headings:font-bold
         prose-h2:text-2xl prose-h2:mt-0 prose-h2:mb-4
-        prose-h3:text-lg prose-h3:text-green-800
+        prose-h3:text-lg prose-h3:text-[#152330]
         prose-p:text-gray-700 prose-p:leading-relaxed
         prose-ul:text-gray-700 prose-li:my-1
         prose-strong:text-gray-900
-        prose-code:bg-green-50 prose-code:text-green-800 prose-code:px-1.5 prose-code:rounded">
+        prose-code:bg-[#f0f4f7] prose-code:text-[#152330] prose-code:px-1.5 prose-code:rounded">
         <ReactMarkdown>{content}</ReactMarkdown>
       </div>
       <div className="pt-4 border-t border-gray-100 flex justify-end">
         <Button
           onClick={onContinue}
-          className="bg-green-700 hover:bg-green-800 text-white h-12 px-8 text-base font-semibold rounded-xl gap-2"
+          className="bg-[#1c2f3c] hover:bg-[#152330] text-white h-12 px-8 text-base font-semibold rounded-xl gap-2"
         >
           {isLast ? "Take Quiz" : "Continue"}
           <ChevronRight className="w-5 h-5" />
@@ -270,7 +270,7 @@ function CheckStep({ question, onContinue }) {
   return (
     <div className="space-y-6">
       {/* Quick-check banner */}
-      <div className="flex items-center gap-2 text-sm font-semibold text-green-700 bg-green-50 border border-green-200 rounded-lg px-4 py-2">
+      <div className="flex items-center gap-2 text-sm font-semibold text-[#1c2f3c] bg-[#f0f4f7] border border-[#c8dce6] rounded-lg px-4 py-2">
         <Lightbulb className="w-4 h-4" />
         Quick Check
       </div>
@@ -281,13 +281,13 @@ function CheckStep({ question, onContinue }) {
         {question.options.map((opt, i) => {
           let cls = "w-full text-left p-4 rounded-xl border-2 font-medium transition-all text-sm leading-snug ";
           if (!revealed) {
-            cls += "border-gray-200 bg-white hover:border-green-400 hover:bg-green-50 text-gray-800 cursor-pointer";
+            cls += "border-gray-200 bg-white hover:border-[#7fa8c0] hover:bg-[#f0f4f7] text-gray-800 cursor-pointer";
           } else if (i === question.correct_answer) {
-            cls += "border-green-500 bg-green-50 text-green-800";
+            cls += "border-[#4a7a96] bg-[#f0f4f7] text-[#152330]";
           } else if (i === selected && !isCorrect) {
             cls += "border-red-400 bg-red-50 text-red-700";
           } else {
-            cls += "border-gray-100 bg-gray-50 text-gray-400";
+            cls += "border-gray-100 bg-[#ede8e3] text-gray-400";
           }
           return (
             <button key={i} className={cls} onClick={() => choose(i)} disabled={revealed}>
@@ -306,7 +306,7 @@ function CheckStep({ question, onContinue }) {
       </div>
 
       {revealed && (
-        <div className={`p-4 rounded-xl border text-sm ${isCorrect ? "bg-green-50 border-green-200 text-green-800" : "bg-amber-50 border-amber-200 text-amber-800"}`}>
+        <div className={`p-4 rounded-xl border text-sm ${isCorrect ? "bg-[#f0f4f7] border-[#c8dce6] text-[#152330]" : "bg-amber-50 border-amber-200 text-amber-800"}`}>
           <p className="font-semibold mb-1">{isCorrect ? "✅ Correct!" : "💡 Good to know:"}</p>
           <p>{question.explanation}</p>
         </div>
@@ -316,7 +316,7 @@ function CheckStep({ question, onContinue }) {
         <div className="pt-2 flex justify-end">
           <Button
             onClick={onContinue}
-            className="bg-green-700 hover:bg-green-800 text-white h-12 px-8 text-base font-semibold rounded-xl gap-2"
+            className="bg-[#1c2f3c] hover:bg-[#152330] text-white h-12 px-8 text-base font-semibold rounded-xl gap-2"
           >
             Continue
             <ChevronRight className="w-5 h-5" />
@@ -351,7 +351,7 @@ function QuizStep({ questions, onPass, onFail }) {
     return (
       <div className="text-center space-y-6 py-4">
         <div className={`inline-flex items-center justify-center w-24 h-24 rounded-full text-3xl font-black
-          ${passed ? "bg-green-100 text-green-700" : "bg-amber-100 text-amber-700"}`}>
+          ${passed ? "bg-[#dce4e8] text-[#1c2f3c]" : "bg-amber-100 text-amber-700"}`}>
           {score}%
         </div>
         <div>
@@ -368,9 +368,9 @@ function QuizStep({ questions, onPass, onFail }) {
               const chose = answers[i];
               const correct = chose === q.correct_answer;
               return (
-                <div key={i} className={`text-left p-4 rounded-xl border text-sm ${correct ? "bg-green-50 border-green-200" : "bg-red-50 border-red-200"}`}>
+                <div key={i} className={`text-left p-4 rounded-xl border text-sm ${correct ? "bg-[#f0f4f7] border-[#c8dce6]" : "bg-red-50 border-red-200"}`}>
                   <p className="font-semibold text-gray-800 mb-1">{q.question}</p>
-                  {!correct && <p className="text-green-700">✓ {q.options[q.correct_answer]}</p>}
+                  {!correct && <p className="text-[#1c2f3c]">✓ {q.options[q.correct_answer]}</p>}
                   {q.explanation && <p className="text-gray-500 mt-1 text-xs">{q.explanation}</p>}
                 </div>
               );
@@ -386,7 +386,7 @@ function QuizStep({ questions, onPass, onFail }) {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center gap-2 text-sm font-semibold text-green-700 bg-green-50 border border-green-200 rounded-lg px-4 py-2">
+      <div className="flex items-center gap-2 text-sm font-semibold text-[#1c2f3c] bg-[#f0f4f7] border border-[#c8dce6] rounded-lg px-4 py-2">
         <Trophy className="w-4 h-4" />
         Lesson Quiz — answer all questions, then submit
       </div>
@@ -404,12 +404,12 @@ function QuizStep({ questions, onPass, onFail }) {
                     onClick={() => setAnswers({ ...answers, [qi]: oi })}
                     className={`w-full text-left px-4 py-3 rounded-lg border-2 text-sm font-medium transition-all ${
                       sel
-                        ? "border-green-600 bg-green-50 text-green-800"
-                        : "border-gray-200 bg-white text-gray-700 hover:border-green-300 hover:bg-green-50"
+                        ? "border-[#1c2f3c] bg-[#f0f4f7] text-[#152330]"
+                        : "border-gray-200 bg-white text-gray-700 hover:border-[#a8c4d4] hover:bg-[#f0f4f7]"
                     }`}
                   >
                     <span className={`inline-flex items-center justify-center w-5 h-5 rounded-full text-xs font-bold mr-2
-                      ${sel ? "bg-green-600 text-white" : "bg-gray-200 text-gray-500"}`}>
+                      ${sel ? "bg-[#1c2f3c] text-white" : "bg-gray-200 text-gray-500"}`}>
                       {String.fromCharCode(65 + oi)}
                     </span>
                     {opt}
@@ -424,7 +424,7 @@ function QuizStep({ questions, onPass, onFail }) {
       <Button
         onClick={submit}
         disabled={!allAnswered}
-        className="w-full h-14 text-base font-bold bg-green-700 hover:bg-green-800 text-white disabled:opacity-40 rounded-xl gap-2"
+        className="w-full h-14 text-base font-bold bg-[#1c2f3c] hover:bg-[#152330] text-white disabled:opacity-40 rounded-xl gap-2"
       >
         <Trophy className="w-5 h-5" />
         Submit Answers
@@ -441,8 +441,8 @@ function SimulationEmbed({ simInfo, onComplete }) {
 
   if (!launched) {
     return (
-      <div className="rounded-xl border-2 border-green-200 bg-green-50 p-6 text-center space-y-4">
-        <div className="w-14 h-14 rounded-full bg-green-700 flex items-center justify-center mx-auto">
+      <div className="rounded-xl border-2 border-[#c8dce6] bg-[#f0f4f7] p-6 text-center space-y-4">
+        <div className="w-14 h-14 rounded-full bg-[#1c2f3c] flex items-center justify-center mx-auto">
           <Play className="w-6 h-6 text-white" />
         </div>
         <h3 className="text-lg font-bold text-gray-900">Interactive Simulation</h3>
@@ -451,7 +451,7 @@ function SimulationEmbed({ simInfo, onComplete }) {
         </p>
         <Button
           onClick={() => setLaunched(true)}
-          className="bg-green-700 hover:bg-green-800 text-white gap-2"
+          className="bg-[#1c2f3c] hover:bg-[#152330] text-white gap-2"
         >
           <Play className="w-4 h-4" /> Launch Simulation
         </Button>
@@ -468,7 +468,7 @@ function SimulationEmbed({ simInfo, onComplete }) {
     <div className="space-y-4">
       <SimulationRouter simInfo={simInfo} onComplete={handleSimDone} />
       {done && (
-        <div className="flex items-center gap-2 text-green-700 font-semibold text-sm p-3 bg-green-50 rounded-lg border border-green-200">
+        <div className="flex items-center gap-2 text-[#1c2f3c] font-semibold text-sm p-3 bg-[#f0f4f7] rounded-lg border border-[#c8dce6]">
           <CheckCircle className="w-5 h-5" /> Simulation complete!
         </div>
       )}
@@ -503,7 +503,7 @@ function SimulationRouter({ simInfo, onComplete }) {
   if (!Component) {
     return (
       <div className="flex items-center justify-center py-12">
-        <div className="w-10 h-10 border-4 border-green-600 border-t-transparent rounded-full animate-spin" />
+        <div className="w-10 h-10 border-4 border-[#1c2f3c] border-t-transparent rounded-full animate-spin" />
       </div>
     );
   }
@@ -707,13 +707,13 @@ export default function Lesson() {
 
   if (!lessonId) {
     return (
-      <div className="min-h-screen flex items-center justify-center p-6 bg-gray-50">
+      <div className="min-h-screen flex items-center justify-center p-6 bg-[#ede8e3]">
         <Card className="max-w-md border border-gray-200 shadow-lg">
           <CardContent className="p-8 text-center">
             <AlertCircle className="w-10 h-10 text-amber-500 mx-auto mb-4" />
             <h2 className="text-xl font-bold text-gray-900 mb-2">Missing Lesson ID</h2>
             <p className="text-gray-500 mb-6">This page needs a lesson ID in the URL.</p>
-            <Button onClick={() => navigate(createPageUrl("Learn"))} className="bg-green-700 hover:bg-green-800 text-white">
+            <Button onClick={() => navigate(createPageUrl("Learn"))} className="bg-[#1c2f3c] hover:bg-[#152330] text-white">
               Browse Courses
             </Button>
           </CardContent>
@@ -726,7 +726,7 @@ export default function Lesson() {
     return (
       <div className="min-h-screen flex items-center justify-center bg-white">
         <div className="text-center">
-          <div className="w-12 h-12 border-4 border-green-600 border-t-transparent rounded-full animate-spin mx-auto mb-4" />
+          <div className="w-12 h-12 border-4 border-[#1c2f3c] border-t-transparent rounded-full animate-spin mx-auto mb-4" />
           <p className="text-gray-500 text-sm">Loading lesson…</p>
         </div>
       </div>
@@ -735,13 +735,13 @@ export default function Lesson() {
 
   if (!lesson) {
     return (
-      <div className="min-h-screen flex items-center justify-center p-6 bg-gray-50">
+      <div className="min-h-screen flex items-center justify-center p-6 bg-[#ede8e3]">
         <Card className="max-w-md border border-gray-200 shadow-lg">
           <CardContent className="p-8 text-center">
             <AlertCircle className="w-10 h-10 text-red-500 mx-auto mb-4" />
             <h2 className="text-xl font-bold text-gray-900 mb-2">Lesson Not Found</h2>
             <p className="text-gray-500 mb-6">We couldn't find that lesson.</p>
-            <Button onClick={() => navigate(createPageUrl("Learn"))} className="bg-green-700 hover:bg-green-800 text-white">
+            <Button onClick={() => navigate(createPageUrl("Learn"))} className="bg-[#1c2f3c] hover:bg-[#152330] text-white">
               Browse Courses
             </Button>
           </CardContent>
@@ -755,7 +755,7 @@ export default function Lesson() {
     return (
       <div className="min-h-screen flex items-center justify-center bg-white">
         <div className="text-center">
-          <div className="w-12 h-12 border-4 border-green-600 border-t-transparent rounded-full animate-spin mx-auto mb-4" />
+          <div className="w-12 h-12 border-4 border-[#1c2f3c] border-t-transparent rounded-full animate-spin mx-auto mb-4" />
           <p className="text-gray-500 text-sm">Loading lesson…</p>
         </div>
       </div>
@@ -776,7 +776,7 @@ export default function Lesson() {
         <div className="min-h-screen bg-white flex items-center justify-center p-6">
           <div className="max-w-md w-full text-center space-y-6">
             {/* Trophy */}
-            <div className="w-24 h-24 rounded-full bg-green-700 flex items-center justify-center mx-auto shadow-xl">
+            <div className="w-24 h-24 rounded-full bg-[#1c2f3c] flex items-center justify-center mx-auto shadow-xl">
               <Trophy className="w-12 h-12 text-white" />
             </div>
 
@@ -786,14 +786,14 @@ export default function Lesson() {
             </div>
 
             {/* XP badge */}
-            <div className="inline-flex items-center gap-2 bg-green-50 border border-green-200 text-green-700 font-bold px-5 py-2 rounded-full text-sm">
+            <div className="inline-flex items-center gap-2 bg-[#f0f4f7] border border-[#c8dce6] text-[#1c2f3c] font-bold px-5 py-2 rounded-full text-sm">
               <Zap className="w-4 h-4" />
               +{lesson.xp_reward || 0} XP earned
             </div>
 
             {/* Course progress bar */}
             {allLessons.length > 1 && (
-              <div className="bg-gray-50 rounded-xl p-4 text-left">
+              <div className="bg-[#ede8e3] rounded-xl p-4 text-left">
                 <div className="flex items-center justify-between text-xs text-gray-500 mb-2">
                   <span>Course progress</span>
                   <span>{lessonProgressPct}%</span>
@@ -805,7 +805,7 @@ export default function Lesson() {
             {/* Continue button — always goes to CourseDetail */}
             <Button
               onClick={handleContinueToCourse}
-              className="w-full h-14 text-base font-bold bg-green-700 hover:bg-green-800 text-white rounded-xl gap-2"
+              className="w-full h-14 text-base font-bold bg-[#1c2f3c] hover:bg-[#152330] text-white rounded-xl gap-2"
             >
               <Home className="w-5 h-5" />
               Back to Course
@@ -831,7 +831,7 @@ export default function Lesson() {
         <ChallengeCompleteModal challenge={completedChallenge} onClose={clearCompletedChallenge} />
       )}
 
-      <div className="min-h-screen bg-gray-50">
+      <div className="min-h-screen bg-[#ede8e3]">
         {/* ── Top progress bar ── */}
         <div className="sticky top-0 z-20 bg-white border-b border-gray-200">
           <div className="max-w-3xl mx-auto px-4 h-14 flex items-center gap-4">
@@ -844,7 +844,7 @@ export default function Lesson() {
             <div className="flex-1">
               <Progress value={stepProgressPct} className="h-2.5" />
             </div>
-            <div className="flex items-center gap-1 text-green-700 text-sm font-bold flex-shrink-0">
+            <div className="flex items-center gap-1 text-[#1c2f3c] text-sm font-bold flex-shrink-0">
               <Zap className="w-4 h-4" />
               {lesson.xp_reward || 0}
             </div>
@@ -855,13 +855,13 @@ export default function Lesson() {
         <div className="bg-white border-b border-gray-100">
           <div className="max-w-3xl mx-auto px-4 py-6">
             <div className="flex items-start gap-4">
-              <div className="w-12 h-12 rounded-xl bg-green-700 flex items-center justify-center flex-shrink-0">
+              <div className="w-12 h-12 rounded-xl bg-[#1c2f3c] flex items-center justify-center flex-shrink-0">
                 <BookOpen className="w-6 h-6 text-white" />
               </div>
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2 mb-1">
                   {course?.name && (
-                    <Badge variant="outline" className="text-xs text-green-700 border-green-200 bg-green-50">
+                    <Badge variant="outline" className="text-xs text-[#1c2f3c] border-[#c8dce6] bg-[#f0f4f7]">
                       {course.name}
                     </Badge>
                   )}
@@ -887,8 +887,8 @@ export default function Lesson() {
                 <div
                   key={i}
                   className={`h-2 rounded-full transition-all duration-300 ${
-                    isActive   ? "bg-green-700 flex-[2]" :
-                    isComplete ? "bg-green-400 flex-1" :
+                    isActive   ? "bg-[#1c2f3c] flex-[2]" :
+                    isComplete ? "bg-[#7fa8c0] flex-1" :
                                  "bg-gray-200 flex-1"
                   }`}
                 />
@@ -905,7 +905,7 @@ export default function Lesson() {
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   {isOnSim ? (
-                    <span className="inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wide text-green-700">
+                    <span className="inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wide text-[#1c2f3c]">
                       <Play className="w-3.5 h-3.5" /> Practice
                     </span>
                   ) : currentStep?.type === "concept" ? (
@@ -917,7 +917,7 @@ export default function Lesson() {
                       <Lightbulb className="w-3.5 h-3.5" /> Check
                     </span>
                   ) : (
-                    <span className="inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wide text-green-700">
+                    <span className="inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wide text-[#1c2f3c]">
                       <Trophy className="w-3.5 h-3.5" /> Quiz
                     </span>
                   )}

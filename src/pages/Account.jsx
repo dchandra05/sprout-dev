@@ -110,7 +110,7 @@ export default function Account() {
         </div>
 
         {/* Profile Card */}
-        <Card className="border-none shadow-xl bg-gradient-to-br from-lime-400 to-green-500 text-white">
+        <Card className="border-none shadow-xl bg-[#1c2f3c] text-white">
           <CardContent className="p-8">
             <div className="flex items-center gap-6">
               <div className="w-24 h-24 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center text-white">
@@ -233,7 +233,7 @@ export default function Account() {
                 <Button
                   type="submit"
                   disabled={updateMutation.isPending}
-                  className="bg-gradient-to-r from-lime-400 to-green-500 text-white"
+                  className="bg-[#1c2f3c] hover:bg-[#152330] text-white"
                 >
                   <Check className="w-4 h-4 mr-2" />
                   {updateMutation.isPending ? "Saving…" : "Save Changes"}

@@ -1,5 +1,5 @@
 // src/pages/Landing.jsx
-// Professional white + dark-green landing page.
+// Professional cream + dark-navy landing page.
 // Always shown on first load — no auth redirect.
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
@@ -93,58 +93,110 @@ const QUOTES = [
 
 // ─── Sub-sections ─────────────────────────────────────────────
 
-function Nav({ scrolled, navigate }) {
+const LANDING_PILL = {
+  base: {
+    display: "inline-flex", alignItems: "center",
+    padding: "7px 16px", borderRadius: 999,
+    border: "1.5px solid #e2ddd8", background: "transparent",
+    fontSize: 13.5, fontWeight: 500, color: "#4a5568",
+    textDecoration: "none", cursor: "pointer",
+    transition: "color 0.18s, background 0.18s, border-color 0.18s",
+    whiteSpace: "nowrap", lineHeight: 1,
+  },
+};
+
+function NavPill({ href, children }) {
   return (
-    <header
-      style={{
-        position: "fixed",
-        top: 0,
-        left: 0,
-        right: 0,
-        zIndex: 50,
-        transition: "all 0.3s",
-        background: scrolled ? "rgba(255,255,255,0.97)" : "rgba(255,255,255,0.95)",
-        borderBottom: "1px solid #e5e7eb",
-        backdropFilter: "blur(16px)",
+    <a
+      href={href}
+      style={LANDING_PILL.base}
+      onMouseOver={e => {
+        e.currentTarget.style.color = "#1c2f3c";
+        e.currentTarget.style.borderColor = "#1c2f3c";
+        e.currentTarget.style.background = "#f5f3f0";
+      }}
+      onMouseOut={e => {
+        e.currentTarget.style.color = "#4a5568";
+        e.currentTarget.style.borderColor = "#e2ddd8";
+        e.currentTarget.style.background = "transparent";
       }}
     >
-      <div style={{ maxWidth: 1100, margin: "0 auto", padding: "0 24px", height: 64, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-        {/* Logo */}
-        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-          <div style={{ width: 34, height: 34, background: "#15803d", borderRadius: 10, display: "flex", alignItems: "center", justifyContent: "center" }}>
-            <Sprout size={18} color="white" />
+      {children}
+    </a>
+  );
+}
+
+function Nav({ scrolled, navigate }) {
+  return (
+    <>
+      <style>{`
+        .ln-grid {
+          display: grid;
+          grid-template-columns: auto 1fr auto;
+          align-items: center;
+          height: 64px;
+          max-width: 1200px;
+          margin: 0 auto;
+          padding: 0 28px;
+          gap: 16px;
+        }
+        .ln-pills {
+          display: flex; align-items: center;
+          justify-content: center;
+          gap: 6px; flex-wrap: nowrap;
+        }
+        .ln-auth { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+        @media (max-width: 640px) {
+          .ln-pills { display: none !important; }
+        }
+      `}</style>
+      <header
+        style={{
+          position: "fixed", top: 0, left: 0, right: 0, zIndex: 50,
+          background: scrolled ? "rgba(255,255,255,0.98)" : "#ffffff",
+          borderBottom: "1px solid #e8e3de",
+          boxShadow: scrolled ? "0 2px 16px rgba(28,47,60,0.07)" : "none",
+          backdropFilter: "blur(12px)",
+          transition: "box-shadow 0.25s",
+        }}
+      >
+        <div className="ln-grid">
+          {/* Logo — left */}
+          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+            <span style={{ fontSize: 18, fontWeight: 800, color: "#1c2f3c", letterSpacing: "-0.3px" }}>Sprout</span>
+            <Sprout size={22} color="#1c2f3c" strokeWidth={2.2} />
           </div>
-          <span style={{ fontSize: 20, fontWeight: 800, color: "#111827", letterSpacing: "-0.3px" }}>Sprout</span>
-        </div>
 
-        {/* Nav links */}
-        <nav style={{ display: "flex", gap: 32, fontSize: 14, fontWeight: 500 }} className="sprout-nav-links">
-          <a href="#features" style={{ color: "#6b7280", textDecoration: "none" }} onMouseOver={e => e.target.style.color="#15803d"} onMouseOut={e => e.target.style.color="#6b7280"}>Features</a>
-          <a href="#courses"  style={{ color: "#6b7280", textDecoration: "none" }} onMouseOver={e => e.target.style.color="#15803d"} onMouseOut={e => e.target.style.color="#6b7280"}>Courses</a>
-          <a href="#how"      style={{ color: "#6b7280", textDecoration: "none" }} onMouseOver={e => e.target.style.color="#15803d"} onMouseOut={e => e.target.style.color="#6b7280"}>How it works</a>
-        </nav>
+          {/* Pill links — centered */}
+          <nav className="ln-pills">
+            <NavPill href="#">Home</NavPill>
+            <NavPill href="#courses">Browse Courses</NavPill>
+            <NavPill href="#simulations">Simulations</NavPill>
+            <NavPill href="#how">How it works</NavPill>
+          </nav>
 
-        {/* Auth buttons */}
-        <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
-          <button
-            onClick={() => navigate(createPageUrl("Login"))}
-            style={{ fontSize: 14, fontWeight: 600, color: "#374151", background: "none", border: "1px solid #d1d5db", cursor: "pointer", padding: "7px 16px", borderRadius: 8 }}
-            onMouseOver={e => { e.currentTarget.style.background = "#f9fafb"; }}
-            onMouseOut={e => { e.currentTarget.style.background = "none"; }}
-          >
-            Log in
-          </button>
-          <button
-            onClick={() => navigate(createPageUrl("Signup"))}
-            style={{ fontSize: 14, fontWeight: 700, background: "#15803d", color: "white", padding: "8px 18px", borderRadius: 8, border: "none", cursor: "pointer" }}
-            onMouseOver={e => { e.currentTarget.style.background = "#166534"; }}
-            onMouseOut={e => { e.currentTarget.style.background = "#15803d"; }}
-          >
-            Get started free
-          </button>
+          {/* Auth — right */}
+          <div className="ln-auth">
+            <button
+              onClick={() => navigate(createPageUrl("Login"))}
+              style={{ ...LANDING_PILL.base, border: "1.5px solid #e2ddd8", color: "#374151" }}
+              onMouseOver={e => { e.currentTarget.style.borderColor = "#1c2f3c"; e.currentTarget.style.color = "#1c2f3c"; e.currentTarget.style.background = "#f5f3f0"; }}
+              onMouseOut={e => { e.currentTarget.style.borderColor = "#e2ddd8"; e.currentTarget.style.color = "#374151"; e.currentTarget.style.background = "transparent"; }}
+            >
+              Log in
+            </button>
+            <button
+              onClick={() => navigate(createPageUrl("Signup"))}
+              style={{ ...LANDING_PILL.base, background: "#2a7a4b", borderColor: "#2a7a4b", color: "white", fontWeight: 600 }}
+              onMouseOver={e => { e.currentTarget.style.background = "#1e5c37"; e.currentTarget.style.borderColor = "#1e5c37"; }}
+              onMouseOut={e => { e.currentTarget.style.background = "#2a7a4b"; e.currentTarget.style.borderColor = "#2a7a4b"; }}
+            >
+              Sign up
+            </button>
+          </div>
         </div>
-      </div>
-    </header>
+      </header>
+    </>
   );
 }
 
@@ -153,15 +205,23 @@ function Hero({ navigate }) {
     <section style={{ paddingTop: 120, paddingBottom: 96, paddingLeft: 24, paddingRight: 24, background: "#ffffff", textAlign: "center" }}>
       <div style={{ maxWidth: 760, margin: "0 auto" }}>
         {/* Badge */}
-        <div style={{ display: "inline-flex", alignItems: "center", gap: 8, background: "#f0fdf4", border: "1px solid #bbf7d0", borderRadius: 999, padding: "5px 14px", marginBottom: 32 }}>
-          <span style={{ width: 7, height: 7, borderRadius: "50%", background: "#16a34a", display: "inline-block" }} />
-          <span style={{ fontSize: 13, color: "#15803d", fontWeight: 600 }}>Free for all students and learners</span>
+        <div style={{ display: "inline-flex", alignItems: "center", gap: 8, background: "#f0f4f7", border: "1px solid #c8dce6", borderRadius: 999, padding: "5px 14px", marginBottom: 32 }}>
+          <span style={{ width: 7, height: 7, borderRadius: "50%", background: "#1c2f3c", display: "inline-block" }} />
+          <span style={{ fontSize: 13, color: "#1c2f3c", fontWeight: 600 }}>Free for all students and learners</span>
+        </div>
+
+        {/* Logo mark in hero */}
+        <div style={{ display: "flex", justifyContent: "center", marginBottom: 28 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+            <span style={{ fontSize: 34, fontWeight: 900, color: "#1c2f3c", letterSpacing: "-0.5px", lineHeight: 1 }}>Sprout</span>
+            <Sprout size={40} color="#1c2f3c" strokeWidth={1.9} />
+          </div>
         </div>
 
         {/* Headline */}
-        <h1 style={{ fontSize: "clamp(38px,6vw,68px)", fontWeight: 900, color: "#111827", lineHeight: 1.08, marginBottom: 24, letterSpacing: "-1.5px" }}>
-          Master your money.{" "}
-          <span style={{ color: "#15803d" }}>One lesson at a time.</span>
+        <h1 style={{ fontSize: "clamp(36px,6vw,66px)", fontWeight: 900, color: "#111827", lineHeight: 1.1, marginBottom: 24, letterSpacing: "-1.5px" }}>
+          Fill gaps in your learning.{" "}
+          <span style={{ color: "#2a7a4b" }}>One lesson at a time.</span>
         </h1>
 
         <p style={{ fontSize: "clamp(16px,2vw,19px)", color: "#6b7280", maxWidth: 560, margin: "0 auto 40px", lineHeight: 1.7 }}>
@@ -172,16 +232,16 @@ function Hero({ navigate }) {
         <div style={{ display: "flex", gap: 12, justifyContent: "center", flexWrap: "wrap", marginBottom: 64 }}>
           <button
             onClick={() => navigate(createPageUrl("Signup"))}
-            style={{ display: "flex", alignItems: "center", gap: 8, background: "#15803d", color: "white", fontWeight: 700, fontSize: 16, padding: "13px 28px", borderRadius: 10, border: "none", cursor: "pointer", boxShadow: "0 4px 16px rgba(21,128,61,0.25)" }}
-            onMouseOver={e => { e.currentTarget.style.background = "#166534"; }}
-            onMouseOut={e => { e.currentTarget.style.background = "#15803d"; }}
+            style={{ display: "flex", alignItems: "center", gap: 8, background: "#2a7a4b", color: "white", fontWeight: 700, fontSize: 16, padding: "13px 28px", borderRadius: 999, border: "none", cursor: "pointer", boxShadow: "0 2px 8px rgba(42,122,75,0.22)" }}
+            onMouseOver={e => { e.currentTarget.style.background = "#1e5c37"; }}
+            onMouseOut={e => { e.currentTarget.style.background = "#2a7a4b"; }}
           >
             Start learning free <ArrowRight size={17} />
           </button>
           <button
             onClick={() => navigate(createPageUrl("Login"))}
-            style={{ display: "flex", alignItems: "center", gap: 8, background: "white", color: "#374151", fontWeight: 600, fontSize: 16, padding: "13px 28px", borderRadius: 10, border: "1px solid #d1d5db", cursor: "pointer" }}
-            onMouseOver={e => { e.currentTarget.style.background = "#f9fafb"; }}
+            style={{ display: "flex", alignItems: "center", gap: 8, background: "white", color: "#374151", fontWeight: 600, fontSize: 16, padding: "13px 28px", borderRadius: 10, border: "1px solid #d0cbc4", cursor: "pointer" }}
+            onMouseOver={e => { e.currentTarget.style.background = "#f5f1ed"; }}
             onMouseOut={e => { e.currentTarget.style.background = "white"; }}
           >
             I have an account
@@ -189,7 +249,7 @@ function Hero({ navigate }) {
         </div>
 
         {/* Stats strip */}
-        <div style={{ display: "flex", justifyContent: "center", gap: 40, flexWrap: "wrap", borderTop: "1px solid #f3f4f6", paddingTop: 32 }}>
+        <div style={{ display: "flex", justifyContent: "center", gap: 40, flexWrap: "wrap", borderTop: "1px solid #d0cbc4", paddingTop: 32 }}>
           {STATS.map(s => (
             <div key={s.label} style={{ textAlign: "center" }}>
               <p style={{ fontSize: 30, fontWeight: 900, color: "#111827", margin: 0, lineHeight: 1 }}>{s.value}</p>
@@ -204,10 +264,10 @@ function Hero({ navigate }) {
 
 function Features() {
   return (
-    <section id="features" style={{ padding: "88px 24px", background: "#f9fafb" }}>
+    <section id="features" style={{ padding: "88px 24px", background: "#f8f9fa" }}>
       <div style={{ maxWidth: 1100, margin: "0 auto" }}>
         <div style={{ textAlign: "center", marginBottom: 52 }}>
-          <p style={{ fontSize: 12, fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", color: "#15803d", marginBottom: 10 }}>Why Sprout</p>
+          <p style={{ fontSize: 12, fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", color: "#2a7a4b", marginBottom: 10 }}>Why Sprout</p>
           <h2 style={{ fontSize: "clamp(28px,4vw,44px)", fontWeight: 800, color: "#111827", margin: 0, letterSpacing: "-0.5px" }}>
             Financial education that actually works
           </h2>
@@ -216,9 +276,9 @@ function Features() {
           {FEATURES.map(f => {
             const Icon = f.icon;
             return (
-              <div key={f.title} style={{ background: "white", border: "1px solid #e5e7eb", borderRadius: 16, padding: 28 }}>
-                <div style={{ width: 44, height: 44, background: "#f0fdf4", border: "1px solid #bbf7d0", borderRadius: 12, display: "flex", alignItems: "center", justifyContent: "center", marginBottom: 18 }}>
-                  <Icon size={20} color="#15803d" />
+              <div key={f.title} style={{ background: "white", border: "1px solid #d0cbc4", borderRadius: 16, padding: 28 }}>
+                <div style={{ width: 44, height: 44, background: "#f0faf4", border: "1px solid #b6ddc8", borderRadius: 12, display: "flex", alignItems: "center", justifyContent: "center", marginBottom: 18 }}>
+                  <Icon size={20} color="#2a7a4b" />
                 </div>
                 <h3 style={{ fontSize: 17, fontWeight: 700, color: "#111827", marginBottom: 8, marginTop: 0 }}>{f.title}</h3>
                 <p style={{ color: "#6b7280", lineHeight: 1.65, margin: 0, fontSize: 14 }}>{f.desc}</p>
@@ -236,7 +296,7 @@ function Courses({ navigate }) {
     <section id="courses" style={{ padding: "88px 24px", background: "white" }}>
       <div style={{ maxWidth: 1100, margin: "0 auto" }}>
         <div style={{ textAlign: "center", marginBottom: 52 }}>
-          <p style={{ fontSize: 12, fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", color: "#15803d", marginBottom: 10 }}>What you will learn</p>
+          <p style={{ fontSize: 12, fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", color: "#2a7a4b", marginBottom: 10 }}>What you will learn</p>
           <h2 style={{ fontSize: "clamp(28px,4vw,44px)", fontWeight: 800, color: "#111827", margin: 0, letterSpacing: "-0.5px" }}>
             Real courses. Real financial skills.
           </h2>
@@ -249,14 +309,14 @@ function Courses({ navigate }) {
                 key={c.title}
                 onClick={() => navigate(createPageUrl("Signup"))}
                 style={{ background: "white", border: "1px solid #e5e7eb", borderRadius: 16, padding: 24, cursor: "pointer", transition: "all 0.2s" }}
-                onMouseOver={e => { e.currentTarget.style.borderColor = "#86efac"; e.currentTarget.style.boxShadow = "0 4px 16px rgba(21,128,61,0.08)"; e.currentTarget.style.transform = "translateY(-2px)"; }}
+                onMouseOver={e => { e.currentTarget.style.borderColor = "#a8c4d4"; e.currentTarget.style.boxShadow = "0 4px 16px rgba(28,47,60,0.08)"; e.currentTarget.style.transform = "translateY(-2px)"; }}
                 onMouseOut={e => { e.currentTarget.style.borderColor = "#e5e7eb"; e.currentTarget.style.boxShadow = "none"; e.currentTarget.style.transform = "translateY(0)"; }}
               >
                 <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", marginBottom: 14 }}>
-                  <div style={{ width: 44, height: 44, background: "#15803d", borderRadius: 12, display: "flex", alignItems: "center", justifyContent: "center" }}>
+                  <div style={{ width: 44, height: 44, background: "#2a7a4b", borderRadius: 12, display: "flex", alignItems: "center", justifyContent: "center" }}>
                     <Icon size={20} color="white" />
                   </div>
-                  <span style={{ fontSize: 11, fontWeight: 600, color: "#15803d", background: "#f0fdf4", border: "1px solid #bbf7d0", borderRadius: 999, padding: "3px 10px" }}>
+                  <span style={{ fontSize: 11, fontWeight: 600, color: "#2a7a4b", background: "#f0faf4", border: "1px solid #b6ddc8", borderRadius: 999, padding: "3px 10px" }}>
                     {c.level}
                   </span>
                 </div>
@@ -264,7 +324,7 @@ function Courses({ navigate }) {
                 <p style={{ fontSize: 13, color: "#6b7280", margin: "0 0 16px", lineHeight: 1.55 }}>{c.desc}</p>
                 <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
                   <span style={{ fontSize: 13, color: "#9ca3af" }}>{c.lessons} lessons</span>
-                  <div style={{ display: "flex", alignItems: "center", gap: 5, color: "#15803d", fontSize: 13, fontWeight: 600 }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 5, color: "#2a7a4b", fontSize: 13, fontWeight: 600 }}>
                     Start course <ArrowRight size={13} />
                   </div>
                 </div>
@@ -279,10 +339,10 @@ function Courses({ navigate }) {
 
 function Simulations({ navigate }) {
   return (
-    <section id="simulations" style={{ padding: "88px 24px", background: "#f0fdf4" }}>
+    <section id="simulations" style={{ padding: "88px 24px", background: "#f0f4f7" }}>
       <div style={{ maxWidth: 1100, margin: "0 auto" }}>
         <div style={{ textAlign: "center", marginBottom: 52 }}>
-          <p style={{ fontSize: 12, fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", color: "#15803d", marginBottom: 10 }}>Practice before it counts</p>
+          <p style={{ fontSize: 12, fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", color: "#2a7a4b", marginBottom: 10 }}>Practice before it counts</p>
           <h2 style={{ fontSize: "clamp(28px,4vw,44px)", fontWeight: 800, color: "#111827", margin: 0, letterSpacing: "-0.5px" }}>
             Interactive financial simulations
           </h2>
@@ -297,21 +357,21 @@ function Simulations({ navigate }) {
               <div
                 key={s.title}
                 onClick={() => navigate(createPageUrl("Signup"))}
-                style={{ background: "white", border: "1px solid #d1fae5", borderRadius: 16, padding: 24, cursor: "pointer", transition: "all 0.2s" }}
-                onMouseOver={e => { e.currentTarget.style.boxShadow = "0 4px 16px rgba(21,128,61,0.1)"; e.currentTarget.style.transform = "translateY(-2px)"; }}
+                style={{ background: "white", border: "1px solid #d0dfe8", borderRadius: 16, padding: 24, cursor: "pointer", transition: "all 0.2s" }}
+                onMouseOver={e => { e.currentTarget.style.boxShadow = "0 4px 16px rgba(28,47,60,0.1)"; e.currentTarget.style.transform = "translateY(-2px)"; }}
                 onMouseOut={e => { e.currentTarget.style.boxShadow = "none"; e.currentTarget.style.transform = "translateY(0)"; }}
               >
                 <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", marginBottom: 14 }}>
-                  <div style={{ width: 44, height: 44, background: "#15803d", borderRadius: 12, display: "flex", alignItems: "center", justifyContent: "center" }}>
+                  <div style={{ width: 44, height: 44, background: "#2a7a4b", borderRadius: 12, display: "flex", alignItems: "center", justifyContent: "center" }}>
                     <Icon size={20} color="white" />
                   </div>
-                  <span style={{ fontSize: 11, fontWeight: 600, color: "#15803d", background: "#dcfce7", border: "1px solid #bbf7d0", borderRadius: 999, padding: "3px 10px" }}>
+                  <span style={{ fontSize: 11, fontWeight: 600, color: "#1c2f3c", background: "#dce4e8", border: "1px solid #c8dce6", borderRadius: 999, padding: "3px 10px" }}>
                     {s.tag}
                   </span>
                 </div>
                 <h3 style={{ fontSize: 16, fontWeight: 700, color: "#111827", margin: "0 0 8px" }}>{s.title}</h3>
                 <p style={{ fontSize: 13, color: "#6b7280", margin: "0 0 16px", lineHeight: 1.55 }}>{s.desc}</p>
-                <div style={{ display: "flex", alignItems: "center", gap: 5, color: "#15803d", fontSize: 13, fontWeight: 600 }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 5, color: "#2a7a4b", fontSize: 13, fontWeight: 600 }}>
                   Try simulation <ArrowRight size={13} />
                 </div>
               </div>
@@ -325,18 +385,18 @@ function Simulations({ navigate }) {
 
 function HowItWorks() {
   return (
-    <section id="how" style={{ padding: "88px 24px", background: "#f9fafb" }}>
+    <section id="how" style={{ padding: "88px 24px", background: "#f8f9fa" }}>
       <div style={{ maxWidth: 720, margin: "0 auto" }}>
         <div style={{ textAlign: "center", marginBottom: 52 }}>
-          <p style={{ fontSize: 12, fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", color: "#15803d", marginBottom: 10 }}>Getting started</p>
+          <p style={{ fontSize: 12, fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", color: "#2a7a4b", marginBottom: 10 }}>Getting started</p>
           <h2 style={{ fontSize: "clamp(28px,4vw,44px)", fontWeight: 800, color: "#111827", margin: 0, letterSpacing: "-0.5px" }}>
             How Sprout works
           </h2>
         </div>
         <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
           {HOW_IT_WORKS.map(s => (
-            <div key={s.step} style={{ display: "flex", gap: 20, alignItems: "flex-start", background: "white", border: "1px solid #e5e7eb", borderRadius: 14, padding: 22 }}>
-              <div style={{ flexShrink: 0, width: 44, height: 44, background: "#15803d", borderRadius: 12, display: "flex", alignItems: "center", justifyContent: "center" }}>
+            <div key={s.step} style={{ display: "flex", gap: 20, alignItems: "flex-start", background: "white", border: "1px solid #d0cbc4", borderRadius: 14, padding: 22 }}>
+              <div style={{ flexShrink: 0, width: 44, height: 44, background: "#2a7a4b", borderRadius: 12, display: "flex", alignItems: "center", justifyContent: "center" }}>
                 <span style={{ fontSize: 13, fontWeight: 800, color: "white" }}>{s.step}</span>
               </div>
               <div>
@@ -368,7 +428,7 @@ function SocialProof() {
             <div key={q.name} style={{ background: "#f9fafb", border: "1px solid #e5e7eb", borderRadius: 16, padding: 24 }}>
               <p style={{ color: "#374151", lineHeight: 1.7, marginBottom: 18, marginTop: 0, fontSize: 15 }}>"{q.text}"</p>
               <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                <div style={{ width: 34, height: 34, background: "#15803d", borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", color: "white", fontWeight: 700, fontSize: 13 }}>
+                <div style={{ width: 34, height: 34, background: "#1c2f3c", borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", color: "white", fontWeight: 700, fontSize: 13 }}>
                   {q.name[0]}
                 </div>
                 <div>
@@ -386,10 +446,11 @@ function SocialProof() {
 
 function CTA({ navigate }) {
   return (
-    <section style={{ padding: "88px 24px", background: "#f0fdf4", borderTop: "1px solid #d1fae5" }}>
+    <section style={{ padding: "88px 24px", background: "#f8f9fa", borderTop: "1px solid #e5e7eb" }}>
       <div style={{ maxWidth: 560, margin: "0 auto", textAlign: "center" }}>
-        <div style={{ width: 60, height: 60, background: "#15803d", borderRadius: 16, display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 24px" }}>
-          <Sprout size={28} color="white" />
+        <div style={{ margin: "0 auto 20px", display: "flex", justifyContent: "center", alignItems: "center", gap: 12 }}>
+          <span style={{ fontSize: 28, fontWeight: 900, color: "#1c2f3c", letterSpacing: "-0.4px" }}>Sprout</span>
+          <Sprout size={36} color="#1c2f3c" strokeWidth={1.9} />
         </div>
         <h2 style={{ fontSize: "clamp(28px,4vw,44px)", fontWeight: 800, color: "#111827", margin: "0 0 18px", letterSpacing: "-0.5px" }}>
           Your financial future starts today.
@@ -400,16 +461,16 @@ function CTA({ navigate }) {
         <div style={{ display: "flex", gap: 12, justifyContent: "center", flexWrap: "wrap" }}>
           <button
             onClick={() => navigate(createPageUrl("Signup"))}
-            style={{ display: "inline-flex", alignItems: "center", gap: 8, background: "#15803d", color: "white", fontWeight: 700, fontSize: 16, padding: "13px 28px", borderRadius: 10, border: "none", cursor: "pointer", boxShadow: "0 4px 16px rgba(21,128,61,0.25)" }}
-            onMouseOver={e => { e.currentTarget.style.background = "#166534"; }}
-            onMouseOut={e => { e.currentTarget.style.background = "#15803d"; }}
+            style={{ display: "inline-flex", alignItems: "center", gap: 8, background: "#2a7a4b", color: "white", fontWeight: 700, fontSize: 16, padding: "13px 28px", borderRadius: 999, border: "none", cursor: "pointer", boxShadow: "0 2px 8px rgba(42,122,75,0.22)" }}
+            onMouseOver={e => { e.currentTarget.style.background = "#1e5c37"; }}
+            onMouseOut={e => { e.currentTarget.style.background = "#2a7a4b"; }}
           >
             Create free account <ArrowRight size={17} />
           </button>
           <button
             onClick={() => navigate(createPageUrl("Login"))}
-            style={{ display: "inline-flex", alignItems: "center", gap: 8, background: "white", color: "#374151", fontWeight: 600, fontSize: 16, padding: "13px 28px", borderRadius: 10, border: "1px solid #d1d5db", cursor: "pointer" }}
-            onMouseOver={e => { e.currentTarget.style.background = "#f9fafb"; }}
+            style={{ display: "inline-flex", alignItems: "center", gap: 8, background: "white", color: "#374151", fontWeight: 600, fontSize: 16, padding: "13px 28px", borderRadius: 10, border: "1px solid #d0cbc4", cursor: "pointer" }}
+            onMouseOver={e => { e.currentTarget.style.background = "#f5f1ed"; }}
             onMouseOut={e => { e.currentTarget.style.background = "white"; }}
           >
             Log in
@@ -433,7 +494,7 @@ function WhatYouGet() {
     <section style={{ padding: "88px 24px", background: "white" }}>
       <div style={{ maxWidth: 900, margin: "0 auto", display: "grid", gridTemplateColumns: "1fr 1fr", gap: 60, alignItems: "center" }} className="sprout-two-col">
         <div>
-          <p style={{ fontSize: 12, fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", color: "#15803d", marginBottom: 10 }}>Platform overview</p>
+          <p style={{ fontSize: 12, fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", color: "#2a7a4b", marginBottom: 10 }}>Platform overview</p>
           <h2 style={{ fontSize: "clamp(26px,3.5vw,40px)", fontWeight: 800, color: "#111827", margin: "0 0 16px", letterSpacing: "-0.5px" }}>
             Everything you need to build financial confidence.
           </h2>
@@ -445,7 +506,7 @@ function WhatYouGet() {
           {items.map(item => (
             <div key={item} style={{ display: "flex", alignItems: "flex-start", gap: 12 }}>
               <div style={{ flexShrink: 0, marginTop: 1 }}>
-                <CheckCircle size={18} color="#15803d" />
+                <CheckCircle size={18} color="#2a7a4b" />
               </div>
               <span style={{ fontSize: 15, color: "#374151", lineHeight: 1.5 }}>{item}</span>
             </div>
@@ -458,13 +519,11 @@ function WhatYouGet() {
 
 function Footer() {
   return (
-    <footer style={{ background: "#f9fafb", borderTop: "1px solid #e5e7eb", padding: "32px 24px" }}>
+    <footer style={{ background: "#f8f9fa", borderTop: "1px solid #e5e7eb", padding: "32px 24px" }}>
       <div style={{ maxWidth: 1100, margin: "0 auto", display: "flex", flexWrap: "wrap", alignItems: "center", justifyContent: "space-between", gap: 16 }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-          <div style={{ width: 28, height: 28, background: "#15803d", borderRadius: 8, display: "flex", alignItems: "center", justifyContent: "center" }}>
-            <Sprout size={15} color="white" />
-          </div>
-          <span style={{ color: "#111827", fontWeight: 700, fontSize: 15 }}>Sprout</span>
+        <div style={{ display: "flex", alignItems: "center", gap: 7 }}>
+          <span style={{ color: "#1c2f3c", fontWeight: 800, fontSize: 15 }}>Sprout</span>
+          <Sprout size={18} color="#1c2f3c" strokeWidth={2.2} />
         </div>
         <p style={{ color: "#9ca3af", fontSize: 13, margin: 0 }}>
           © {new Date().getFullYear()} Sprout. Built to grow your financial knowledge.

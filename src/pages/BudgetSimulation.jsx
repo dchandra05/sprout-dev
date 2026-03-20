@@ -109,7 +109,7 @@ export default function BudgetSimulation() {
   if (!user) {
     return (
       <div className="flex items-center justify-center min-h-screen">
-        <div className="w-12 h-12 border-4 border-green-500 border-t-transparent rounded-full animate-spin"></div>
+        <div className="w-12 h-12 border-4 border-[#1c2f3c] border-t-transparent rounded-full animate-spin"></div>
       </div>
     );
   }
@@ -117,14 +117,14 @@ export default function BudgetSimulation() {
   const currentLesson = lessons[lessonNum];
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-[#ede8e3]">
       <div className="max-w-5xl mx-auto px-4 py-6 md:px-8 md:py-10 space-y-6">
         <Button
           variant="outline"
           onClick={() =>
             navigate(createPageUrl("CourseDetail") + "?id=6972392c60eb785db714b719")
           }
-          className="border-gray-200 text-gray-700 hover:bg-gray-50"
+          className="border-gray-200 text-gray-700 hover:bg-[#ede8e3]"
         >
           <ArrowLeft className="w-4 h-4 mr-2" />
           Back to Course
@@ -143,7 +143,7 @@ export default function BudgetSimulation() {
               <div className="mt-6 flex justify-end">
                 <Button
                   onClick={() => completeMutation.mutate()}
-                  className="bg-green-600 hover:bg-green-700"
+                  className="bg-[#1c2f3c] hover:bg-[#152330]"
                 >
                   Complete Lesson
                 </Button>

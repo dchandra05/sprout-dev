@@ -114,7 +114,7 @@ export default function AILiteracy() {
   if (isLoadingUser) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-white">
-        <div className="w-10 h-10 border-4 border-green-600 border-t-transparent rounded-full animate-spin" />
+        <div className="w-10 h-10 border-4 border-[#1c2f3c] border-t-transparent rounded-full animate-spin" />
       </div>
     );
   }
@@ -137,11 +137,11 @@ export default function AILiteracy() {
 
         {/* Course header */}
         <div className="flex items-start gap-4">
-          <div className="w-14 h-14 rounded-2xl bg-green-700 flex items-center justify-center flex-shrink-0">
+          <div className="w-14 h-14 rounded-2xl bg-[#1c2f3c] flex items-center justify-center flex-shrink-0">
             <Brain className="w-7 h-7 text-white" />
           </div>
           <div>
-            <Badge className="mb-2 bg-green-50 text-green-700 border-green-200 text-xs">AI & Technology</Badge>
+            <Badge className="mb-2 bg-[#f0f4f7] text-[#1c2f3c] border-[#c8dce6] text-xs">AI & Technology</Badge>
             <h1 className="text-2xl md:text-3xl font-bold text-gray-900 leading-tight">
               AI Literacy Course
             </h1>
@@ -166,7 +166,7 @@ export default function AILiteracy() {
                 All lessons are available, but progress won't be saved.{" "}
                 <button
                   onClick={() => navigate(createPageUrl("Login"))}
-                  className="text-green-700 font-semibold hover:underline"
+                  className="text-[#1c2f3c] font-semibold hover:underline"
                 >
                   Log in to save progress
                 </button>
@@ -183,11 +183,11 @@ export default function AILiteracy() {
                 <p className="text-sm font-semibold text-gray-700">Your Progress</p>
                 <p className="text-xs text-gray-500">{completedDays} of 10 days complete</p>
               </div>
-              <span className="text-green-700 font-bold text-lg">{Math.round(progressPercent)}%</span>
+              <span className="text-[#1c2f3c] font-bold text-lg">{Math.round(progressPercent)}%</span>
             </div>
             <div className="h-2.5 bg-gray-100 rounded-full overflow-hidden">
               <div
-                className="h-full bg-green-700 rounded-full transition-all duration-500"
+                className="h-full bg-[#1c2f3c] rounded-full transition-all duration-500"
                 style={{ width: `${progressPercent}%` }}
               />
             </div>
@@ -205,7 +205,7 @@ export default function AILiteracy() {
                 </div>
                 <Button
                   onClick={() => navigate(createPageUrl(`AIDay${nextDay.number}`))}
-                  className="bg-green-700 hover:bg-green-800 text-white flex-shrink-0 gap-2"
+                  className="bg-[#1c2f3c] hover:bg-[#152330] text-white flex-shrink-0 gap-2"
                 >
                   <Play className="w-4 h-4" />
                   {completedDays > 0 ? "Continue" : "Start Day 1"}
@@ -216,7 +216,7 @@ export default function AILiteracy() {
             {completedDays === 10 && (
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-1">
                 <div>
-                  <p className="text-xs text-green-700 font-semibold uppercase tracking-wide flex items-center gap-1">
+                  <p className="text-xs text-[#1c2f3c] font-semibold uppercase tracking-wide flex items-center gap-1">
                     <Trophy className="w-3.5 h-3.5" /> All Days Complete!
                   </p>
                   <p className="font-semibold text-gray-900 text-sm mt-0.5">
@@ -225,7 +225,7 @@ export default function AILiteracy() {
                 </div>
                 <Button
                   onClick={() => navigate(createPageUrl("AIDay10"))}
-                  className="bg-green-700 hover:bg-green-800 text-white flex-shrink-0 gap-2"
+                  className="bg-[#1c2f3c] hover:bg-[#152330] text-white flex-shrink-0 gap-2"
                 >
                   <Trophy className="w-4 h-4" /> Final Assessment
                 </Button>
@@ -236,15 +236,15 @@ export default function AILiteracy() {
 
         {/* Guest CTA */}
         {user?.isGuest && (
-          <div className="bg-green-700 rounded-xl p-6 text-white flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+          <div className="bg-[#1c2f3c] rounded-xl p-6 text-white flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
             <div>
-              <p className="text-green-200 text-sm font-medium mb-1">Start Course</p>
+              <p className="text-[#a8c4d4] text-sm font-medium mb-1">Start Course</p>
               <h3 className="text-xl font-bold mb-1">Day 1: {DAYS[0].title}</h3>
-              <p className="text-green-200 text-sm">60 min · 100 XP</p>
+              <p className="text-[#a8c4d4] text-sm">60 min · 100 XP</p>
             </div>
             <Button
               onClick={() => navigate(createPageUrl("AIDay1"))}
-              className="bg-white text-green-800 hover:bg-green-50 font-semibold shadow-md flex-shrink-0 px-6"
+              className="bg-white text-[#152330] hover:bg-[#f0f4f7] font-semibold shadow-md flex-shrink-0 px-6"
             >
               <Play className="w-4 h-4 mr-2" />
               Start Day 1
@@ -273,22 +273,22 @@ export default function AILiteracy() {
                   className={`flex items-center gap-4 px-6 py-4 transition-all ${
                     isLocked
                       ? "opacity-50 cursor-not-allowed"
-                      : "cursor-pointer hover:bg-green-50/60 group"
+                      : "cursor-pointer hover:bg-[#f0f4f7]/60 group"
                   }`}
                 >
                   {/* Status circle */}
                   <div className={`w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 ${
-                    isCompleted ? "bg-green-700" :
+                    isCompleted ? "bg-[#1c2f3c]" :
                     isLocked    ? "bg-gray-200" :
-                    isCurrent   ? "bg-green-100 ring-2 ring-green-700 group-hover:bg-green-200" :
-                                  "bg-green-100 group-hover:bg-green-200"
+                    isCurrent   ? "bg-[#dce4e8] ring-2 ring-[#1c2f3c] group-hover:bg-[#c8dce6]" :
+                                  "bg-[#dce4e8] group-hover:bg-[#c8dce6]"
                   }`}>
                     {isCompleted ? (
                       <CheckCircle className="w-5 h-5 text-white" />
                     ) : isLocked ? (
                       <Lock className="w-4 h-4 text-gray-400" />
                     ) : (
-                      <span className="text-green-800 font-bold text-sm">{day.number}</span>
+                      <span className="text-[#152330] font-bold text-sm">{day.number}</span>
                     )}
                   </div>
 
@@ -299,7 +299,7 @@ export default function AILiteracy() {
                     </p>
                     <div className="flex items-center gap-3 text-xs text-gray-500 mt-0.5">
                       <span className="flex items-center gap-1"><Clock className="w-3 h-3" />60 min</span>
-                      <span className="flex items-center gap-1 text-green-700 font-medium">
+                      <span className="flex items-center gap-1 text-[#1c2f3c] font-medium">
                         <Zap className="w-3 h-3" />100 XP
                       </span>
                     </div>
@@ -307,16 +307,16 @@ export default function AILiteracy() {
 
                   {/* Right badge */}
                   {isCompleted && (
-                    <Badge className="bg-green-50 text-green-800 border border-green-200 text-xs flex-shrink-0">Done</Badge>
+                    <Badge className="bg-[#f0f4f7] text-[#152330] border border-[#c8dce6] text-xs flex-shrink-0">Done</Badge>
                   )}
                   {isLocked && (
                     <Badge variant="outline" className="text-gray-400 border-gray-200 text-xs flex-shrink-0">Locked</Badge>
                   )}
                   {isCurrent && (
-                    <Badge className="bg-green-700 text-white text-xs flex-shrink-0">Next</Badge>
+                    <Badge className="bg-[#1c2f3c] text-white text-xs flex-shrink-0">Next</Badge>
                   )}
                   {!isCompleted && !isLocked && !isCurrent && (
-                    <Play className="w-4 h-4 text-gray-300 group-hover:text-green-700 transition-colors flex-shrink-0" />
+                    <Play className="w-4 h-4 text-gray-300 group-hover:text-[#1c2f3c] transition-colors flex-shrink-0" />
                   )}
                 </div>
               );

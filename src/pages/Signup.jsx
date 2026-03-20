@@ -120,23 +120,18 @@ export default function Signup() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-lime-50 via-white to-green-50">
+    <div className="min-h-screen flex items-center justify-center p-4 bg-[#f8f9fa]">
       <div className="w-full max-w-lg space-y-6">
         {/* Brand */}
         <div className="flex justify-center">
           <div className="flex items-center gap-3">
-            <div className="w-14 h-14 bg-gradient-to-br from-lime-400 to-green-500 rounded-2xl flex items-center justify-center shadow-lg">
-              <Sprout className="w-8 h-8 text-white" />
-            </div>
-            <div>
-              <h1 className="text-3xl font-bold text-gray-900">Sprout</h1>
-              <p className="text-sm text-gray-500">Create your account</p>
-            </div>
+            <span style={{ fontSize: 30, fontWeight: 900, color: "#1c2f3c", letterSpacing: "-0.4px", lineHeight: 1 }}>Sprout</span>
+            <Sprout className="w-8 h-8" style={{ color: "#1c2f3c" }} strokeWidth={2} />
           </div>
         </div>
 
         <Card className="border-none shadow-2xl bg-white/90 backdrop-blur-xl">
-          <CardHeader className="text-center pb-6 bg-gradient-to-r from-lime-50 to-green-50 border-b">
+          <CardHeader className="text-center pb-6 bg-[#f0f4f7] border-b">
             <CardTitle className="text-2xl font-bold">Sign up</CardTitle>
             <p className="text-gray-600 mt-2">
               Start learning with progress tracking, XP, and simulations.
@@ -215,7 +210,7 @@ export default function Signup() {
               <Button
                 type="submit"
                 disabled={isSubmitting}
-                className="w-full h-12 bg-gradient-to-r from-lime-400 to-green-500 hover:from-lime-500 hover:to-green-600 text-white font-bold text-base shadow-lg"
+                className="w-full h-12 bg-[#2a7a4b] hover:bg-[#1e5c37] text-white font-bold text-base shadow-lg"
               >
                 {isSubmitting ? (
                   <div className="flex items-center gap-2">
@@ -232,7 +227,7 @@ export default function Signup() {
 
               <p className="text-center text-sm text-gray-600">
                 Already have an account?{" "}
-                <Link to={createPageUrl("Login")} className="text-green-600 font-semibold hover:underline">
+                <Link to={createPageUrl("Login")} className="text-[#1c2f3c] font-semibold hover:underline">
                   Sign in
                 </Link>
               </p>

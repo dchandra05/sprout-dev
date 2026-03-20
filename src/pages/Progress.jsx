@@ -150,7 +150,7 @@ export default function Progress() {
     .reduce((sum, a) => sum + Number(a?.time_spent_minutes || 0), 0);
 
   return (
-    <div className="min-h-screen p-4 md:p-8">
+    <div className="min-h-screen bg-[#f8f9fa] p-4 md:p-8">
       <div className="max-w-7xl mx-auto space-y-6">
         {/* Header */}
         <div>
@@ -184,7 +184,7 @@ export default function Progress() {
             </CardContent>
           </Card>
 
-          <Card className="border-none shadow-lg bg-gradient-to-br from-purple-400 to-pink-500 text-white">
+          <Card className="border-none shadow-lg text-white" style={{ background: "linear-gradient(135deg,#2a7a4b,#1e5c37)" }}>
             <CardContent className="p-6">
               <Zap className="w-8 h-8 mb-2" />
               <p className="text-3xl font-bold">{xp}</p>
@@ -240,14 +240,14 @@ export default function Progress() {
         <Card className="border-none shadow-lg bg-white/80 backdrop-blur-sm">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <Calendar className="w-6 h-6 text-lime-500" />
+              <Calendar className="w-6 h-6 text-[#1c2f3c]" />
               This Week's Activity
             </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-3 gap-4">
-              <div className="text-center p-4 rounded-xl bg-gradient-to-br from-lime-50 to-green-50">
-                <p className="text-3xl font-bold text-lime-600">{thisWeekLessons}</p>
+              <div className="text-center p-4 rounded-xl bg-[#f0f7f4]">
+                <p className="text-3xl font-bold text-[#2a7a4b]">{thisWeekLessons}</p>
                 <p className="text-sm text-gray-600 mt-1">Lessons</p>
               </div>
               <div className="text-center p-4 rounded-xl bg-gradient-to-br from-blue-50 to-cyan-50">
@@ -326,10 +326,10 @@ export default function Progress() {
               return (
                 <div
                   key={p.id || `${p.lesson_id}_${p.completed_date}`}
-                  className="flex items-center justify-between p-3 rounded-lg hover:bg-gray-50 transition-colors"
+                  className="flex items-center justify-between p-3 rounded-lg hover:bg-[#f0f4f7] transition-colors"
                 >
                   <div className="flex items-center gap-3">
-                    <CheckCircle className="w-5 h-5 text-lime-500" />
+                    <CheckCircle className="w-5 h-5 text-[#2a7a4b]" />
                     <div>
                       <p className="font-medium text-gray-900">Lesson Completed</p>
                       <p className="text-sm text-gray-600">
@@ -338,7 +338,7 @@ export default function Progress() {
                     </div>
                   </div>
                   {p.quiz_score != null && (
-                    <Badge className="bg-lime-100 text-lime-700">{p.quiz_score}% score</Badge>
+                    <Badge className="bg-[#f0f7f4] text-[#2a7a4b] border border-[#b6ddc8]">{p.quiz_score}% score</Badge>
                   )}
                 </div>
               );

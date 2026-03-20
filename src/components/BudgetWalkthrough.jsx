@@ -158,10 +158,10 @@ export default function BudgetWalkthrough() {
   const getHighlightStyle = (area) => {
     if (!step.highlight || step.highlight !== area) return {};
     return {
-      outline: "3px solid #15803d",
+      outline: "3px solid #1c2f3c",
       outlineOffset: "4px",
       borderRadius: "6px",
-      boxShadow: "0 0 14px rgba(21, 128, 61, 0.25)",
+      boxShadow: "0 0 14px rgba(28, 47, 60, 0.25)",
       transition: "all 0.3s ease",
       position: "relative",
       zIndex: 10,
@@ -171,13 +171,13 @@ export default function BudgetWalkthrough() {
   // ── Intro screen ─────────────────────────────────────────────────────────
   if (!started) return (
     <div className="space-y-5">
-      <div className="bg-green-700 rounded-2xl p-7 text-white">
+      <div className="bg-[#1c2f3c] rounded-2xl p-7 text-white">
         <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center mb-4">
           <Eye className="w-6 h-6 text-white" />
         </div>
-        <p className="text-green-200 text-xs font-semibold uppercase tracking-widest mb-2">Budget Walkthrough</p>
+        <p className="text-[#a8c4d4] text-xs font-semibold uppercase tracking-widest mb-2">Budget Walkthrough</p>
         <h2 className="text-2xl font-bold mb-2">How to Read a Real Budget</h2>
-        <p className="text-green-100 text-sm leading-relaxed">
+        <p className="text-[#dce4e8] text-sm leading-relaxed">
           Most people have never seen a real personal budget laid out as a spreadsheet. This walkthrough breaks down a real budget sheet section by section — so you understand exactly where every dollar goes and what the numbers mean.
         </p>
       </div>
@@ -192,7 +192,7 @@ export default function BudgetWalkthrough() {
             ["How to read financial charts", "Bar charts and pie charts that make your spending obvious at a glance."],
           ].map(([title, desc]) => (
             <div key={title} className="flex items-start gap-3">
-              <CheckCircle2 className="w-4 h-4 text-green-600 flex-shrink-0 mt-0.5" />
+              <CheckCircle2 className="w-4 h-4 text-[#4a7a96] flex-shrink-0 mt-0.5" />
               <div>
                 <p className="text-sm font-semibold text-gray-900">{title}</p>
                 <p className="text-xs text-gray-500">{desc}</p>
@@ -203,8 +203,8 @@ export default function BudgetWalkthrough() {
       </div>
 
       <div className="bg-white border border-gray-200 rounded-xl p-5 shadow-sm flex items-start gap-3">
-        <div className="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center flex-shrink-0">
-          <Lightbulb className="w-4 h-4 text-green-700" />
+        <div className="w-8 h-8 bg-[#dce4e8] rounded-lg flex items-center justify-center flex-shrink-0">
+          <Lightbulb className="w-4 h-4 text-[#1c2f3c]" />
         </div>
         <div>
           <p className="font-semibold text-gray-900 text-sm mb-1">How this works</p>
@@ -216,7 +216,7 @@ export default function BudgetWalkthrough() {
 
       <Button
         onClick={() => setStarted(true)}
-        className="w-full h-12 bg-green-700 hover:bg-green-800 text-white font-semibold text-base"
+        className="w-full h-12 bg-[#1c2f3c] hover:bg-[#152330] text-white font-semibold text-base"
       >
         Start Walkthrough
         <ChevronRight className="w-4 h-4 ml-2" />
@@ -227,20 +227,20 @@ export default function BudgetWalkthrough() {
   if (isComplete) {
     return (
       <div className="space-y-6">
-        <div className="bg-white border border-green-200 rounded-2xl p-8 text-center shadow-sm">
-          <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-            <CheckCircle2 className="w-8 h-8 text-green-700" />
+        <div className="bg-white border border-[#c8dce6] rounded-2xl p-8 text-center shadow-sm">
+          <div className="w-16 h-16 bg-[#dce4e8] rounded-full flex items-center justify-center mx-auto mb-4">
+            <CheckCircle2 className="w-8 h-8 text-[#1c2f3c]" />
           </div>
           <h2 className="text-2xl font-bold text-gray-900 mb-2">Walkthrough Complete</h2>
           <p className="text-gray-500 mb-6 max-w-sm mx-auto">
             You've reviewed all 9 sections of a real budget sheet. You now know how to read and use a monthly budget.
           </p>
-          <div className="bg-green-50 border border-green-200 rounded-xl p-5 text-left max-w-sm mx-auto mb-6">
-            <p className="text-xs font-semibold text-green-700 uppercase tracking-wide mb-3">What You Covered</p>
+          <div className="bg-[#f0f4f7] border border-[#c8dce6] rounded-xl p-5 text-left max-w-sm mx-auto mb-6">
+            <p className="text-xs font-semibold text-[#1c2f3c] uppercase tracking-wide mb-3">What You Covered</p>
             <ul className="space-y-2 text-sm text-gray-700">
               {["Fixed vs. variable expenses", "How to read income and savings", "Monthly patterns and visual charts", "A practical monthly budgeting routine"].map((item, i) => (
                 <li key={i} className="flex items-start gap-2">
-                  <CheckCircle2 className="w-4 h-4 text-green-600 flex-shrink-0 mt-0.5" />
+                  <CheckCircle2 className="w-4 h-4 text-[#4a7a96] flex-shrink-0 mt-0.5" />
                   {item}
                 </li>
               ))}
@@ -281,11 +281,11 @@ export default function BudgetWalkthrough() {
           <Card className="border border-gray-200 shadow-sm">
             <CardContent className="p-6 md:p-8">
               <div className="flex items-start gap-4 mb-5">
-                <div className="w-12 h-12 rounded-xl bg-green-700 flex items-center justify-center flex-shrink-0">
+                <div className="w-12 h-12 rounded-xl bg-[#1c2f3c] flex items-center justify-center flex-shrink-0">
                   <Icon className="w-6 h-6 text-white" />
                 </div>
                 <div className="flex-1">
-                  <Badge className="mb-2 bg-green-100 text-green-800 border border-green-200 text-xs">
+                  <Badge className="mb-2 bg-[#dce4e8] text-[#152330] border border-[#c8dce6] text-xs">
                     Step {currentStep + 1}
                   </Badge>
                   <h3 className="text-xl font-bold text-gray-900 mb-1">{step.title}</h3>
@@ -293,7 +293,7 @@ export default function BudgetWalkthrough() {
                 </div>
               </div>
 
-              <div className="bg-gray-50 border-l-4 border-green-700 rounded-r-xl p-5 mb-4">
+              <div className="bg-[#f0f4f7] border-l-4 border-[#1c2f3c] rounded-r-xl p-5 mb-4">
                 {step.content.split("\n").map((para, i) => (
                   <p key={i} className="text-gray-700 leading-relaxed mb-2 last:mb-0 text-sm">
                     {para.split("**").map((part, j) =>
@@ -306,8 +306,8 @@ export default function BudgetWalkthrough() {
               </div>
 
               {step.tip && (
-                <div className="bg-green-50 border border-green-200 rounded-xl p-4 flex items-start gap-2.5">
-                  <Lightbulb className="w-4 h-4 text-green-700 flex-shrink-0 mt-0.5" />
+                <div className="bg-[#f0f4f7] border border-[#c8dce6] rounded-xl p-4 flex items-start gap-2.5">
+                  <Lightbulb className="w-4 h-4 text-[#1c2f3c] flex-shrink-0 mt-0.5" />
                   <p className="text-sm text-gray-700 leading-relaxed">{step.tip}</p>
                 </div>
               )}
@@ -345,10 +345,10 @@ export default function BudgetWalkthrough() {
                 <div style={getHighlightStyle("variable")}>{r.food}</div>
                 <div style={getHighlightStyle("variable")}>{r.misc}</div>
                 <div style={getHighlightStyle("total")} className="font-semibold">{r.total}</div>
-                <div style={getHighlightStyle("income")} className="text-green-700 font-semibold">{r.income}</div>
+                <div style={getHighlightStyle("income")} className="text-[#1c2f3c] font-semibold">{r.income}</div>
                 <div
                   style={getHighlightStyle("savings")}
-                  className={`font-semibold ${r.savings.startsWith("-") ? "text-red-600" : "text-green-700"}`}
+                  className={`font-semibold ${r.savings.startsWith("-") ? "text-red-600" : "text-[#1c2f3c]"}`}
                 >
                   {r.savings}
                 </div>
@@ -363,7 +363,7 @@ export default function BudgetWalkthrough() {
                   {[45, 78, 62, 85, 50, 70].map((height, i) => (
                     <div
                       key={i}
-                      className="flex-1 bg-green-600 rounded-t"
+                      className="flex-1 bg-[#1c2f3c] rounded-t"
                       style={{ height: `${height}%` }}
                     />
                   ))}
@@ -374,14 +374,14 @@ export default function BudgetWalkthrough() {
                 <h4 className="font-semibold text-xs text-gray-600 mb-3">Spending by Category</h4>
                 <div className="flex items-center justify-center h-20">
                   <svg viewBox="0 0 100 100" className="w-20 h-20">
-                    <path d="M 50 50 L 50 0 A 50 50 0 0 1 85.36 14.64 Z" fill="#15803d" />
-                    <path d="M 50 50 L 85.36 14.64 A 50 50 0 0 1 85.36 85.36 Z" fill="#4ade80" />
-                    <path d="M 50 50 L 85.36 85.36 A 50 50 0 0 1 14.64 85.36 Z" fill="#86efac" />
-                    <path d="M 50 50 L 14.64 85.36 A 50 50 0 0 1 50 0 Z" fill="#bbf7d0" />
+                    <path d="M 50 50 L 50 0 A 50 50 0 0 1 85.36 14.64 Z" fill="#1c2f3c" />
+                    <path d="M 50 50 L 85.36 14.64 A 50 50 0 0 1 85.36 85.36 Z" fill="#4a7a96" />
+                    <path d="M 50 50 L 85.36 85.36 A 50 50 0 0 1 14.64 85.36 Z" fill="#7fa8c0" />
+                    <path d="M 50 50 L 14.64 85.36 A 50 50 0 0 1 50 0 Z" fill="#c8dce6" />
                   </svg>
                 </div>
                 <div className="mt-2 space-y-1">
-                  {[["#15803d", "Rent", "40%"], ["#4ade80", "Groceries", "25%"], ["#86efac", "Food", "20%"], ["#bbf7d0", "Other", "15%"]].map(([color, label, pct]) => (
+                  {[["#1c2f3c", "Rent", "40%"], ["#4a7a96", "Groceries", "25%"], ["#7fa8c0", "Food", "20%"], ["#c8dce6", "Other", "15%"]].map(([color, label, pct]) => (
                     <div key={label} className="flex justify-between text-xs text-gray-600">
                       <span className="flex items-center gap-1.5">
                         <span className="w-2 h-2 rounded-full flex-shrink-0" style={{ backgroundColor: color }} />
@@ -411,7 +411,7 @@ export default function BudgetWalkthrough() {
 
         <Button
           onClick={nextStep}
-          className="h-11 px-5 bg-green-700 hover:bg-green-800 text-white font-semibold"
+          className="h-11 px-5 bg-[#1c2f3c] hover:bg-[#152330] text-white font-semibold"
         >
           {isLastStep ? "Complete Walkthrough" : "Continue"}
           {!isLastStep && <ChevronRight className="w-4 h-4 ml-1" />}
