@@ -101,11 +101,7 @@ export default function Login() {
       };
       localStorage.setItem("sprout_user", JSON.stringify(merged));
 
-      if (profile?.onboarding_completed === false) {
-        navigate(createPageUrl("SchoolSelection"), { replace: true });
-      } else {
-        navigate(createPageUrl("Dashboard"), { replace: true });
-      }
+      navigate(createPageUrl("Dashboard"), { replace: true });
     } catch (err) {
       console.error("[Login] unexpected error:", err);
       setError("An unexpected error occurred. Please try again.");

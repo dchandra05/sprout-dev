@@ -58,9 +58,6 @@ export default function PaycheckSimulation() {
     }
     setUserState(currentUser);
 
-    if (!currentUser.onboarding_completed) {
-      navigate(createPageUrl("SchoolSelection"));
-    }
   }, [navigate]);
 
   const lessonNum = useMemo(() => parseInt(lessonNumber, 10) || 1, [lessonNumber]);

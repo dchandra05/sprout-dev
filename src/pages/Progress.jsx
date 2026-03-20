@@ -84,9 +84,6 @@ export default function Progress() {
     }
     setUser(currentUser);
 
-    if (!currentUser.onboarding_completed) {
-      navigate(createPageUrl("SchoolSelection"));
-    }
   }, [navigate]);
 
   const { data: userProgress = [] } = useQuery({

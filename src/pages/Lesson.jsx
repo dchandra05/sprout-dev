@@ -547,7 +547,6 @@ export default function Lesson() {
     const u = getLocalUser();
     if (!u) { navigate(createPageUrl("Login")); return; }
     setUser(u);
-    if (!u.onboarding_completed) navigate(createPageUrl("SchoolSelection"));
   }, [navigate]);
 
   const { completedChallenge, clearCompletedChallenge } = useChallengeCheck(user);

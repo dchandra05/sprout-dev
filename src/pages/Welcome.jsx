@@ -25,11 +25,7 @@ export default function Welcome() {
       return;
     }
 
-    if (user.onboarding_completed) {
-      navigate(createPageUrl("Dashboard"));
-    } else {
-      navigate(createPageUrl("SchoolSelection"));
-    }
+    navigate(createPageUrl("Dashboard"));
   }, [navigate]);
 
   return (
