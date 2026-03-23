@@ -12,7 +12,11 @@ import InteractiveQuiz from "@/components/InteractiveQuiz";
 import MLTrainingSimulator from "@/components/MLTrainingSimulator";
 import { upsertLessonProgress } from "@/lib/activityTracker";
 
-import { getCurrentUserSafe, getAIDayProgress, upsertAIDayProgress } from "@/lib/appClient";
+import { getAIDayProgress, upsertAIDayProgress } from "@/lib/appClient";
+
+const getLocalUser = () => {
+  try { return JSON.parse(localStorage.getItem("sprout_user") || "null"); } catch { return null; }
+};
 
 export default function AIDay2() {
   const navigate = useNavigate();
@@ -23,17 +27,13 @@ export default function AIDay2() {
   const [activityComplete, setActivityComplete] = useState(false);
 
   useEffect(() => {
-    const loadUser = async () => {
-      try {
-        const currentUser = await getCurrentUserSafe();
-        setUser(currentUser);
-        setIsLoadingUser(false);
-      } catch (error) {
-        console.error("Error loading user:", error);
-        setIsLoadingUser(false);
-      }
-    };
-    loadUser();
+    const currentUser = getLocalUser();
+    if (!currentUser) {
+      navigate(createPageUrl("Login"));
+      return;
+    }
+    setUser(currentUser);
+    setIsLoadingUser(false);
   }, [navigate]);
 
   const { data: dayProgress } = useQuery({
@@ -166,7 +166,7 @@ export default function AIDay2() {
       content: (
         <div className="space-y-6">
           <div className="bg-yellow-50 p-6 rounded-xl border-l-4 border-yellow-500">
-            <h3 className="text-xl font-bold text-gray-900 mb-2">🧪 Hands-On Lab</h3>
+            <h3 className="text-xl font-bold text-gray-900 mb-2">Hands-On Lab</h3>
             <p className="text-gray-700">
               You'll train a cat vs dog classifier. See how data quality affects model accuracy!
             </p>

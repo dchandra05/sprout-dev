@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Sprout, Mail, Lock, AlertCircle } from "lucide-react";
+import { Sprout, Mail, Lock, Eye, EyeOff, AlertCircle } from "lucide-react";
 
 export default function Login() {
   const navigate = useNavigate();
@@ -15,6 +15,7 @@ export default function Login() {
   const [password,     setPassword]     = useState("");
   const [error,        setError]        = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   // If already logged in, skip straight to dashboard
   useEffect(() => {
@@ -155,18 +156,34 @@ export default function Login() {
               </div>
 
               <div className="space-y-2">
-                <Label className="text-gray-700">Password</Label>
+                <div className="flex items-center justify-between">
+                  <Label className="text-gray-700">Password</Label>
+                  <Link
+                    to={createPageUrl("ForgotPassword")}
+                    className="text-sm text-[#2a7a4b] hover:underline font-medium"
+                  >
+                    Forgot password?
+                  </Link>
+                </div>
                 <div className="relative">
                   <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
                   <Input
-                    type="password"
+                    type={showPassword ? "text" : "password"}
                     value={password}
                     onChange={(e) => { setPassword(e.target.value); setError(""); }}
                     placeholder="Your password"
-                    className="pl-10 h-12 border-gray-200"
+                    className="pl-10 pr-10 h-12 border-gray-200"
                     autoComplete="current-password"
                     required
                   />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword((v) => !v)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                    tabIndex={-1}
+                  >
+                    {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                  </button>
                 </div>
               </div>
 

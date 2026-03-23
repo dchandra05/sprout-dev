@@ -1,46 +1,58 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
+import { supabase } from "@/lib/supabaseClient";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Sprout, Mail, ArrowLeft, CheckCircle } from "lucide-react";
-import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Sprout, Mail, ArrowLeft, CheckCircle, AlertCircle } from "lucide-react";
 
 export default function ForgotPassword() {
   const [email, setEmail] = useState("");
   const [submitted, setSubmitted] = useState(false);
   const [error, setError] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
 
-    if (!email) {
-      setError("Please enter your email");
+    const normalized = email.trim().toLowerCase();
+    if (!normalized || !normalized.includes("@")) {
+      setError("Please enter a valid email address.");
       return;
     }
 
-    // Simulate password reset
-    setTimeout(() => {
+    setIsSubmitting(true);
+    try {
+      const redirectTo = `${window.location.origin}/#/reset-password`;
+      const { error: resetError } = await supabase.auth.resetPasswordForEmail(normalized, {
+        redirectTo,
+      });
+
+      if (resetError) {
+        setError(resetError.message || "Failed to send reset email. Please try again.");
+        return;
+      }
+
       setSubmitted(true);
-    }, 1000);
+    } catch (err) {
+      console.error("[ForgotPassword] unexpected error:", err);
+      setError("An unexpected error occurred. Please try again.");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4">
+    <div className="min-h-screen flex items-center justify-center p-4 bg-[#f8f9fa]">
       <div className="w-full max-w-md">
-        {/* Logo */}
+        {/* Brand */}
         <div className="flex justify-center mb-8">
           <div className="flex items-center gap-3">
-            <div className="w-14 h-14 bg-[#1c2f3c] rounded-2xl flex items-center justify-center shadow-lg">
-              <Sprout className="w-8 h-8 text-white" />
-            </div>
-            <div>
-              <h1 className="text-3xl font-bold text-gray-900">Sprout</h1>
-              <p className="text-sm text-gray-500">Grow Your Knowledge</p>
-            </div>
+            <span style={{ fontSize: 30, fontWeight: 900, color: "#1c2f3c", letterSpacing: "-0.4px", lineHeight: 1 }}>Sprout</span>
+            <Sprout className="w-8 h-8" style={{ color: "#1c2f3c" }} strokeWidth={2} />
           </div>
         </div>
 
@@ -55,8 +67,8 @@ export default function ForgotPassword() {
               </>
             ) : (
               <>
-                <div className="w-16 h-16 bg-[#dce4e8] rounded-full flex items-center justify-center mx-auto mb-4">
-                  <CheckCircle className="w-8 h-8 text-[#1c2f3c]" />
+                <div className="w-16 h-16 bg-[#f0f7f4] rounded-full flex items-center justify-center mx-auto mb-4">
+                  <CheckCircle className="w-8 h-8 text-[#2a7a4b]" />
                 </div>
                 <CardTitle className="text-2xl font-bold">Check Your Email</CardTitle>
                 <CardDescription className="text-base">
@@ -70,9 +82,10 @@ export default function ForgotPassword() {
             {!submitted ? (
               <form onSubmit={handleSubmit} className="space-y-4">
                 {error && (
-                  <Alert variant="destructive">
-                    <AlertDescription>{error}</AlertDescription>
-                  </Alert>
+                  <div className="flex items-start gap-2 px-4 py-3 bg-red-50 border border-red-200 rounded-xl text-red-700 text-sm">
+                    <AlertCircle className="w-4 h-4 flex-shrink-0 mt-0.5" />
+                    <span>{error}</span>
+                  </div>
                 )}
 
                 <div className="space-y-2">
@@ -82,10 +95,11 @@ export default function ForgotPassword() {
                     <Input
                       id="email"
                       type="email"
-                      placeholder="you@school.edu"
+                      placeholder="you@example.com"
                       value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      className="pl-10 h-12 border-gray-200 focus:ring-[#1c2f3c]"
+                      onChange={(e) => { setEmail(e.target.value); setError(""); }}
+                      className="pl-10 h-12 border-gray-200"
+                      autoComplete="email"
                       required
                     />
                   </div>
@@ -93,9 +107,17 @@ export default function ForgotPassword() {
 
                 <Button
                   type="submit"
-                  className="w-full h-12 bg-[#1c2f3c] hover:bg-[#152330] text-white font-semibold"
+                  disabled={isSubmitting}
+                  className="w-full h-12 bg-[#2a7a4b] hover:bg-[#1e5c37] text-white font-bold text-base shadow-lg"
                 >
-                  Send Reset Link
+                  {isSubmitting ? (
+                    <div className="flex items-center gap-2">
+                      <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                      Sending…
+                    </div>
+                  ) : (
+                    "Send Reset Link"
+                  )}
                 </Button>
 
                 <Link to={createPageUrl("Login")}>
@@ -113,14 +135,12 @@ export default function ForgotPassword() {
               <div className="space-y-4">
                 <div className="p-4 rounded-xl bg-[#f0f4f7] border border-[#c8dce6]">
                   <p className="text-sm text-gray-700">
-                    📧 Didn't receive the email? Check your spam folder or try again in a few minutes.
+                    Didn't receive the email? Check your spam folder or try again in a few minutes.
                   </p>
                 </div>
 
                 <Link to={createPageUrl("Login")}>
-                  <Button
-                    className="w-full h-12 bg-[#1c2f3c] hover:bg-[#152330] text-white"
-                  >
+                  <Button className="w-full h-12 bg-[#2a7a4b] hover:bg-[#1e5c37] text-white font-bold">
                     <ArrowLeft className="w-4 h-4 mr-2" />
                     Back to Login
                   </Button>

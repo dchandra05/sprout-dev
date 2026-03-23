@@ -152,7 +152,7 @@ export default function Progress() {
         {/* Header */}
         <div>
           <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-2">
-            Your Progress 📈
+            Your Progress
           </h1>
           <p className="text-gray-600">Track your learning journey</p>
         </div>

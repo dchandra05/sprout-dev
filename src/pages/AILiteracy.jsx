@@ -28,10 +28,7 @@ import {
   LogIn,
 } from "lucide-react";
 
-import {
-  getCurrentUserSafe,
-  getAIDayProgress,
-} from "@/lib/appClient";
+import { getAIDayProgress } from "@/lib/appClient";
 
 // ── AI Day definitions ─────────────────────────────────────────
 
@@ -59,21 +56,9 @@ export default function AILiteracy() {
   const [isLoadingUser, setIsLoadingUser] = useState(true);
 
   useEffect(() => {
-    const load = async () => {
-      try {
-        // Try Supabase user first, fall back to localStorage
-        const remoteUser = await getCurrentUserSafe().catch(() => null);
-        const localUser  = getLocalUser();
-        const resolved   = remoteUser || localUser;
-        setUser(resolved || { isGuest: true });
-      } catch {
-        const localUser = getLocalUser();
-        setUser(localUser || { isGuest: true });
-      } finally {
-        setIsLoadingUser(false);
-      }
-    };
-    load();
+    const localUser = getLocalUser();
+    setUser(localUser || { isGuest: true });
+    setIsLoadingUser(false);
   }, []);
 
   // Fetch AI day progress for all 10 days

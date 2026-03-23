@@ -11,7 +11,11 @@ import { ArrowLeft, ChevronRight, CheckCircle, Brain, Lightbulb, Target } from "
 import InteractiveQuiz from "@/components/InteractiveQuiz";
 import { upsertLessonProgress } from "@/lib/activityTracker";
 
-import { getCurrentUserSafe, getAIDayProgress, upsertAIDayProgress } from "@/lib/appClient";
+import { getAIDayProgress, upsertAIDayProgress } from "@/lib/appClient";
+
+const getLocalUser = () => {
+  try { return JSON.parse(localStorage.getItem("sprout_user") || "null"); } catch { return null; }
+};
 
 export default function AIDay1() {
   const navigate = useNavigate();
@@ -22,17 +26,13 @@ export default function AIDay1() {
   const [activityComplete, setActivityComplete] = useState(false);
 
   useEffect(() => {
-    const loadUser = async () => {
-      try {
-        const currentUser = await getCurrentUserSafe();
-        setUser(currentUser);
-        setIsLoadingUser(false);
-      } catch (error) {
-        console.error("Error loading user:", error);
-        setIsLoadingUser(false);
-      }
-    };
-    loadUser();
+    const currentUser = getLocalUser();
+    if (!currentUser) {
+      navigate(createPageUrl("Login"));
+      return;
+    }
+    setUser(currentUser);
+    setIsLoadingUser(false);
   }, [navigate]);
 
   const { data: dayProgress } = useQuery({

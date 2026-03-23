@@ -10,6 +10,7 @@ const pageRoutes = {
   Login:   "/login",
   Signup:  "/signup",
   ForgotPassword: "/forgot-password",
+  ResetPassword:  "/reset-password",
 
   Dashboard:   "/dashboard",
   Learn:       "/learn",

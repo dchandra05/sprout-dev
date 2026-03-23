@@ -1,5 +1,9 @@
 import React, { useState, useEffect } from "react";
-import { getCurrentUserSafe, upsertAIDayProgress, getAIDayProgress } from "@/lib/appClient";
+import { upsertAIDayProgress, getAIDayProgress } from "@/lib/appClient";
+
+const getLocalUser = () => {
+  try { return JSON.parse(localStorage.getItem("sprout_user") || "null"); } catch { return null; }
+};
 import { useMutation, useQueryClient, useQuery } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
 import { createPageUrl } from "@/utils";
@@ -21,17 +25,13 @@ export default function AIDay5() {
   const [activityComplete, setActivityComplete] = useState(false);
 
   useEffect(() => {
-    const loadUser = async () => {
-      try {
-        const currentUser = await getCurrentUserSafe();
-        setUser(currentUser);
-        setIsLoadingUser(false);
-      } catch (error) {
-        console.error("Error loading user:", error);
-        setIsLoadingUser(false);
-      }
-    };
-    loadUser();
+    const currentUser = getLocalUser();
+    if (!currentUser) {
+      navigate(createPageUrl("Login"));
+      return;
+    }
+    setUser(currentUser);
+    setIsLoadingUser(false);
   }, [navigate]);
 
   const { data: dayProgress } = useQuery({

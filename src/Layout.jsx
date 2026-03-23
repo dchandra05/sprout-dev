@@ -19,7 +19,7 @@ const NAV_ITEMS = [
 ];
 
 const NO_LAYOUT = new Set([
-  "landing", "login", "signup", "forgotpassword",
+  "landing", "login", "signup", "forgotpassword", "resetpassword",
   "schoolselection", "welcome", "home",
 ]);
 
@@ -266,13 +266,13 @@ export default function Layout({ children, currentPageName }) {
             {NAV_ITEMS.map(({ name, path }) => {
               const active = isActive(path);
               return (
-                <Link
+                <button
                   key={name}
-                  to={createPageUrl(path)}
+                  onClick={() => navigate(createPageUrl(path))}
                   className={`sn-link${active ? " active" : ""}`}
                 >
                   {name}
-                </Link>
+                </button>
               );
             })}
           </nav>
@@ -344,14 +344,14 @@ export default function Layout({ children, currentPageName }) {
           {NAV_ITEMS.map(({ name, icon: Icon, path }) => {
             const active = isActive(path);
             return (
-              <Link
+              <button
                 key={name}
-                to={createPageUrl(path)}
+                onClick={() => { setMobileOpen(false); navigate(createPageUrl(path)); }}
                 className={`sn-mobile-link${active ? " active" : ""}`}
               >
                 <Icon size={17} />
                 {name}
-              </Link>
+              </button>
             );
           })}
           <div className="sn-mobile-divider" />

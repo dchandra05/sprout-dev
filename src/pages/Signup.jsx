@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
-import { Sprout, Mail, Lock, User, ArrowRight } from "lucide-react";
+import { Sprout, Mail, Lock, User, ArrowRight, Eye, EyeOff } from "lucide-react";
 
 const normalizeEmail = (email) => String(email || "").trim().toLowerCase();
 
@@ -24,6 +24,8 @@ export default function Signup() {
   });
 
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirm,  setShowConfirm]  = useState(false);
 
   const emailNormalized = useMemo(() => normalizeEmail(form.email), [form.email]);
 
@@ -76,7 +78,7 @@ export default function Signup() {
       if (!user) {
         // Supabase project has email confirmation enabled:
         // the user is created but the session is null until the email is confirmed.
-        toast.success("Account created! Check your email to confirm before logging in. 📧");
+        toast.success("Account created! Check your email to confirm before logging in.");
         navigate(createPageUrl("Login"));
         return;
       }
@@ -103,7 +105,7 @@ export default function Signup() {
         console.warn("[Signup] profile upsert warning:", profileError.message);
       }
 
-      toast.success("Account created! 🌱");
+      toast.success("Account created!");
       // If a session was returned (email confirmation disabled), seed
       // localStorage so all pages immediately show the correct user.
       if (authData?.session) {
@@ -200,14 +202,22 @@ export default function Signup() {
                 <div className="relative">
                   <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
                   <Input
-                    type="password"
+                    type={showPassword ? "text" : "password"}
                     value={form.password}
                     onChange={(e) => setForm((p) => ({ ...p, password: e.target.value }))}
                     placeholder="At least 6 characters"
-                    className="pl-10 h-12"
+                    className="pl-10 pr-10 h-12"
                     autoComplete="new-password"
                     required
                   />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword((v) => !v)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                    tabIndex={-1}
+                  >
+                    {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                  </button>
                 </div>
               </div>
 
@@ -217,14 +227,22 @@ export default function Signup() {
                 <div className="relative">
                   <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
                   <Input
-                    type="password"
+                    type={showConfirm ? "text" : "password"}
                     value={form.confirm_password}
                     onChange={(e) => setForm((p) => ({ ...p, confirm_password: e.target.value }))}
                     placeholder="Repeat your password"
-                    className="pl-10 h-12"
+                    className="pl-10 pr-10 h-12"
                     autoComplete="new-password"
                     required
                   />
+                  <button
+                    type="button"
+                    onClick={() => setShowConfirm((v) => !v)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                    tabIndex={-1}
+                  >
+                    {showConfirm ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                  </button>
                 </div>
               </div>
 

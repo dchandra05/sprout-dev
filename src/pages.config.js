@@ -24,6 +24,7 @@ import CreditCardQuiz from "./pages/CreditCardQuiz";
 import Dashboard from "./pages/Dashboard";
 import FinalExam from "./pages/FinalExam";
 import ForgotPassword from "./pages/ForgotPassword";
+import ResetPassword from "./pages/ResetPassword";
 import Goals from "./pages/Goals";
 import Home from "./pages/Home";
 import InvestmentCalculator from "./pages/InvestmentCalculator";
@@ -47,6 +48,7 @@ export const PAGES = {
   Login,
   Signup,
   ForgotPassword,
+  ResetPassword,
   SchoolSelection,
   Welcome,
   Dashboard,
