@@ -6,6 +6,7 @@ import { ArrowLeft } from "lucide-react";
 import { createPageUrl } from "@/utils";
 import BudgetWalkthrough from "@/components/BudgetWalkthrough";
 import ScenarioBudgetSimulation from "@/components/ScenarioBudgetSimulation";
+import { trackEvent, trackSimulationStart, trackSimulationComplete } from "@/lib/activityTracker";
 
 // NOTE: Base44 removed in migration pass.
 // TODO (later phase): replace these stubs with your real API/client layer.
@@ -48,6 +49,7 @@ export default function BudgetSimulation() {
       return;
     }
     setUser(currentUser);
+    trackSimulationStart("budget-simulation", "Budget Simulation").catch(() => {});
   }, [navigate]);
 
   const lessonNum = parseInt(lessonNumber, 10) || 0;
@@ -78,25 +80,23 @@ export default function BudgetSimulation() {
 
   const completeMutation = useMutation({
     mutationFn: async () => {
+      if (!user?.email) return;
       const lesson = lessons[lessonNum];
-      if (!lesson || !user?.email) return;
 
-      // In Base44 version, this upserted progress + added XP.
-      // In this migration pass, we keep the call sites but use stubs.
-      await data.upsertUserProgress({
-        user_email: user.email,
-        lesson_id: lesson.id,
-        course_id: lesson.course_id,
-        completed: true,
-        completed_date: new Date().toISOString(),
-        quiz_score: 100,
-        time_spent_minutes: lesson.duration_minutes || 20
+      await trackEvent("lesson_completed", {
+        simulation:    "budget-simulation",
+        lesson_number: lessonNum,
+        lesson_id:     lesson?.id,
+        lesson_title:  lesson?.title || `Budget Simulation ${lessonNum}`,
+        course_id:     "6972392c60eb785db714b719",
+        quiz_score:    100,
+        xp_earned:     lesson?.xp_reward || 150,
       });
 
-      await data.updateUserXP({
-        email: user.email,
-        // you can decide how XP is stored later
-        xp_delta: lesson.xp_reward || 150
+      await trackSimulationComplete("budget-simulation", "Budget Simulation", {
+        lesson_number: lessonNum,
+        lesson_title:  lesson?.title || `Budget Simulation ${lessonNum}`,
+        xp_earned:     lesson?.xp_reward || 150,
       });
     },
     onSuccess: () => {

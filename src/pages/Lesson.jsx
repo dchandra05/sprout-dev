@@ -41,6 +41,7 @@ import { toast } from "sonner";
 import LevelUpModal from "@/components/LevelUpModal";
 import ChallengeCompleteModal from "@/components/ChallengeCompleteModal";
 import { useChallengeCheck } from "@/components/useChallengeCheck";
+import { trackEvent } from "@/lib/activityTracker";
 
 // ─── Local helpers ─────────────────────────────────────────────
 
@@ -622,6 +623,15 @@ export default function Lesson() {
       await dataClient.upsertUserProgress(record);
 
       const xpReward        = Number(lesson.xp_reward || 0);
+
+      // Track to Supabase (non-blocking)
+      trackEvent("lesson_completed", {
+        lesson_id:    lessonId,
+        lesson_title: lesson.title,
+        course_id:    lesson.course_id,
+        quiz_score:   quizScore,
+        xp_earned:    xpReward,
+      }).catch(() => {});
       const newXP           = (user.xp_points || 0) + xpReward;
       const calculatedLevel = Math.floor(newXP / 500) + 1;
       const updatedUser     = {

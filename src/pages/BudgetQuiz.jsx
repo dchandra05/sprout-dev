@@ -1,5 +1,6 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
+import { trackEvent } from "@/lib/activityTracker";
 import { createPageUrl } from "@/utils";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -104,6 +105,14 @@ export default function BudgetQuiz() {
   const navigate = useNavigate();
 
   const handleComplete = (score) => {
+    const total = quizQuestions.length;
+    const percentage = Math.round((score / total) * 100);
+    trackEvent("quiz_completed", {
+      quiz_name:       "Budget Mastery Quiz",
+      score,
+      total_questions: total,
+      percentage,
+    }).catch(() => {});
     navigate(createPageUrl("Learn"));
   };
 

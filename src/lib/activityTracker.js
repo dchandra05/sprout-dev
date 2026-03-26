@@ -108,6 +108,14 @@ export async function upsertLessonProgress({
 
   const now = new Date().toISOString();
 
+  // Always write the activity event first so the admin feed is populated
+  // even if the course slug can't be resolved below.
+  await insertActivityEvent(user, "lesson_completed", {
+    course_slug: courseSlug,
+    day_number:  dayNumber,
+    metadata:    { quiz_score: quizScore, xp_earned: xpEarned },
+  });
+
   // 1. Resolve course row
   const courseRow = await resolveCourseId(courseSlug);
   if (!courseRow) {
@@ -183,12 +191,8 @@ export async function upsertLessonProgress({
     if (legacyErr) console.warn("[tracker] legacy upsert:", legacyErr.message);
   }
 
-  // 5. Fire activity event
-  await insertActivityEvent(user, "lesson_completed", {
-    course_id:  courseId,
-    day_number: dayNumber,
-    metadata:   { quiz_score: quizScore, xp_earned: xpEarned },
-  });
+  // Activity event already written above (before course resolution) so
+  // the admin feed is populated even when the slug lookup fails.
 }
 
 // ── trackLessonStart ─────────────────────────────────────────
@@ -245,4 +249,56 @@ export async function trackLessonComplete(dayNumber, quizScore) {
     dayNumber,
     quizScore,
   });
+}
+
+// ── Generic event tracker ─────────────────────────────────────
+// Use when you don't have a Supabase course UUID / slug —
+// always writes to user_activity_events, never throws.
+
+export async function trackEvent(eventType, metadata = {}) {
+  const user = await getAuthUser();
+  if (!user) return;
+  await insertActivityEvent(user, eventType, metadata);
+}
+
+// ── Simulations ───────────────────────────────────────────────
+
+/**
+ * Call when a user opens / starts a simulation.
+ * @param {string} simulationSlug  e.g. "paper-trading"
+ * @param {string} simulationName  e.g. "Paper Trading"
+ */
+export async function trackSimulationStart(simulationSlug, simulationName) {
+  const user = await getAuthUser();
+  if (!user) return;
+  await insertActivityEvent(user, "simulation_start", {
+    simulation_slug: simulationSlug,
+    simulation_name: simulationName,
+  });
+}
+
+/**
+ * Call when a user finishes / submits a simulation.
+ * @param {string} simulationSlug  e.g. "paper-trading"
+ * @param {string} simulationName  e.g. "Paper Trading"
+ * @param {object} metadata        Sim-specific results (final_balance, roi, etc.)
+ */
+export async function trackSimulationComplete(simulationSlug, simulationName, metadata = {}) {
+  const user = await getAuthUser();
+  if (!user) return;
+  await insertActivityEvent(user, "simulation_complete", {
+    simulation_slug: simulationSlug,
+    simulation_name: simulationName,
+    ...metadata,
+  });
+}
+
+/**
+ * Generic page view event — useful for funnel analysis.
+ * @param {string} pageName
+ */
+export async function trackPageView(pageName) {
+  const user = await getAuthUser();
+  if (!user) return;
+  await insertActivityEvent(user, "page_view", { page: pageName });
 }

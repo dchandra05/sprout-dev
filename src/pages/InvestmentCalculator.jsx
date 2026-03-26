@@ -1,7 +1,12 @@
-import React from "react";
+import React, { useEffect } from "react";
 import InterestCalculator from "../components/InterestCalculator";
+import { trackSimulationStart } from "@/lib/activityTracker";
 
 export default function InvestmentCalculator() {
+  useEffect(() => {
+    trackSimulationStart("investment-calculator", "Investment Growth Calculator").catch(() => {});
+  }, []);
+
   return (
     <div className="min-h-screen bg-[#ede8e3]">
       <div className="max-w-5xl mx-auto px-4 py-8 md:px-8 md:py-12 space-y-6">

@@ -12,6 +12,7 @@ import {
   Plus,
   Minus,
 } from "lucide-react";
+import { trackSimulationStart, trackSimulationComplete } from "@/lib/activityTracker";
 import {
   LineChart,
   Line,
@@ -72,6 +73,7 @@ export default function PaperTrading() {
     }
 
     setUser(currentUser);
+    trackSimulationStart("paper-trading", "Paper Trading").catch(() => {});
   }, [navigate]);
 
   // Fetch stock data when symbol changes
@@ -201,6 +203,15 @@ export default function PaperTrading() {
       setLocalUser(updatedUser);
       setUser(updatedUser);
 
+      trackSimulationComplete("paper-trading", "Paper Trading", {
+        action:        "buy",
+        symbol:        selectedSymbol,
+        shares,
+        price:         stockData.price,
+        total_cost:    totalCost,
+        balance_after: updatedUser.paper_trading_balance,
+      }).catch(() => {});
+
       alert(`Bought ${shares} shares of ${selectedSymbol} at $${stockData.price.toFixed(2)}`);
       return;
     }
@@ -224,6 +235,15 @@ export default function PaperTrading() {
 
     setLocalUser(updatedUser);
     setUser(updatedUser);
+
+    trackSimulationComplete("paper-trading", "Paper Trading", {
+      action:        "sell",
+      symbol:        selectedSymbol,
+      shares,
+      price:         stockData.price,
+      total_value:   totalCost,
+      balance_after: updatedUser.paper_trading_balance,
+    }).catch(() => {});
 
     alert(`Sold ${shares} shares of ${selectedSymbol} at $${stockData.price.toFixed(2)}`);
   };

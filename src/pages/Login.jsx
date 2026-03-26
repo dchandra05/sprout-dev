@@ -3,6 +3,7 @@ import React, { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { supabase } from "@/lib/supabaseClient";
+import { trackLogin } from "@/lib/activityTracker";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -102,6 +103,7 @@ export default function Login() {
       };
       localStorage.setItem("sprout_user", JSON.stringify(merged));
 
+      trackLogin().catch(() => {});
       navigate(createPageUrl("Dashboard"), { replace: true });
     } catch (err) {
       console.error("[Login] unexpected error:", err);
