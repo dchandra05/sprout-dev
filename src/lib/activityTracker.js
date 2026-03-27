@@ -102,6 +102,7 @@ export async function upsertLessonProgress({
   quizScore = null,
   xpEarned = 0,
   totalDays = 10,
+  lessonType = null,
 }) {
   const user = await getAuthUser();
   if (!user) return;
@@ -137,6 +138,7 @@ export async function upsertLessonProgress({
         status:       "completed",
         quiz_score:   quizScore,
         xp_earned:    xpEarned,
+        lesson_type:  lessonType,
         completed_at: now,
         updated_at:   now,
       },
@@ -242,13 +244,17 @@ export async function trackLessonStart(courseSlug, dayNumber) {
   });
 }
 
-// ── Legacy alias (keep old call sites working) ───────────────
-export async function trackLessonComplete(dayNumber, quizScore) {
-  await upsertLessonProgress({
-    courseSlug: "ai-literacy",
-    dayNumber,
-    quizScore,
-  });
+// ── trackLessonComplete ───────────────────────────────────────
+// Call when any lesson, quiz, or exam is completed.
+//
+// Usage:
+//   trackLessonComplete("budgeting-fundamentals", 1)
+//   trackLessonComplete("budgeting-fundamentals", 3, 87)
+//   trackLessonComplete("investing-fundamentals", 5, 92, "quiz")
+//   trackLessonComplete("ai-literacy",           10, 95, "exam")
+//
+export async function trackLessonComplete(courseSlug, dayNumber, quizScore = null, lessonType = null) {
+  await upsertLessonProgress({ courseSlug, dayNumber, quizScore, lessonType });
 }
 
 // ── Generic event tracker ─────────────────────────────────────
