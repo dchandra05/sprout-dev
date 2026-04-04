@@ -41,7 +41,7 @@ import { toast } from "sonner";
 import LevelUpModal from "@/components/LevelUpModal";
 import ChallengeCompleteModal from "@/components/ChallengeCompleteModal";
 import { useChallengeCheck } from "@/components/useChallengeCheck";
-import { trackEvent } from "@/lib/activityTracker";
+import { trackEvent, trackLessonComplete } from "@/lib/activityTracker";
 
 // ─── Local helpers ─────────────────────────────────────────────
 
@@ -632,6 +632,10 @@ export default function Lesson() {
         quiz_score:   quizScore,
         xp_earned:    xpReward,
       }).catch(() => {});
+      // Write structured progress to user_lesson_progress (feeds admin Courses page)
+      if (course?.slug && lesson?.order) {
+        trackLessonComplete(course.slug, lesson.order, quizScore).catch(() => {});
+      }
       const newXP           = (user.xp_points || 0) + xpReward;
       const calculatedLevel = Math.floor(newXP / 500) + 1;
       const updatedUser     = {
